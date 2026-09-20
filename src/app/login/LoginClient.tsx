@@ -24,8 +24,14 @@ export default function LoginPage() {
         handoffToken: token,
       }).then(async (res) => {
         if (!res?.error) {
-          const sess = await getSession();
-          window.location.href = sess?.user?.role === "member" ? "/portal" : "/dashboard";
+          if (window.location.hostname.includes("shim-wallet")) {
+            window.location.href = "/portal";
+          } else if (window.location.hostname.includes("shim-studio")) {
+            window.location.href = "/dashboard";
+          } else {
+            const sess = await getSession();
+            window.location.href = sess?.user?.role === "member" ? "/portal" : "/dashboard";
+          }
         }
       });
     }
@@ -82,6 +88,16 @@ export default function LoginPage() {
           }
         }
         
+        if (window.location.hostname.includes("shim-wallet")) {
+          router.push("/portal");
+          router.refresh();
+          return;
+        } else if (window.location.hostname.includes("shim-studio")) {
+          router.push("/dashboard");
+          router.refresh();
+          return;
+        }
+
         const sess = await getSession();
         router.push(sess?.user?.role === "member" ? "/portal" : "/dashboard");
         router.refresh();
