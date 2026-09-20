@@ -14,6 +14,7 @@ export async function GET(
       where: { id },
       include: {
         template: true,
+        event: true,
         issuer: {
           select: { id: true, name: true, email: true }
         }
@@ -23,6 +24,15 @@ export async function GET(
     if (!certificate) {
       return NextResponse.json({ message: "Certificate not found" }, { status: 404 });
     }
+
+    // Log the verification action
+    await prisma.auditLog.create({
+      data: {
+        action: "VERIFIED",
+        certificateId: id,
+        ipAddress: req.headers.get("x-forwarded-for") || "unknown"
+      }
+    });
 
     return NextResponse.json(certificate);
   } catch (error) {
@@ -54,6 +64,16 @@ export async function PATCH(
       where: { id },
       data: { status }
     });
+
+    if (status === "revoked") {
+      await prisma.auditLog.create({
+        data: {
+          action: "REVOKED",
+          certificateId: id,
+          ipAddress: req.headers.get("x-forwarded-for") || "unknown"
+        }
+      });
+    }
 
     return NextResponse.json(updated);
   } catch (error) {

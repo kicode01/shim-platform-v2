@@ -105,6 +105,15 @@ export async function POST(req: Request) {
       }
     });
 
+    await prisma.auditLog.create({
+      data: {
+        action: "ISSUED",
+        certificateId: certificate.id,
+        ipAddress: req.headers.get("x-forwarded-for") || "System",
+        details: JSON.stringify({ method: "single_generation" })
+      }
+    });
+
     if (certificate.recipientEmail) {
       const { sendCertificateEmail } = await import("@/lib/email");
       await sendCertificateEmail({

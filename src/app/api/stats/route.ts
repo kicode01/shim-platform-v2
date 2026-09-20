@@ -10,7 +10,16 @@ export async function GET() {
   }
 
   try {
-    const [totalCertificates, validCertificates, revokedCertificates, totalTemplates, recentCertificates, allCertificates] = await Promise.all([
+    const [
+      totalCertificates, 
+      validCertificates, 
+      revokedCertificates, 
+      totalTemplates, 
+      recentCertificates, 
+      allCertificates,
+      totalVerifications,
+      totalClaimed
+    ] = await Promise.all([
       prisma.certificate.count(),
       prisma.certificate.count({ where: { status: "valid" } }),
       prisma.certificate.count({ where: { status: "revoked" } }),
@@ -24,7 +33,9 @@ export async function GET() {
       }),
       prisma.certificate.findMany({
         select: { issueDate: true, status: true }
-      })
+      }),
+      prisma.auditLog.count({ where: { action: "VERIFIED" } }),
+      prisma.certificate.count({ where: { isClaimed: true } })
     ]);
 
     // Aggregate monthly data for the last 6 months
@@ -56,6 +67,8 @@ export async function GET() {
       validCertificates,
       revokedCertificates,
       totalTemplates,
+      totalVerifications,
+      totalClaimed,
       recentCertificates,
       chartData,
       validationRate: totalCertificates > 0 ? Math.round((validCertificates / totalCertificates) * 100) : 100

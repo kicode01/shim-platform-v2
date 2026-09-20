@@ -73,6 +73,17 @@ export async function POST(req: Request) {
       certificates.push(cert);
     }
 
+    if (certificates.length > 0) {
+      await prisma.auditLog.createMany({
+        data: certificates.map((c) => ({
+          action: "ISSUED",
+          certificateId: c.id,
+          ipAddress: req.headers.get("x-forwarded-for") || "System",
+          details: JSON.stringify({ method: "bulk_generation" })
+        }))
+      });
+    }
+
     // Dispatch emails concurrently in the background
     const { sendCertificateEmail } = await import("@/lib/email");
     const emailPromises = certificates

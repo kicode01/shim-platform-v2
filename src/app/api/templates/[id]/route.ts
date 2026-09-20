@@ -44,10 +44,35 @@ export async function PUT(
   try {
     const { name, description, designData } = await req.json();
 
+    const userId = (session.user as any).id;
+    let finalName = name.trim();
+
+    // Fetch existing templates that start with this name to determine if we need a suffix, excluding the current one
+    const existingTemplates = await prisma.template.findMany({
+      where: {
+        userId,
+        name: {
+          startsWith: finalName
+        },
+        id: {
+          not: id
+        }
+      },
+      select: { name: true }
+    });
+
+    if (existingTemplates.some(t => t.name === finalName)) {
+      let counter = 1;
+      while (existingTemplates.some(t => t.name === `${finalName} (${counter})`)) {
+        counter++;
+      }
+      finalName = `${finalName} (${counter})`;
+    }
+
     const updated = await prisma.template.update({
       where: { id },
       data: {
-        name: name.trim(),
+        name: finalName,
         description: description?.trim() || null,
         designData: typeof designData === "string" ? designData : JSON.stringify(designData),
       }

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, role } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
@@ -14,12 +14,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "User already exists" }, { status: 400 });
     }
 
+    // Determine role and membership ID
+    const validRole = role === "member" ? "member" : "organizer";
+    const membershipId = validRole === "member" 
+      ? `ATT-M-${Math.floor(10000 + Math.random() * 90000)}` 
+      : null;
+
     // Usually hash password here using bcrypt, omitted for dev simplicity
     const user = await prisma.user.create({
       data: {
         name,
         email,
-        role: "admin", // set first user as admin for testing
+        role: validRole,
+        membershipId
       }
     });
 

@@ -31,6 +31,17 @@ export const authOptions: NextAuthOptions = {
           });
         }
 
+        // Demo login fallback for attendee/member portal testing
+        if (!user && email === "member@shim.app" && credentials.password === "member123") {
+          user = await prisma.user.create({
+            data: {
+              email: "member@shim.app",
+              name: "Jamie Cruz",
+              role: "member"
+            }
+          });
+        }
+
         if (user) {
           return { id: user.id, email: user.email, name: user.name, role: user.role };
         }

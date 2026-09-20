@@ -15,15 +15,6 @@ const config: Config = {
         cormorant: ["var(--font-cormorant)"],
         script: ["var(--font-script)"],
       },
-      borderRadius: {
-        'sm': '0px',
-        DEFAULT: '0px',
-        'md': '0px',
-        'lg': '0px',
-        'xl': '0px',
-        '2xl': '0px',
-        '3xl': '0px',
-      }
     },
   },
   plugins: [],

@@ -6,15 +6,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Award, 
   LayoutDashboard, 
   Stamp, 
   FileSpreadsheet, 
-  ShieldCheck, 
   LogOut,
   UserCheck,
   Calendar,
-  ArrowRight
+  ArrowRight,
+  BookOpen,
+  History,
+  Award,
+  User
 } from "lucide-react";
 
 export default function Navbar() {
@@ -26,359 +28,359 @@ export default function Navbar() {
   const isLandingMode = pathname === "/" || isAuthPage;
   const isValidateMode = pathname.startsWith("/validate");
   const isDashboardMode = pathname.startsWith("/dashboard");
+  const isPortalMode = pathname.startsWith("/portal");
 
   const [confirmLogout, setConfirmLogout] = useState(false);
   const logoutTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const routeStateRef = useRef({ current: pathname, source: pathname });
-  if (routeStateRef.current.current !== pathname) {
-    routeStateRef.current.source = routeStateRef.current.current;
-    routeStateRef.current.current = pathname;
-  }
-  
-  const sourcePath = routeStateRef.current.source;
-  const wasLanding = sourcePath === "/" || sourcePath === "/login" || sourcePath === "/register";
-  const wasValidate = sourcePath.startsWith("/validate");
-  const wasDashboard = sourcePath.startsWith("/dashboard");
-
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
-  }, []);
-
-  const [animating, setAnimating] = useState(false);
-
-  // Block clicks during transitions to prevent animation glitches from spamming
-  useEffect(() => {
-    const isMajorTransition = 
-      (sourcePath.startsWith("/validate") && pathname.startsWith("/dashboard")) ||
-      (sourcePath.startsWith("/dashboard") && pathname.startsWith("/validate"));
-      
-    setAnimating(true);
-    const timer = setTimeout(() => {
-      setAnimating(false);
-    }, isMajorTransition ? 1400 : 400); // 1.4s for flight + fade, 0.4s for normal nav
-    
-    return () => clearTimeout(timer);
-  }, [pathname, sourcePath]);
-
-  // Prefetch pages
-  useEffect(() => {
+    // Prefetch pages for fast transitions
     router.prefetch('/validate');
     router.prefetch('/dashboard');
+    router.prefetch('/portal');
   }, [router]);
-
-  // Native layoutId flight animation architecture removes need for manual triggers
 
   const navItems = [
     { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+    { href: "/dashboard/credentials", label: "Credentials", icon: BookOpen },
     { href: "/dashboard/events", label: "Events", icon: Calendar },
     { href: "/dashboard/templates", label: "Templates", icon: Stamp },
     { href: "/dashboard/generate", label: "Generate", icon: FileSpreadsheet },
+    { href: "/dashboard/audit", label: "Audit Trail", icon: History },
   ];
+
+  if (!isMounted) return <div className="h-16" />; // Prevent hydration mismatch
+  if (pathname.startsWith("/kiosk") || pathname.startsWith("/scanner")) return null;
 
   return (
     <>
-      <header className={`sticky top-0 z-50 no-print px-4 sm:px-6 transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] flex items-center ${
-        isLandingMode 
-          ? 'bg-black border-b-4 border-gray-900 h-20' 
-          : 'bg-white border-b-2 border-black h-16'
-      } ${animating ? 'pointer-events-none' : ''}`}>
+      <header className={`sticky top-0 z-50 no-print px-4 sm:px-6 transition-colors duration-500 flex items-center h-16 ${
+        isLandingMode
+          ? 'bg-[#0a0a0a] border-b border-zinc-900' 
+          : 'bg-white border-b border-zinc-200'
+      }`}>
         <div className="max-w-7xl mx-auto w-full h-full flex justify-between items-center">
           
-          {/* Left area begins */}
-          {/* Brand/Logo Area - Fixed width to prevent layout shifts when .portal is added */}
+          {/* Left area begins - Logo */}
           <div className="w-[200px] shrink-0 h-full flex items-center">
             <Link 
-              href={isLandingMode ? "/" : "/dashboard"} 
-              className={`flex items-center h-full transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] z-50 ${
-                (pathname === "/dashboard" || pathname === "/" || pathname.startsWith("/validate")) ? 'cursor-default pointer-events-none' : ''
+              href={isLandingMode ? "/" : isPortalMode ? "/portal" : "/dashboard"} 
+              className={`flex items-center h-full z-50 ${
+                (pathname === "/dashboard" || pathname === "/" || pathname === "/portal" || isValidateMode) ? 'cursor-default pointer-events-none' : ''
               }`}
             >
-              <div className="flex items-baseline relative transition-all duration-700">
+              <div className="flex items-baseline relative">
                 <motion.span 
-                  initial={false}
+                  layout="position"
                   animate={{ 
-                    opacity: 1, 
-                    y: 0,
-                    fontSize: isLandingMode ? "36px" : "30px",
-                    color: isLandingMode ? "#ffffff" : "#000000"
+                    fontSize: isLandingMode ? "36px" : "24px",
+                    color: isLandingMode ? "#ffffff" : "#18181b"
                   }}
-                  transition={{ duration: 0.7, ease: [0.85, 0, 0.15, 1] }}
-                  className="font-black tracking-[-0.08em] lowercase leading-none relative z-10" 
+                  transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  className="font-black tracking-[-0.08em] lowercase leading-none" 
                   style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
                 >
                   shim
                 </motion.span>
                 
-                <AnimatePresence initial={false}>
+                <AnimatePresence mode="wait">
                   {isLandingMode && (
                     <motion.span 
                       key="subtitle"
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      transition={{ duration: 0.4, ease: [0.85, 0, 0.15, 1] }}
-                      className="text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest absolute top-full left-0 whitespace-nowrap"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-[0.6rem] font-bold text-zinc-400 uppercase tracking-widest absolute top-full left-0 whitespace-nowrap"
                     >
                       Digital Credential Platform
                     </motion.span>
                   )}
+                  {isDashboardMode && (
+                    <motion.span 
+                      key="dashboard"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-zinc-900 text-2xl font-black tracking-[-0.08em] lowercase leading-none"
+                      style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
+                    >
+                      .organizer
+                    </motion.span>
+                  )}
+                  {isPortalMode && (
+                    <motion.span 
+                      key="portal"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-zinc-900 text-2xl font-black tracking-[-0.08em] lowercase leading-none"
+                      style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
+                    >
+                      .attendee
+                    </motion.span>
+                  )}
+                  {isValidateMode && (
+                    <motion.span 
+                      key="validate"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-zinc-400 text-2xl font-black tracking-[-0.08em] lowercase leading-none"
+                      style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
+                    >
+                      .validate
+                    </motion.span>
+                  )}
                 </AnimatePresence>
-                
-                <span className="relative grid items-baseline">
-                  <AnimatePresence initial={false}>
-                    {isDashboardMode && (
-                      <motion.span 
-                        key="portal-dashboard"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
-                        transition={{ duration: 0.7, delay: wasValidate ? 0.3 : 0, ease: [0.85, 0, 0.15, 1] }}
-                        className="col-start-1 row-start-1 text-black pointer-events-none text-3xl font-black tracking-[-0.08em] lowercase leading-none"
-                        style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
-                      >
-                        .portal
-                      </motion.span>
-                    )}
-                    {isValidateMode && (
-                      <motion.span 
-                        key="validate-mode-text"
-                        layoutId={isMounted ? "validate-text" : undefined}
-                        initial={wasLanding ? { opacity: 0 } : false}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.7, ease: [0.85, 0, 0.15, 1] }}
-                        className="col-start-1 row-start-1 text-gray-400 pointer-events-none text-3xl font-black tracking-[-0.08em] lowercase leading-none"
-                        style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
-                      >
-                        .validate
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </span>
               </div>
             </Link>
           </div>
 
-          {/* Dynamic Center/Right Content */}
-          <div className="flex items-center h-full gap-8 relative overflow-hidden flex-1 justify-end">
-            
+          {/* Middle Content - Nav Links */}
+          <div className="flex-1 flex justify-center h-full">
+            <AnimatePresence>
+              {/* Other modes could place items here if needed in the future */}
+            </AnimatePresence>
+          </div>
 
-            <AnimatePresence initial={false}>
-              {isLandingMode ? (
+          {/* Right Section */}
+          <div className="flex items-center justify-end h-full w-[300px] shrink-0">
+            <AnimatePresence mode="wait">
+              {isLandingMode && (
                 <motion.div 
-                  key="landing-mode"
+                  key="landing-right"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.4, delay: (wasDashboard || wasValidate) ? 0.3 : 0 }}
-                  className="flex items-center gap-6 h-full absolute right-0"
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  className="flex items-center gap-4 sm:gap-6"
                 >
                   {!isAuthPage && (
                     <>
-                      <Link href="/validate" className="text-[13px] font-bold text-white hover:text-gray-300 transition-colors flex items-center gap-1.5 uppercase tracking-widest bg-gray-900 border-2 border-gray-700 px-3 py-1.5 hover:border-gray-500">
+                      <Link href="/validate" className="text-sm font-medium text-zinc-100 hover:text-white transition-colors flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-md px-3 py-1.5 hover:border-zinc-700 whitespace-nowrap shadow-sm">
                         Verify
                       </Link>
-                      <div className="h-6 w-px bg-gray-800"></div>
-                      <Link href="/login" className="text-[13px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-widest">
+                      <div className="h-5 w-px bg-zinc-800 shrink-0 hidden sm:block"></div>
+                      <Link href="/login" className="text-sm font-medium text-zinc-400 hover:text-zinc-100 transition-colors whitespace-nowrap hidden sm:inline-block">
                         Sign In
                       </Link>
-                      <Link href="/register" className="bg-white hover:bg-gray-200 text-black transition-colors text-[13px] font-bold uppercase tracking-widest px-5 py-2.5 flex items-center gap-2">
+                      <Link href="/register" className="bg-zinc-100 hover:bg-white text-zinc-900 transition-colors text-sm font-medium rounded-md px-4 py-2 flex items-center gap-2 whitespace-nowrap shadow-sm">
                         Get Started
-                        <ArrowRight size={14} />
+                        <ArrowRight size={14} className="shrink-0" />
                       </Link>
                     </>
                   )}
                 </motion.div>
-              ) : isValidateMode ? (
+              )}
+
+              {isDashboardMode && (
                 <motion.div 
-                  key="validate-mode"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
-                  transition={{ duration: 0.7, delay: wasDashboard ? 0.3 : 0, ease: [0.85, 0, 0.15, 1] }}
-                  className="flex items-center h-full absolute right-0"
+                  key="dashboard-right"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  className="flex items-center gap-4 h-full"
+                >
+                  {/* Verify button — organizer only */}
+                  <Link
+                    href="/validate"
+                    className="flex items-center justify-center gap-1.5 border rounded-md px-3 py-1.5 transition-colors group shadow-sm bg-white border-zinc-200 hover:bg-zinc-50"
+                  >
+                    <span className="text-sm font-medium transition-colors whitespace-nowrap text-zinc-700 group-hover:text-zinc-900">
+                      Verify
+                    </span>
+                  </Link>
+
+                  <div className="w-px h-5 bg-zinc-200"></div>
+
+                  {/* User chip */}
+                  <div className="flex items-stretch border h-9 rounded-md shrink-0 shadow-sm overflow-hidden border-zinc-200 bg-white">
+                    <div className="hidden md:flex px-3 py-1 flex-col justify-center border-r max-w-[10rem] xl:max-w-[14rem] border-zinc-200 bg-zinc-50">
+                      <span className="text-xs font-medium leading-none truncate text-zinc-900">
+                        {session?.user?.name || "User"}
+                      </span>
+                      <span className="text-[10px] leading-none truncate mt-0.5 text-zinc-500">
+                        {session?.user?.email || "..."}
+                      </span>
+                    </div>
+                    <div className="w-9 h-full flex items-center justify-center font-medium text-sm shrink-0 bg-zinc-100 text-zinc-700">
+                      {session?.user?.name?.charAt(0).toUpperCase() || <UserCheck size={16} />}
+                    </div>
+                  </div>
+
+                  {/* Logout */}
+                  <button
+                    onClick={async () => {
+                      if (!confirmLogout) {
+                        setConfirmLogout(true);
+                        if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
+                        logoutTimeoutRef.current = setTimeout(() => setConfirmLogout(false), 3000);
+                      } else {
+                        if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
+                        setConfirmLogout(false);
+                        await signOut({ redirect: false });
+                        router.push("/");
+                      }
+                    }}
+                    className={`shrink-0 flex items-center justify-center border transition-all rounded-md overflow-hidden ${
+                      confirmLogout 
+                        ? "w-[80px] h-9 border-red-600 bg-red-600 text-white hover:bg-red-700 shadow-sm" 
+                        : "w-9 h-9 border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 shadow-sm"
+                    }`}
+                    title="Sign Out"
+                  >
+                    <AnimatePresence mode="wait">
+                      {confirmLogout ? (
+                        <motion.span 
+                          key="confirm"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                          className="text-xs font-medium whitespace-nowrap"
+                        >
+                          Confirm
+                        </motion.span>
+                      ) : (
+                        <motion.div 
+                          key="icon"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <LogOut size={16} strokeWidth={2} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </button>
+                </motion.div>
+              )}
+
+              {/* Portal right section — white, no Verify */}
+              {isPortalMode && (
+                <motion.div
+                  key="portal-right"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  className="flex items-center gap-4 h-full"
+                >
+                  {/* User chip — light */}
+                  <div className="flex items-stretch border h-9 rounded-md shrink-0 shadow-sm overflow-hidden border-zinc-200 bg-white">
+                    <div className="hidden md:flex px-3 py-1 flex-col justify-center border-r max-w-[10rem] xl:max-w-[14rem] border-zinc-200 bg-zinc-50">
+                      <span className="text-xs font-medium leading-none truncate text-zinc-900">
+                        {session?.user?.name || "Member"}
+                      </span>
+                      <span className="text-[10px] leading-none truncate mt-0.5 text-zinc-500">
+                        {session?.user?.email || "..."}
+                      </span>
+                    </div>
+                    <div className="w-9 h-full flex items-center justify-center font-medium text-sm shrink-0 bg-zinc-100 text-zinc-700">
+                      {session?.user?.name?.charAt(0).toUpperCase() || <UserCheck size={16} />}
+                    </div>
+                  </div>
+
+                  {/* Logout — light */}
+                  <button
+                    onClick={async () => {
+                      if (!confirmLogout) {
+                        setConfirmLogout(true);
+                        if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
+                        logoutTimeoutRef.current = setTimeout(() => setConfirmLogout(false), 3000);
+                      } else {
+                        if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
+                        setConfirmLogout(false);
+                        await signOut({ redirect: false });
+                        router.push("/");
+                      }
+                    }}
+                    className={`shrink-0 flex items-center justify-center border transition-all rounded-md overflow-hidden ${
+                      confirmLogout
+                        ? "w-[80px] h-9 border-red-600 bg-red-600 text-white hover:bg-red-700 shadow-sm"
+                        : "w-9 h-9 border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 shadow-sm"
+                    }`}
+                    title="Sign Out"
+                  >
+                    <AnimatePresence mode="wait">
+                      {confirmLogout ? (
+                        <motion.span
+                          key="confirm-portal"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                          className="text-xs font-medium whitespace-nowrap"
+                        >
+                          Confirm
+                        </motion.span>
+                      ) : (
+                        <motion.div
+                          key="icon-portal"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <LogOut size={16} strokeWidth={2} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </button>
+                </motion.div>
+              )}
+
+              {isValidateMode && (
+                <motion.div 
+                  key="validate-right"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  className="flex items-center gap-4"
                 >
                   {session?.user ? (
-                    <Link 
-                      href="/dashboard"
-                      className="text-[0.65rem] font-bold text-black border-2 border-black hover:bg-black hover:text-white transition-all px-4 py-2 uppercase tracking-widest flex items-center gap-2 relative z-10 bg-white"
-                    >
-                      <LayoutDashboard size={14} />
-                      <span>Dashboard</span>
-                    </Link>
+                    (session.user as any).role === "member" ? (
+                      <Link 
+                        href="/portal"
+                        className="flex items-center gap-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm"
+                      >
+                        <LayoutDashboard size={16} />
+                        <span>Portal</span>
+                      </Link>
+                    ) : (
+                      <Link 
+                        href="/dashboard"
+                        className="flex items-center gap-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm"
+                      >
+                        <LayoutDashboard size={16} />
+                        <span>Dashboard</span>
+                      </Link>
+                    )
                   ) : (
-                    <div className="flex items-center gap-6 z-10 bg-white p-2">
-                      <Link href="/" className="text-[0.65rem] font-bold text-gray-500 hover:text-black uppercase tracking-widest transition-colors">
+                    <div className="flex items-center gap-6">
+                      <Link href="/" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors whitespace-nowrap">
                         Home
                       </Link>
-                      <Link href="/login" className="text-[0.65rem] font-bold text-black border-2 border-black hover:bg-black hover:text-white transition-colors px-4 py-2 uppercase tracking-widest">
+                      <Link href="/login" className="flex items-center justify-center bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-100 hover:text-white transition-colors rounded-md px-4 py-2 shadow-sm text-sm font-medium whitespace-nowrap">
                         Sign In
                       </Link>
                     </div>
                   )}
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="dashboard-mode"
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 1, transition: { duration: 0.7 } }}
-                  className="flex items-center h-full w-full absolute inset-0 pointer-events-none"
-                >
-                  {/* Navigation Links - Centered/Leftish */}
-                  <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
-                  transition={{ duration: 0.7, delay: wasValidate ? 0.3 : 0, ease: [0.85, 0, 0.15, 1] }}
-                  className="flex-1 flex justify-center md:justify-start md:pl-[20px] pointer-events-auto h-full"
-                  >
-                  <nav 
-                    className="flex items-center gap-8 h-full transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)]"
-                  >
-                    {navItems.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href) && item.href !== "/validate");
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={`relative flex items-center gap-2 h-full font-medium text-sm transition-colors ${
-                            isActive 
-                              ? "text-black font-bold" 
-                              : "text-slate-500 hover:text-black"
-                          }`}
-                          title={item.label}
-                        >
-                          <Icon size={16} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "text-black" : "text-slate-400"} />
-                          <span className={`uppercase tracking-wider text-xs sm:text-sm ${isActive ? 'font-bold' : 'font-medium'}`}>{item.label}</span>
-                          
-                          {isActive && (
-                            <motion.div 
-                              layoutId="navbar-active-border" 
-                              className="absolute bottom-[-2px] left-0 right-0 h-[3px] bg-black"
-                              initial={false}
-                              transition={{
-                                type: "spring",
-                                stiffness: 500,
-                                damping: 30
-                              }}
-                            />
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </nav>
-
-                  </motion.div>
-
-                  {/* User Session & Actions - Right aligned */}
-                  <div className="flex items-center gap-4 h-full transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] pointer-events-auto pr-0">
-                    {/* Fixed width wrapper prevents siblings from jumping left when .validate flies away */}
-                    <div className="w-[130px] flex items-center justify-start shrink-0 pr-4">
-                      {isDashboardMode && (
-                        <Link
-                          href="/validate"
-                          className="flex items-center font-bold text-black border border-transparent transition-colors group hover:text-black"
-                          title="Open Public Validator"
-                        >
-                          <motion.span 
-                            layoutId={isMounted ? "validate-text" : undefined}
-                            transition={{ duration: 0.7, ease: [0.85, 0, 0.15, 1] }}
-                            className="font-black text-3xl text-gray-400 tracking-[-0.08em] lowercase leading-none transition-colors group-hover:text-black" 
-                            style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
-                          >
-                            .validate
-                          </motion.span>
-                        </Link>
-                      )}
-                    </div>
-
-                    <motion.div 
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
-                      transition={{ duration: 0.7, delay: wasValidate ? 0.3 : 0, ease: [0.85, 0, 0.15, 1] }}
-                      className="flex items-center gap-4 h-full"
-                    >
-                      <div className="w-px h-6 bg-gray-300"></div>
-
-                      {isDashboardMode && (
-                        <div className="flex items-stretch border-[3px] border-black h-9 bg-white shrink-0">
-                          <div className="hidden md:flex px-3 py-1 flex-col justify-center border-r-[3px] border-black max-w-[10rem] xl:max-w-[14rem] bg-slate-50">
-                            <span className="text-[10px] font-bold text-black uppercase tracking-widest leading-none truncate">
-                              {session?.user?.name || "Organizer"}
-                            </span>
-                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none truncate mt-0.5">
-                              {session?.user?.email || "..."}
-                            </span>
-                          </div>
-                          <div className="w-9 h-full bg-black text-white flex items-center justify-center font-bold text-sm shrink-0">
-                            {session?.user?.name?.charAt(0).toUpperCase() || <UserCheck size={16} />}
-                          </div>
-                        </div>
-                      )}
-
-                      <button
-                        onClick={async () => {
-                          if (!confirmLogout) {
-                            setConfirmLogout(true);
-                            if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
-                            logoutTimeoutRef.current = setTimeout(() => {
-                              setConfirmLogout(false);
-                            }, 3000);
-                          } else {
-                            if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
-                            setConfirmLogout(false);
-                            // Clear session cookie FIRST so page.tsx doesn't redirect us back to dashboard
-                            await signOut({ redirect: false });
-                            // Then trigger smooth layout transition
-                            router.push("/");
-                          }
-                        }}
-                        className={`shrink-0 flex items-center justify-center border-[3px] transition-all ml-2 overflow-hidden ${
-                          confirmLogout 
-                            ? "w-[120px] h-9 border-red-600 bg-red-600 text-white hover:bg-red-700 hover:border-red-700" 
-                            : "w-9 h-9 border-transparent hover:border-black hover:bg-black hover:text-white text-slate-400"
-                        }`}
-                        title="Sign Out"
-                      >
-                        <AnimatePresence mode="wait">
-                          {confirmLogout ? (
-                            <motion.span 
-                              key="confirm"
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              transition={{ duration: 0.2 }}
-                              className="text-[10px] font-bold uppercase tracking-widest whitespace-nowrap"
-                            >
-                              Confirm
-                            </motion.span>
-                          ) : (
-                            <motion.div 
-                              key="icon"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <LogOut size={16} strokeWidth={2.5} />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </button>
-                    </motion.div>
-                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
         </div>
       </header>
-
-
     </>
   );
 }

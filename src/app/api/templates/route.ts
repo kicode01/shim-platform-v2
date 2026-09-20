@@ -41,12 +41,34 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Template name is required" }, { status: 400 });
     }
 
+    let finalName = name.trim();
+    const userId = (session.user as any).id;
+
+    // Fetch existing templates that start with this name to determine if we need a suffix
+    const existingTemplates = await prisma.template.findMany({
+      where: {
+        userId,
+        name: {
+          startsWith: finalName
+        }
+      },
+      select: { name: true }
+    });
+
+    if (existingTemplates.some(t => t.name === finalName)) {
+      let counter = 1;
+      while (existingTemplates.some(t => t.name === `${finalName} (${counter})`)) {
+        counter++;
+      }
+      finalName = `${finalName} (${counter})`;
+    }
+
     const template = await prisma.template.create({
       data: {
-        name: name.trim(),
+        name: finalName,
         description: description?.trim() || null,
         designData: typeof designData === "string" ? designData : JSON.stringify(designData),
-        userId: (session.user as any).id,
+        userId,
       }
     });
 

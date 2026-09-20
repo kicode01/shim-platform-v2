@@ -241,7 +241,7 @@ export default function CertificateView({
         ref={containerRef}
         style={{
           width: "100%",
-          aspectRatio: "3508 / 2480",
+          height: "100%",
           position: "relative",
           overflow: "hidden",
         }}
@@ -256,7 +256,7 @@ export default function CertificateView({
           transformOrigin: "center center",
           backgroundColor: "#ffffff",
           backgroundImage: parsedDesign.backgroundImageUrl ? `url(${parsedDesign.backgroundImageUrl})` : "none",
-          backgroundSize: "cover",
+          backgroundSize: "100% 100%",
           backgroundPosition: "center",
           boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
         }}>
@@ -354,7 +354,7 @@ export default function CertificateView({
       ref={containerRef}
       style={{
         width: "100%",
-        aspectRatio: "760 / 538",
+        height: "100%",
         position: "relative",
         overflow: "hidden",
       }}
@@ -372,7 +372,7 @@ export default function CertificateView({
           alignItems: "center",
           justifyContent: "center",
           backgroundImage: parsedDesign.backgroundImageUrl ? `url(${parsedDesign.backgroundImageUrl})` : "none",
-          backgroundSize: "cover",
+          backgroundSize: "100% 100%",
           backgroundPosition: "center"
         }}
       >

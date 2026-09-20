@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("POSTGRES_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -13,7 +13,8 @@ model User {
   email         String?      @unique
   emailVerified DateTime?
   image         String?
-  role          String       @default("organizer") // "admin" or "organizer"
+  role          String       @default("organizer") // "admin", "organizer", or "member"
+  membershipId  String?      @unique
   accounts      Account[]
   sessions      Session[]
   events        Event[]
@@ -57,15 +58,30 @@ model VerificationToken {
 }
 
 model Event {
-  id          String        @id @default(cuid())
+  id                String        @id @default(cuid())
+  name              String
+  date              DateTime?
+  description       String?
+  defaultTemplateId String?
+  defaultRole       String        @default("Participant")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  organizerId       String
+  organizer         User          @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  certificates      Certificate[]
+  attendances       Attendance[]
+}
+
+model Attendance {
+  id          String   @id @default(cuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   name        String
-  date        DateTime?
-  description String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  organizerId String
-  organizer   User          @relation(fields: [organizerId], references: [id], onDelete: Cascade)
-  certificates Certificate[]
+  email       String
+  role        String   @default("Participant")
+  checkedInAt DateTime @default(now())
+
+  @@unique([eventId, email])
 }
 
 model Template {
@@ -99,5 +115,23 @@ model Certificate {
   
   qrCodeUrl      String?   // Base64 or external URL for the QR code image
 
+  isClaimed      Boolean   @default(false)
+  claimedAt      DateTime?
+
+  auditLogs      AuditLog[]
+
   @@index([id])
+}
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  action        String   // "ISSUED", "VERIFIED", "REVOKED", "CLAIMED"
+  certificateId String
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  details       String?  // JSON string for extra context
+  ipAddress     String?
+  createdAt     DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([action])
 }

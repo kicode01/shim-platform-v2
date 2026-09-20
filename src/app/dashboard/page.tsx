@@ -20,40 +20,90 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Load server-side initial stats and certificates
-  const [totalCertificates, validCertificates, revokedCertificates, totalTemplates, certificates] = await Promise.all([
+  if ((session.user as any).role === "member") {
+    redirect("/portal");
+  }
+
+  // Load server-side initial stats and events
+  const [
+    totalCertificates, 
+    validCertificates, 
+    revokedCertificates, 
+    totalTemplates, 
+    totalVerifications,
+    totalClaimed,
+    recentEvents,
+    allCertificates
+  ] = await Promise.all([
     prisma.certificate.count(),
     prisma.certificate.count({ where: { status: "valid" } }),
     prisma.certificate.count({ where: { status: "revoked" } }),
     prisma.template.count(),
-    prisma.certificate.findMany({
-      take: 20,
-      orderBy: { issueDate: "desc" },
+    prisma.auditLog.count({ where: { action: "VERIFIED" } }),
+    prisma.certificate.count({ where: { isClaimed: true } }),
+    prisma.event.findMany({
+      where: { organizerId: session.user.id },
+      take: 5,
+      orderBy: { createdAt: "desc" },
       include: {
-        template: { select: { id: true, name: true } },
-        issuer: { select: { name: true, email: true } }
+        _count: {
+          select: { attendances: true, certificates: true }
+        }
       }
+    }),
+    prisma.certificate.findMany({
+      select: { issueDate: true, status: true }
     })
   ]);
+
+  // Aggregate monthly data for the last 6 months
+  const monthlyData: Record<string, { name: string, issued: number, revoked: number }> = {};
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+  // Initialize last 6 months
+  const today = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const key = `${months[d.getMonth()]} ${d.getFullYear().toString().substring(2)}`;
+    monthlyData[key] = { name: key, issued: 0, revoked: 0 };
+  }
+
+  // Populate data
+  allCertificates.forEach(cert => {
+    const d = new Date(cert.issueDate);
+    const key = `${months[d.getMonth()]} ${d.getFullYear().toString().substring(2)}`;
+    if (monthlyData[key]) {
+      if (cert.status === "valid") monthlyData[key].issued++;
+      else if (cert.status === "revoked") monthlyData[key].revoked++;
+    }
+  });
+
+  const chartData = Object.values(monthlyData);
 
   const initialStats = {
     totalCertificates,
     validCertificates,
     revokedCertificates,
     totalTemplates,
+    totalVerifications,
+    totalClaimed,
+    chartData,
     validationRate: totalCertificates > 0 ? Math.round((validCertificates / totalCertificates) * 100) : 100
   };
 
-  const serializedCertificates = certificates.map(c => ({
-    ...c,
-    issueDate: c.issueDate.toISOString(),
+  const serializedEvents = recentEvents.map(e => ({
+    id: e.id,
+    name: e.name,
+    date: e.date ? e.date.toISOString() : null,
+    attendeeCount: e._count.attendances,
+    credentialCount: e._count.certificates
   }));
 
   return (
-    <div className="dashboard-bg" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div className="dashboard-bg" style={{ height: "100vh", overflow: "auto", display: "flex", flexDirection: "column" }}>
       <main className="page-container-wide animate-fade-in" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, paddingBottom: "2rem", paddingTop: "2rem" }}>
         <DashboardClient 
-          initialCertificates={serializedCertificates} 
+          initialEvents={serializedEvents} 
           initialStats={initialStats} 
         />
       </main>

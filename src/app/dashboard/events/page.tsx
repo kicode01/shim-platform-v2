@@ -18,15 +18,21 @@ export default async function EventsPage() {
     redirect("/login");
   }
 
-  const events = await prisma.event.findMany({
-    where: { organizerId: (session.user as any).id },
-    include: {
-      _count: {
-        select: { certificates: true }
-      }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  const [events, templates] = await Promise.all([
+    prisma.event.findMany({
+      where: { organizerId: (session.user as any).id },
+      include: {
+        _count: {
+          select: { certificates: true }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    }),
+    prisma.template.findMany({
+      where: { userId: (session.user as any).id },
+      select: { id: true, name: true }
+    })
+  ]);
 
   const serializedEvents = events.map(e => ({
     ...e,
@@ -37,7 +43,7 @@ export default async function EventsPage() {
   return (
     <div className="dashboard-bg" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <main className="page-container-wide animate-fade-in" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, paddingBottom: "2rem", paddingTop: "2rem" }}>
-        <EventsClient initialEvents={serializedEvents} />
+        <EventsClient initialEvents={serializedEvents} templates={templates} />
       </main>
     </div>
   );

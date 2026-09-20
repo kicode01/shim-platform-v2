@@ -52,6 +52,7 @@ function GenerateCertificatesContent() {
   const [singleEmail, setSingleEmail] = useState("");
   const [singleRole, setSingleRole] = useState("");
   const [singleEventId, setSingleEventId] = useState("");
+  const [bulkEventId, setBulkEventId] = useState("");
   const [singleIssuing, setSingleIssuing] = useState(false);
   const [singleSuccess, setSingleSuccess] = useState<any>(null);
 
@@ -385,8 +386,8 @@ function GenerateCertificatesContent() {
   };
 
   // Handle Single Issue
-  const handleSingleIssue = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSingleIssue = async (e: React.FormEvent | null, shouldDownload: boolean = true) => {
+    if (e) e.preventDefault();
     if (!selectedTemplate || !singleName.trim()) {
       alert("Please provide candidate name and select a template.");
       return;
@@ -413,15 +414,17 @@ function GenerateCertificatesContent() {
       const certificate = await res.json();
       setSingleSuccess(certificate);
 
-      // Generate PDF
-      const pdf = new jsPDF("l", "mm", "a4");
-      let design = {};
-      try {
-        design = JSON.parse(selectedTemplate.designData);
-      } catch (e) {}
+      if (shouldDownload) {
+        // Generate PDF
+        const pdf = new jsPDF("l", "mm", "a4");
+        let design = {};
+        try {
+          design = JSON.parse(selectedTemplate.designData);
+        } catch (e) {}
 
-      await renderCertToPdf(pdf, certificate, design, true);
-      pdf.save(`Certificate_${certificate.recipientName.replace(/\s+/g, "_")}.pdf`);
+        await renderCertToPdf(pdf, certificate, design, true);
+        pdf.save(`Certificate_${certificate.recipientName.replace(/\s+/g, "_")}.pdf`);
+      }
     } catch (err) {
       console.error(err);
       alert("Error issuing credential.");
@@ -443,7 +446,8 @@ function GenerateCertificatesContent() {
         body: JSON.stringify({
           templateId: selectedTemplate.id,
           recipients: csvData,
-          defaultRole: selectedTemplate.name
+          defaultRole: selectedTemplate.name,
+          defaultEventId: bulkEventId
         })
       });
 
@@ -482,15 +486,15 @@ function GenerateCertificatesContent() {
   }
 
   const templateSelectorBlock = (
-    <div className="bg-white border-2 border-black p-6 flex flex-col gap-4">
+    <div className="bg-white border border-zinc-200 rounded-xl p-6 flex flex-col gap-5 shadow-sm">
       <div className="w-full">
-        <label className="text-xs font-bold text-black uppercase tracking-widest mb-2 block">
+        <label className="text-sm font-medium text-zinc-700 mb-2 block">
           Active Template Profile
         </label>
         <div className="relative">
-          <LayoutTemplate size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-black" />
+          <LayoutTemplate size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <select
-            className="input-field pl-12 bg-white border-2 border-black w-full uppercase tracking-widest text-xs font-bold focus: cursor-pointer"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent cursor-pointer shadow-sm transition-shadow appearance-none"
             value={selectedTemplate?.id || ""}
             onChange={(e) => {
               const t = templates.find(item => item.id === e.target.value);
@@ -499,19 +503,22 @@ function GenerateCertificatesContent() {
           >
             {templates.map(t => (
               <option key={t.id} value={t.id}>
-                {t.name} ({t._count?.certificates || 0} ISSUED)
+                {t.name} ({t._count?.certificates || 0} Issued)
               </option>
             ))}
           </select>
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full">
-        <Link href="/dashboard/templates/new" className="btn-secondary uppercase tracking-widest font-bold flex-1 flex justify-center items-center">
-          <Plus size={16} className="mr-2" /> NEW TEMPLATE
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+        <Link href="/dashboard/templates/new" className="flex-1 flex justify-center items-center gap-2 px-4 py-2 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-md text-sm font-medium transition-colors shadow-sm">
+          <Plus size={16} /> New Template
         </Link>
         {selectedTemplate && (
-          <Link href={`/dashboard/templates/${selectedTemplate.id}`} className="btn-secondary bg-black text-white hover:bg-gray-800 uppercase tracking-widest font-bold flex-1 flex justify-center items-center">
+          <Link href={`/dashboard/templates/${selectedTemplate.id}`} className="flex-1 flex justify-center items-center gap-2 px-4 py-2 border border-transparent bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
             Customize
           </Link>
         )}
@@ -523,30 +530,35 @@ function GenerateCertificatesContent() {
   let previewRole = selectedTemplate?.name || "Event Role";
   let previewEvent = "";
 
-  if (mode === "single") {
-    previewName = singleName || previewName;
-    previewRole = singleRole || previewRole;
-    previewEvent = singleEventId;
-  } else if (mode === "bulk" && csvData.length > 0) {
-    const activeRow = csvData[previewIndex] || csvData[0];
-    previewName = activeRow.name || previewName;
-    previewRole = activeRow.role || previewRole;
-    previewEvent = activeRow.event || "";
-  }
+    if (mode === "single") {
+      previewName = singleName || previewName;
+      previewRole = singleRole || previewRole;
+      const selectedEvent = events.find(e => e.id === singleEventId);
+      previewEvent = selectedEvent ? selectedEvent.name : singleEventId;
+    } else if (mode === "bulk" && csvData.length > 0) {
+      const activeRow = csvData[previewIndex] || csvData[0];
+      previewName = activeRow.name || previewName;
+      previewRole = activeRow.role || previewRole;
+      if (activeRow.event) {
+        previewEvent = activeRow.event;
+      } else if (bulkEventId) {
+        const selectedEvent = events.find(e => e.id === bulkEventId);
+        previewEvent = selectedEvent ? selectedEvent.name : bulkEventId;
+      }
+    }
 
   const livePreviewBlock = (
     <div className="flex flex-col h-full min-h-0">
-      <div className="bg-white border-2 border-black p-6 sm:p-8 flex-1 flex flex-col relative min-h-0 overflow-hidden">
-        <div className="flex justify-between items-center mb-6 pb-6 border-b-2 border-black shrink-0">
-          <h3 className="text-lg font-bold text-black tracking-tighter uppercase flex items-center gap-3">
-            <Eye size={20} className="text-black shrink-0" />
+      <div className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 flex-1 flex flex-col relative min-h-0 overflow-hidden shadow-sm">
+        <div className="flex justify-between items-center mb-4 pb-4 border-b border-zinc-100 shrink-0">
+          <h3 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
             Live Preview
           </h3>
-          <span className="text-xs font-bold text-black border-2 border-black px-4 py-1.5 uppercase tracking-widest hidden sm:inline-block">A4 Landscape</span>
+          <span className="text-xs font-medium text-zinc-600 bg-zinc-100 px-3 py-1 rounded-full hidden sm:inline-block">A4 Landscape</span>
         </div>
 
-        <div className="w-full relative flex-1 min-h-0 flex flex-col justify-center overflow-hidden">
-          <div className="w-full">
+        <div className="w-full relative flex-1 min-h-0 flex flex-col justify-center overflow-hidden p-2 lg:p-4">
+          <div className="w-full h-full relative mx-auto max-w-5xl">
             <CertificateView 
               certificateId="PENDING-ISSUE"
               recipientName={previewName}
@@ -558,26 +570,26 @@ function GenerateCertificatesContent() {
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-6 pt-6 border-t-2 border-black shrink-0 min-h-[32px]">
-          <div className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest">
+        <div className="flex justify-between items-center mt-4 pt-4 border-t border-zinc-100 shrink-0 min-h-[32px]">
+          <div className="text-xs font-medium text-zinc-400">
             Cryptographically secured on the ledger
           </div>
           {mode === "bulk" && csvData.length > 0 && (
-            <div className="flex items-center border-2 border-black bg-white h-8 ml-4">
+            <div className="flex items-center border border-zinc-200 rounded-md bg-white h-8 ml-4 shadow-sm overflow-hidden">
               <button 
                 onClick={() => setPreviewIndex(p => Math.max(0, p - 1))}
                 disabled={previewIndex === 0}
-                className="px-2 h-full hover:bg-gray-100 disabled:opacity-50 flex items-center justify-center border-r-2 border-black transition-colors"
+                className="px-2 h-full hover:bg-zinc-50 text-zinc-600 disabled:opacity-50 flex items-center justify-center border-r border-zinc-200 transition-colors"
               >
                 <ChevronLeft size={16} />
               </button>
-              <span className="text-xs font-bold px-4 whitespace-nowrap min-w-[80px] text-center tracking-widest uppercase">
+              <span className="text-xs font-medium px-4 whitespace-nowrap min-w-[80px] text-center text-zinc-700">
                 ROW {previewIndex + 1}
               </span>
               <button 
                 onClick={() => setPreviewIndex(p => Math.min(csvData.length - 1, p + 1))}
                 disabled={previewIndex === csvData.length - 1}
-                className="px-2 h-full hover:bg-gray-100 disabled:opacity-50 flex items-center justify-center border-l-2 border-black transition-colors"
+                className="px-2 h-full hover:bg-zinc-50 text-zinc-600 disabled:opacity-50 flex items-center justify-center border-l border-zinc-200 transition-colors"
               >
                 <ChevronRight size={16} />
               </button>
@@ -589,39 +601,38 @@ function GenerateCertificatesContent() {
   );
 
   return (
-    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-8 py-6 min-h-0 overflow-hidden">
+    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 min-h-0 overflow-hidden">
         
         {/* Page Header */}
-        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-8 shrink-0">
+        <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-6 shrink-0">
           <div>
-            <h1 className="text-4xl font-bold text-black tracking-tighter uppercase leading-none mb-2">
+            <h1 className="text-3xl font-bold text-zinc-900 mb-1">
               Generation Studio
             </h1>
-            <p className="text-gray-500 text-sm font-medium uppercase tracking-widest">
+            <p className="text-zinc-500 text-sm font-medium">
               Issue credentials individually or bulk generate via CSV.
             </p>
           </div>
 
-          <div className="flex gap-0 border-2 border-black w-fit shrink-0">
+          <div className="flex p-1 bg-zinc-100 rounded-lg shrink-0 w-fit">
             <button 
               type="button" 
               onClick={() => setMode("single")}
-              className={`flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                 mode === "single" 
-                  ? "bg-black text-white" 
-                  : "bg-white text-black hover:bg-gray-100"
+                  ? "bg-white text-zinc-900 shadow-sm" 
+                  : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
               }`}
             >
               <UserCheck size={16} /> Individual
             </button>
-            <div className="w-[2px] bg-black"></div>
             <button 
               type="button" 
               onClick={() => setMode("bulk")}
-              className={`flex items-center gap-2 px-6 py-3 text-xs font-bold uppercase tracking-widest transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                 mode === "bulk" 
-                  ? "bg-black text-white" 
-                  : "bg-white text-black hover:bg-gray-100"
+                  ? "bg-white text-zinc-900 shadow-sm" 
+                  : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
               }`}
             >
               <FileSpreadsheet size={16} /> CSV Batch
@@ -640,25 +651,40 @@ function GenerateCertificatesContent() {
               <div className="flex flex-col gap-8 h-full min-h-0 pr-4">
                 {templateSelectorBlock}
 
-                <div className="bg-white border-2 border-black p-8 flex-1 overflow-y-auto min-h-0 flex flex-col">
-                  <div className="mb-8 border-b-2 border-black pb-6 shrink-0">
-                    <h3 className="text-2xl font-bold text-black uppercase tracking-tighter">Recipient Details</h3>
-                    <p className="text-xs font-bold text-gray-500 mt-2 uppercase tracking-widest">
-                      Enter the details to generate and download a single credential instantly.
-                    </p>
+                <div className="bg-white border border-zinc-200 rounded-xl p-8 flex-1 overflow-y-auto min-h-0 flex flex-col shadow-sm">
+                  <div className="mb-6 border-b border-zinc-100 pb-5 shrink-0 flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-semibold text-zinc-900">Recipient Details</h3>
+                      <p className="text-sm font-medium text-zinc-500 mt-1">
+                        Enter the details to generate a credential instantly.
+                      </p>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setSingleName("");
+                        setSingleEmail("");
+                        setSingleRole("");
+                        setSingleEventId("");
+                        setSingleSuccess(null);
+                      }}
+                      className="text-xs font-medium text-zinc-500 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded-md transition-colors"
+                    >
+                      Clear
+                    </button>
                   </div>
 
                   {singleSuccess && (
-                    <div className="mb-8 p-6 bg-white border-2 border-black flex flex-col gap-4">
-                      <div className="flex items-center gap-3 font-bold text-black uppercase tracking-tighter text-lg">
-                        <CheckCircle size={24} className="text-black" />
+                    <div className="mb-8 p-5 bg-emerald-50 border border-emerald-100 rounded-lg flex flex-col gap-3">
+                      <div className="flex items-center gap-2 font-semibold text-emerald-800">
+                        <CheckCircle size={20} />
                         <span>Credential Generated Successfully</span>
                       </div>
-                      <div className="text-xs font-bold text-gray-600 uppercase tracking-widest">
-                        The PDF is downloading. Ledger ID: <code className="bg-black text-white px-2 py-1 ml-2 font-mono">{singleSuccess.id}</code>
+                      <div className="text-sm font-medium text-emerald-700">
+                        Ledger ID: <code className="bg-white px-2 py-0.5 rounded border border-emerald-200 font-mono text-emerald-900 ml-1">{singleSuccess.id}</code>
                       </div>
-                      <div className="flex gap-4 mt-4">
-                        <Link href={`/validate/${singleSuccess.id}`} target="_blank" className="btn-secondary uppercase tracking-widest font-bold text-xs py-3 px-6">
+                      <div className="flex items-center gap-4 mt-2">
+                        <Link href={`/validate/${singleSuccess.id}`} target="_blank" className="px-4 py-2 bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-100 rounded-md text-sm font-medium transition-colors shadow-sm">
                           View in Public Portal
                         </Link>
                         <button 
@@ -668,7 +694,7 @@ function GenerateCertificatesContent() {
                             setSingleName("");
                             setSingleEmail("");
                           }} 
-                          className="text-xs font-bold text-black hover:text-gray-600 underline uppercase tracking-widest"
+                          className="text-sm font-medium text-emerald-700 hover:text-emerald-900 hover:underline transition-colors"
                         >
                           Issue another
                         </button>
@@ -676,59 +702,79 @@ function GenerateCertificatesContent() {
                     </div>
                   )}
 
-                  <form onSubmit={handleSingleIssue} className="flex flex-col gap-6">
+                  <form onSubmit={(e) => handleSingleIssue(e, true)} className="flex flex-col gap-5">
                     <div>
-                      <label className="text-xs font-bold text-black uppercase tracking-widest">Full Name *</label>
+                      <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Full Name *</label>
                       <input 
                         type="text" 
-                        className="input-field border-2 border-black focus:" 
+                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
                         value={singleName}
                         onChange={e => setSingleName(e.target.value)}
-                        placeholder="E.G. JANE DOE"
+                        placeholder="e.g. Jane Doe"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-black uppercase tracking-widest">Email Address (Optional)</label>
+                      <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Email Address (Optional)</label>
                       <input 
                         type="email" 
-                        className="input-field border-2 border-black focus:" 
+                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
                         value={singleEmail}
                         onChange={e => setSingleEmail(e.target.value)}
-                        placeholder="JANE@EXAMPLE.COM"
+                        placeholder="jane@example.com"
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-black uppercase tracking-widest">Role / Participation</label>
+                      <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Role / Participation</label>
                       <input 
                         type="text" 
-                        className="input-field border-2 border-black focus:" 
+                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
                         value={singleRole}
                         onChange={e => setSingleRole(e.target.value)}
-                        placeholder={(selectedTemplate?.name || "E.G. KEYNOTE SPEAKER").toUpperCase()}
+                        placeholder={selectedTemplate?.name || "e.g. Keynote Speaker"}
                       />
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-black uppercase tracking-widest">Event Description / Outcomes (Optional)</label>
-                      <textarea 
-                        className="input-field border-2 border-black focus: min-h-[100px]" 
-                        value={singleEventId}
-                        onChange={e => setSingleEventId(e.target.value)}
-                        placeholder="ATTENDED THE 2026 GLOBAL TECH SUMMIT..."
-                      />
+                      <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Select Event</label>
+                      <div className="relative">
+                        <select 
+                          className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent shadow-sm appearance-none cursor-pointer"
+                          value={singleEventId}
+                          onChange={e => setSingleEventId(e.target.value)}
+                        >
+                          <option value="">-- Choose an Event --</option>
+                          {events.map(ev => (
+                            <option key={ev.id} value={ev.id}>{ev.name}</option>
+                          ))}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+                      </div>
                     </div>
 
-                    <button 
-                      type="submit" 
-                      className="btn-primary w-full py-4 mt-4 uppercase tracking-widest font-bold flex justify-center items-center gap-2"
-                      disabled={singleIssuing || !singleName.trim()}
-                    >
-                      {singleIssuing ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-                      <span>{singleIssuing ? "Generating & Signing..." : "Generate & Download"}</span>
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                      <button 
+                        type="button"
+                        onClick={() => handleSingleIssue(null, false)}
+                        className="sm:w-1/2 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 py-3 rounded-md text-sm font-medium flex justify-center items-center gap-2 transition-colors shadow-sm disabled:opacity-50"
+                        disabled={singleIssuing || !singleName.trim()}
+                      >
+                        {singleIssuing && <Loader2 size={18} className="animate-spin" />}
+                        <span>Issue Only</span>
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="sm:w-1/2 bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-md text-sm font-medium flex justify-center items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                        disabled={singleIssuing || !singleName.trim()}
+                      >
+                        {singleIssuing && <Loader2 size={18} className="animate-spin" />}
+                        <span>Issue & Download</span>
+                      </button>
+                    </div>
                   </form>
                 </div>
               </div>
@@ -746,42 +792,62 @@ function GenerateCertificatesContent() {
                 {templateSelectorBlock}
                 
                 {bulkStep === 1 && (
-                <div className="bg-white border-2 border-black p-8 max-w-4xl mx-auto w-full flex-1 overflow-y-auto min-h-0 flex flex-col">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b-2 border-black pb-6 shrink-0">
+                <div className="bg-white border border-zinc-200 rounded-xl p-8 max-w-4xl mx-auto w-full flex-1 overflow-y-auto min-h-0 flex flex-col shadow-sm">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-zinc-100 pb-5 shrink-0">
                     <div>
-                      <h3 className="text-2xl font-bold text-black tracking-tighter uppercase">Upload CSV Roster</h3>
-                      <p className="text-xs font-bold text-gray-500 mt-2 uppercase tracking-widest">
+                      <h3 className="text-xl font-semibold text-zinc-900">Upload CSV Roster</h3>
+                      <p className="text-sm font-medium text-zinc-500 mt-1">
                         Batch process thousands of certificates at once.
                       </p>
                     </div>
                     <button 
                       type="button" 
                       onClick={downloadSampleCsv} 
-                      className="btn-secondary uppercase tracking-widest font-bold shrink-0 flex items-center whitespace-nowrap px-4 py-2 text-xs"
+                      className="flex items-center gap-2 px-4 py-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 rounded-md text-sm font-medium transition-colors shadow-sm shrink-0 whitespace-nowrap"
                     >
-                      <Download size={14} className="mr-2" /> Sample CSV
+                      <Download size={16} /> Sample CSV
                     </button>
                   </div>
 
+                  <div className="mb-6 shrink-0">
+                    <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Select Default Event (Optional)</label>
+                    <p className="text-xs text-zinc-500 mb-2">If your CSV doesn't specify an event for a row, this event will be used.</p>
+                    <div className="relative">
+                      <select 
+                        className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent shadow-sm appearance-none cursor-pointer"
+                        value={bulkEventId}
+                        onChange={e => setBulkEventId(e.target.value)}
+                      >
+                        <option value="">-- No Default Event --</option>
+                        {events.map(ev => (
+                          <option key={ev.id} value={ev.id}>{ev.name}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+
                   <div 
-                    className={`border-2 border-dashed ${isDragging ? "border-black bg-gray-200" : "border-gray-400 bg-gray-50"} p-10 text-center transition-all cursor-pointer group flex flex-col items-center justify-center relative mb-8 hover:bg-gray-100 hover:border-black`}
+                    className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer flex flex-col items-center justify-center relative mb-8 hover:bg-zinc-50 ${isDragging ? "border-zinc-900 bg-zinc-50" : "border-zinc-300 bg-white hover:border-zinc-400"}`}
                     onClick={() => document.getElementById("csv-file-input")?.click()}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                   >
-                    <div className={`w-16 h-16 border-2 border-black flex items-center justify-center mb-6 transition-colors ${isDragging ? "bg-black text-white" : "bg-white text-black group-hover:bg-black group-hover:text-white"}`}>
-                      <Upload size={28} />
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-5 transition-colors ${isDragging ? "bg-zinc-900 text-white shadow-md" : "bg-zinc-100 text-zinc-500 shadow-sm"}`}>
+                      <Upload size={24} />
                     </div>
-                    <h4 className="font-bold text-2xl text-black mb-3 uppercase tracking-tighter">
-                      {isDragging ? "Drop CSV Here" : "Click or Drag CSV"}
+                    <h4 className="text-lg font-semibold text-zinc-900 mb-2">
+                      {isDragging ? "Drop CSV Here" : "Click or Drag CSV to upload"}
                     </h4>
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-widest max-w-sm mx-auto leading-relaxed mt-2">
-                      Required: <code className="bg-gray-200 text-black px-2 py-1 font-mono mx-1">name</code> <br/>
-                      Optional: <code className="bg-gray-200 text-black px-2 py-1 font-mono mx-1 mt-2 inline-block">email</code>, <code className="bg-gray-200 text-black px-2 py-1 font-mono mx-1 mt-2 inline-block">role</code>
+                    <p className="text-sm font-medium text-zinc-500 max-w-sm mx-auto leading-relaxed">
+                      Required: <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5">name</code> <br/>
+                      Optional: <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5 mt-1 inline-block">email</code>, <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5 mt-1 inline-block">role</code>
                     </p>
                     {uploadError && (
-                      <div className="mt-6 text-xs font-bold text-white bg-red-600 px-4 py-2 uppercase tracking-widest">
+                      <div className="mt-6 text-sm font-medium text-red-700 bg-red-50 border border-red-200 px-4 py-2 rounded-md">
                         {uploadError}
                       </div>
                     )}
@@ -794,23 +860,22 @@ function GenerateCertificatesContent() {
                     />
                   </div>
 
-                  <div className="p-5 bg-white border-2 border-black shrink-0">
-                    <div className="text-xs font-bold uppercase tracking-widest leading-relaxed">
-                      <strong className="text-black mr-2">Pro Tip:</strong> Download the sample CSV and upload it immediately to test the batch generation pipeline without writing any real data.
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg shrink-0">
+                    <div className="text-sm font-medium text-blue-800 leading-relaxed">
+                      <strong className="mr-1">Pro Tip:</strong> Download the sample CSV and upload it immediately to test the batch generation pipeline without writing any real data.
                     </div>
                   </div>
                 </div>
               )}
 
               {bulkStep === 2 && (
-                <div className="bg-white border-2 border-black p-10 max-w-5xl mx-auto w-full flex-1 overflow-y-auto min-h-0">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10 pb-6 border-b-2 border-black">
+                <div className="bg-white border border-zinc-200 rounded-xl p-8 max-w-5xl mx-auto w-full flex-1 overflow-y-auto min-h-0 shadow-sm">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-5 border-b border-zinc-100">
                     <div>
-                      <h3 className="text-2xl font-bold text-black tracking-tighter uppercase flex flex-col">
-                        <span>Validation:</span>
-                        <span>{csvData.length} Records Found</span>
+                      <h3 className="text-xl font-semibold text-zinc-900 flex items-center gap-2">
+                        Validation: {csvData.length} Records
                       </h3>
-                      <p className="text-xs font-bold text-gray-500 mt-2 uppercase tracking-widest">
+                      <p className="text-sm font-medium text-zinc-500 mt-1">
                         Review the roster before initiating batch generation.
                       </p>
                     </div>
@@ -818,33 +883,33 @@ function GenerateCertificatesContent() {
                     <button 
                       type="button" 
                       onClick={() => { setBulkStep(1); setCsvData([]); setPreviewIndex(0); }} 
-                      className="btn-secondary uppercase tracking-widest font-bold"
+                      className="px-4 py-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 rounded-md text-sm font-medium transition-colors shadow-sm"
                     >
                       Change File
                     </button>
                   </div>
 
-                  <div className="border-2 border-black overflow-hidden mb-10 max-h-[400px] overflow-y-auto">
+                  <div className="border border-zinc-200 rounded-lg overflow-hidden mb-8 max-h-[400px] overflow-y-auto shadow-sm">
                     <table className="w-full text-left border-collapse">
-                      <thead className="bg-black sticky top-0 z-10">
-                        <tr className="text-xs font-bold text-white uppercase tracking-widest">
-                          <th className="px-6 py-4 border-b-2 border-black">#</th>
-                          <th className="px-6 py-4 border-b-2 border-black">Name</th>
-                          <th className="px-6 py-4 border-b-2 border-black">Email</th>
-                          <th className="px-6 py-4 border-b-2 border-black">Role</th>
+                      <thead className="bg-zinc-50 sticky top-0 z-10 border-b border-zinc-200">
+                        <tr className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                          <th className="px-6 py-3">#</th>
+                          <th className="px-6 py-3">Name</th>
+                          <th className="px-6 py-3">Email</th>
+                          <th className="px-6 py-3">Role</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y-2 divide-gray-200">
+                      <tbody className="divide-y divide-zinc-200 bg-white">
                         {csvData.map((row: any, i: number) => (
                           <tr 
                             key={i} 
                             onClick={() => setPreviewIndex(i)}
-                            className={`transition-colors cursor-pointer ${previewIndex === i ? 'bg-gray-200 text-black' : 'hover:bg-gray-50 text-black'}`}
+                            className={`transition-colors cursor-pointer ${previewIndex === i ? 'bg-zinc-100' : 'hover:bg-zinc-50'}`}
                           >
-                            <td className={`px-6 py-4 text-xs font-bold ${previewIndex === i ? 'text-gray-500' : 'text-gray-400'}`}>{i + 1}</td>
-                            <td className={`px-6 py-4 text-sm font-bold uppercase tracking-wide ${previewIndex === i ? 'text-black' : 'text-black'}`}>{row.name}</td>
-                            <td className={`px-6 py-4 text-xs font-bold uppercase ${previewIndex === i ? 'text-gray-600' : 'text-gray-500'}`}>{row.email || "—"}</td>
-                            <td className={`px-6 py-4 text-xs font-bold uppercase tracking-widest ${previewIndex === i ? 'text-gray-800' : 'text-gray-600'}`}>{row.role || selectedTemplate?.name || "Default"}</td>
+                            <td className="px-6 py-3 text-sm font-medium text-zinc-500">{i + 1}</td>
+                            <td className="px-6 py-3 text-sm font-semibold text-zinc-900">{row.name}</td>
+                            <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.email || "—"}</td>
+                            <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.role || selectedTemplate?.name || "Default"}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -854,10 +919,10 @@ function GenerateCertificatesContent() {
                   <div className="flex justify-end">
                     <button 
                       onClick={handleBulkIssue} 
-                      className="btn-primary py-4 px-10 uppercase tracking-widest font-bold flex items-center gap-3"
+                      className="bg-zinc-900 hover:bg-zinc-800 text-white py-3 px-8 rounded-md text-sm font-medium flex items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
                       disabled={bulkIssuing}
                     >
-                      {bulkIssuing ? <Loader2 size={20} className="animate-spin" /> : <FileText size={20} />}
+                      {bulkIssuing ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
                       <span>{bulkIssuing ? `Processing ${csvData.length} Records...` : `Generate ${csvData.length} Credentials`}</span>
                     </button>
                   </div>
@@ -865,28 +930,29 @@ function GenerateCertificatesContent() {
               )}
 
               {bulkStep === 3 && (
-                <div className="border-2 border-black w-full flex-1 flex flex-col min-h-0 overflow-hidden bg-white">
-                  <div className="bg-black text-white p-10 flex flex-col items-center justify-center flex-1 min-h-0 relative">
-                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tighter uppercase text-center leading-none relative z-10 text-white flex items-center justify-center gap-4 sm:gap-6">
-                      <CheckCircle size={48} className="text-white shrink-0" />
+                <div className="border border-zinc-200 rounded-xl w-full flex-1 flex flex-col min-h-0 overflow-hidden bg-white shadow-sm">
+                  <div className="bg-emerald-50 text-emerald-900 p-10 flex flex-col items-center justify-center flex-1 min-h-0 relative border-b border-emerald-100">
+                    <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                      <CheckCircle size={40} />
+                    </div>
+                    <h2 className="text-3xl font-bold text-center leading-none relative z-10">
                       Batch Complete
                     </h2>
                   </div>
                   
-                  <div className="p-8 sm:p-12 border-t-2 border-black bg-white flex flex-col items-center shrink-0">
-                    <p className="text-sm font-bold text-black uppercase tracking-widest mb-8 max-w-xl mx-auto text-center leading-relaxed">
+                  <div className="p-8 sm:p-12 bg-white flex flex-col items-center shrink-0">
+                    <p className="text-base font-medium text-zinc-600 mb-8 max-w-xl mx-auto text-center leading-relaxed">
                       {bulkSuccessMsg}
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4 w-full max-w-xl">
                       <button 
-                        className="btn-secondary uppercase tracking-widest font-bold py-4 px-8 flex-1 border-2 border-black bg-white hover:bg-gray-100 text-black transition-colors" 
+                        className="px-6 py-3 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 rounded-md text-sm font-medium transition-colors shadow-sm flex-1 text-center" 
                         onClick={() => { setBulkStep(1); setCsvData([]); setPreviewIndex(0); }}
                       >
                         New Batch
                       </button>
-                      <Link href="/dashboard/templates" className="btn-primary uppercase tracking-widest font-bold py-4 px-8 flex items-center justify-center gap-3 flex-1 bg-black text-white hover:bg-gray-800 transition-colors">
-                        View Ledger <ArrowRight size={18} />
+                      <Link href="/dashboard" className="px-6 py-3 bg-zinc-900 text-white hover:bg-zinc-800 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2 flex-1">
+                        View Overview <ArrowRight size={16} />
                       </Link>
                     </div>
                   </div>

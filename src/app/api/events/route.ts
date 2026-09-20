@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { name, date, description } = body;
+    const { name, date, description, defaultTemplateId, defaultRole } = body;
 
     if (!name) {
       return NextResponse.json({ message: "Event name is required" }, { status: 400 });
@@ -46,6 +46,8 @@ export async function POST(req: Request) {
         name: name.trim(),
         date: date ? new Date(date) : null,
         description: description?.trim() || null,
+        defaultTemplateId: defaultTemplateId || null,
+        defaultRole: defaultRole?.trim() || "Participant",
         organizerId: (session.user as any).id
       }
     });
