@@ -226,7 +226,8 @@ export default function Navbar() {
                         if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
                         setConfirmLogout(false);
                         await signOut({ redirect: false });
-                        router.push("/");
+                        const isLocal = window.location.hostname.includes("localhost");
+                        window.location.href = isLocal ? "/" : "https://shim-hq.vercel.app";
                       }
                     }}
                     className={`shrink-0 flex items-center justify-center border transition-all rounded-md overflow-hidden ${
@@ -300,7 +301,8 @@ export default function Navbar() {
                         if (logoutTimeoutRef.current) clearTimeout(logoutTimeoutRef.current);
                         setConfirmLogout(false);
                         await signOut({ redirect: false });
-                        router.push("/");
+                        const isLocal = window.location.hostname.includes("localhost");
+                        window.location.href = isLocal ? "/" : "https://shim-hq.vercel.app";
                       }
                     }}
                     className={`shrink-0 flex items-center justify-center border transition-all rounded-md overflow-hidden ${
