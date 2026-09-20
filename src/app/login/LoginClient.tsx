@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -12,10 +12,13 @@ export default function LoginPage() {
   const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
 
+  const handoffTriggered = useRef(false);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("handoff");
-    if (token && status === "unauthenticated") {
+    if (token && status === "unauthenticated" && !handoffTriggered.current) {
+      handoffTriggered.current = true;
       signIn("credentials", {
         redirect: false,
         handoffToken: token,

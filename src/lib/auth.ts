@@ -20,7 +20,8 @@ export const authOptions: NextAuthOptions = {
           try {
             const decoded = await decode({
               token: credentials.handoffToken,
-              secret: process.env.NEXTAUTH_SECRET || "super-secret-nextauth-token-12345"
+              secret: process.env.NEXTAUTH_SECRET || "super-secret-nextauth-token-12345",
+              salt: "shim-handoff-token-salt"
             });
             if (decoded && decoded.purpose === "handoff" && (decoded.exp as number) > Date.now()) {
               const user = await prisma.user.findUnique({ where: { id: decoded.userId as string } });
