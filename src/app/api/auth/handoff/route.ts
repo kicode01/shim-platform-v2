@@ -18,11 +18,11 @@ export async function GET(req: Request) {
     const token = await encode({
       token: { 
         userId: userId, 
-        purpose: "handoff", 
-        exp: Date.now() + 60000 
+        purpose: "handoff"
       },
       secret: process.env.NEXTAUTH_SECRET || "super-secret-nextauth-token-12345",
-      salt: "shim-handoff-token-salt"
+      salt: "shim-handoff-token-salt",
+      maxAge: 60
     });
 
     const isLocal = req.url.includes("localhost") || req.headers.get("host")?.includes("localhost");
