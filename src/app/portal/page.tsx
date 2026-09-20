@@ -60,7 +60,7 @@ export default async function PortalPage() {
   });
 
   const eventNames = Array.from(new Set(attendedEvents.map(e => e.name)));
-  const orgNames = Array.from(new Set(attendedEvents.map(e => e.organizer?.name).filter(Boolean)));
+  const orgNames = Array.from(new Set(attendedEvents.map(e => e.organizer?.name).filter((name): name is string => !!name)));
 
   const totalVerifications = await prisma.auditLog.count({
     where: {
