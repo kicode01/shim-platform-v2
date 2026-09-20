@@ -49,7 +49,7 @@ export default async function Home() {
 
               {/* Action Bar - Multi-domain CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                <a href="https://shim-studio.vercel.app/register" className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
+                <a href="https://shim-studio.vercel.app/login" className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
                   Organizer Login
                   <ArrowRight size={18} />
                 </a>
