@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { decode, encode } from "next-auth/jwt";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
 export async function GET(req: Request) {
