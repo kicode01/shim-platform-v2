@@ -10,31 +10,9 @@ export const authOptions: NextAuthOptions = {
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-        handoffToken: { label: "Handoff Token", type: "text" }
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (credentials?.handoffToken) {
-          // Verify handoff token
-          const { decode } = await import("next-auth/jwt");
-          try {
-            const decoded = await decode({
-              token: credentials.handoffToken,
-              secret: process.env.NEXTAUTH_SECRET || "super-secret-nextauth-token-12345",
-              salt: "shim-handoff-token-salt"
-            });
-            if (decoded && decoded.purpose === "handoff" && (decoded.exp as number) * 1000 > Date.now()) {
-              const user = await prisma.user.findUnique({ where: { id: decoded.userId as string } });
-              if (user) {
-                return { id: user.id, email: user.email, name: user.name, role: user.role };
-              }
-            }
-          } catch (e) {
-            console.error("Handoff token verification failed", e);
-          }
-          return null;
-        }
-
         if (!credentials?.email || !credentials?.password) return null;
         
         const email = credentials.email.toLowerCase().trim();

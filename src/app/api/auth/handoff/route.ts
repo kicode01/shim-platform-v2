@@ -33,7 +33,7 @@ export async function GET(req: Request) {
       : (isLocal ? "http://localhost:3000" : "https://shim-studio.vercel.app");
 
     return NextResponse.json({ 
-      url: `${targetDomain}/login?handoff=${token}` 
+      url: `${targetDomain}/api/auth/consume?token=${token}` 
     });
   } catch (error) {
     console.error("Handoff generation error:", error);

@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn, useSession, getSession } from "next-auth/react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -11,31 +11,6 @@ export default function LoginPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
-
-  const handoffTriggered = useRef(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("handoff");
-    if (token && status === "unauthenticated" && !handoffTriggered.current) {
-      handoffTriggered.current = true;
-      signIn("credentials", {
-        redirect: false,
-        handoffToken: token,
-      }).then(async (res) => {
-        if (!res?.error) {
-          if (window.location.hostname.includes("shim-wallet")) {
-            window.location.href = "/portal";
-          } else if (window.location.hostname.includes("shim-studio")) {
-            window.location.href = "/dashboard";
-          } else {
-            const sess = await getSession();
-            window.location.href = sess?.user?.role === "member" ? "/portal" : "/dashboard";
-          }
-        }
-      });
-    }
-  }, [status]);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
