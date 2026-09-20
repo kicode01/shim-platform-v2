@@ -11,6 +11,23 @@ export default function LoginPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("handoff");
+    if (token && status === "unauthenticated") {
+      signIn("credentials", {
+        redirect: false,
+        handoffToken: token,
+      }).then(async (res) => {
+        if (!res?.error) {
+          const sessRes = await fetch("/api/auth/session");
+          const sess = await sessRes.json();
+          window.location.href = sess?.user?.role === "member" ? "/portal" : "/dashboard";
+        }
+      });
+    }
+  }, [status]);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -48,7 +65,24 @@ export default function LoginPage() {
       if (res?.error) {
         setError("Invalid credentials. Please try again.");
       } else {
-        router.push("/dashboard");
+        if (window.location.hostname.includes("shim-hq")) {
+          try {
+            const handoffRes = await fetch("/api/auth/handoff");
+            if (handoffRes.ok) {
+              const data = await handoffRes.json();
+              if (data.url) {
+                window.location.href = data.url;
+                return;
+              }
+            }
+          } catch (e) {
+            console.error("Handoff failed", e);
+          }
+        }
+        
+        const sessRes = await fetch("/api/auth/session");
+        const sess = await sessRes.json();
+        router.push(sess?.user?.role === "member" ? "/portal" : "/dashboard");
         router.refresh();
       }
     } catch (err) {

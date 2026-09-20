@@ -167,13 +167,13 @@ export default function Navbar() {
                         Verify
                       </Link>
                       <div className="h-5 w-px bg-zinc-800 shrink-0 hidden sm:block"></div>
-                      <a href="https://shim-studio.vercel.app/login" className="text-sm font-medium text-zinc-400 hover:text-zinc-100 transition-colors whitespace-nowrap hidden sm:inline-block">
+                      <Link href="/login" className="text-sm font-medium text-zinc-400 hover:text-zinc-100 transition-colors whitespace-nowrap hidden sm:inline-block">
                         Sign In
-                      </a>
-                      <a href="https://shim-studio.vercel.app/register" className="bg-zinc-100 hover:bg-white text-zinc-900 transition-colors text-sm font-medium rounded-md px-4 py-2 flex items-center gap-2 whitespace-nowrap shadow-sm">
+                      </Link>
+                      <Link href="/register" className="bg-zinc-100 hover:bg-white text-zinc-900 transition-colors text-sm font-medium rounded-md px-4 py-2 flex items-center gap-2 whitespace-nowrap shadow-sm">
                         Get Started
                         <ArrowRight size={14} className="shrink-0" />
-                      </a>
+                      </Link>
                     </>
                   )}
                 </motion.div>
@@ -370,9 +370,9 @@ export default function Navbar() {
                       <Link href="/" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors whitespace-nowrap">
                         Home
                       </Link>
-                      <a href="https://shim-studio.vercel.app/login" className="flex items-center justify-center bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-100 hover:text-white transition-colors rounded-md px-4 py-2 shadow-sm text-sm font-medium whitespace-nowrap">
+                      <Link href="/login" className="flex items-center justify-center bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-100 hover:text-white transition-colors rounded-md px-4 py-2 shadow-sm text-sm font-medium whitespace-nowrap">
                         Sign In
-                      </a>
+                      </Link>
                     </div>
                   )}
                 </motion.div>

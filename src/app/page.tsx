@@ -49,13 +49,13 @@ export default async function Home() {
 
               {/* Action Bar - Multi-domain CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                <a href="https://shim-studio.vercel.app/login" className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
+                <Link href="/login" className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
                   Organizer Login
                   <ArrowRight size={18} />
-                </a>
-                <a href="https://shim-wallet.vercel.app/login" className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
+                </Link>
+                <Link href="/login" className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
                   Participant Wallet
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -116,9 +116,9 @@ export default async function Home() {
             <h2 className="text-5xl font-bold text-zinc-50 mb-6">Stop Wasting Time<br/>On Manual PDFs.</h2>
             <p className="text-zinc-400 text-lg mb-10 max-w-2xl mx-auto">Join hundreds of modern event organizers using shim to streamline their post-event credentialing.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <a href="https://shim-studio.vercel.app/register" className="bg-zinc-100 text-zinc-900 font-medium py-3 px-8 rounded-md hover:bg-white transition-colors w-full sm:w-auto">
+              <Link href="/register" className="bg-zinc-100 text-zinc-900 font-medium py-3 px-8 rounded-md hover:bg-white transition-colors w-full sm:w-auto">
                 Start for free
-              </a>
+              </Link>
             </div>
           </div>
         </section>
