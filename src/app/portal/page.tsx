@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import PortalClient from "./PortalClient";
 
@@ -8,7 +9,9 @@ export default async function PortalPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/login");
+    const host = headers().get("host") || "";
+    const isLocal = host.includes("localhost");
+    redirect(isLocal ? "/login" : "https://shim-hq.vercel.app/login");
   }
 
   const user = await prisma.user.findUnique({
