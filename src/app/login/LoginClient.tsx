@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn, useSession, getSession } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -24,8 +24,7 @@ export default function LoginPage() {
         handoffToken: token,
       }).then(async (res) => {
         if (!res?.error) {
-          const sessRes = await fetch("/api/auth/session");
-          const sess = await sessRes.json();
+          const sess = await getSession();
           window.location.href = sess?.user?.role === "member" ? "/portal" : "/dashboard";
         }
       });
@@ -83,8 +82,7 @@ export default function LoginPage() {
           }
         }
         
-        const sessRes = await fetch("/api/auth/session");
-        const sess = await sessRes.json();
+        const sess = await getSession();
         router.push(sess?.user?.role === "member" ? "/portal" : "/dashboard");
         router.refresh();
       }
