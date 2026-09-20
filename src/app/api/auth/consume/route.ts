@@ -26,7 +26,7 @@ export async function GET(req: Request) {
     // Handoff tokens expire very quickly (e.g., 60 seconds)
     // The decode function verifies signature, but we also manually check expiry just in case
     const now = Math.floor(Date.now() / 1000);
-    if (decoded.exp && decoded.exp < now) {
+    if (decoded.exp && (decoded.exp as number) < now) {
       return NextResponse.redirect(new URL("/login?error=expired_handoff", req.url));
     }
 
