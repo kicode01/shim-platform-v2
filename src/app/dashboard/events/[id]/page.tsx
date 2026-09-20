@@ -24,7 +24,7 @@ export default async function EventDetailsPage({ params }: { params: Promise<{ i
         orderBy: { checkedInAt: 'desc' }
       },
       certificates: {
-        select: { recipientEmail: true }
+        select: { id: true, status: true, recipientEmail: true }
       }
     }
   });
