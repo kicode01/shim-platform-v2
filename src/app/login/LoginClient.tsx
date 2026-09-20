@@ -43,9 +43,15 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.replace("/dashboard");
+      if (window.location.hostname.includes("shim-wallet")) {
+        router.replace("/portal");
+      } else if (window.location.hostname.includes("shim-studio")) {
+        router.replace("/dashboard");
+      } else {
+        router.replace(session?.user?.role === "member" ? "/portal" : "/dashboard");
+      }
     }
-  }, [status, router]);
+  }, [status, router, session]);
 
   const handleDemoFill = (role: "admin" | "member") => {
     if (role === "admin") {
