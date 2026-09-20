@@ -37,12 +37,7 @@ export default async function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Hero Content */}
             <div className="flex flex-col gap-8">
-              <div className="inline-flex w-fit items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-sm text-zinc-300 mb-2">
-                <Sparkles size={14} className="text-zinc-400" />
-                <span>Introducing SHIM Multi-Tenant Architecture</span>
-              </div>
-
-              <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-200 to-zinc-600 leading-[1.1]">
+              <h1 className="text-5xl lg:text-6xl font-bold text-zinc-50 leading-tight">
                 Beautiful<br/>
                 Certificates.<br/>
                 Verified.
@@ -53,12 +48,12 @@ export default async function Home() {
               </p>
 
               {/* Action Bar - Multi-domain CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <a href="https://shim-studio.vercel.app/register" className="group bg-white text-zinc-950 font-medium rounded-full py-3.5 px-8 transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-zinc-100 shadow-[0_0_30px_rgba(255,255,255,0.15)] flex items-center justify-center gap-2">
+              <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                <a href="https://shim-studio.vercel.app/register" className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
                   Organizer Login
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={18} />
                 </a>
-                <a href="https://shim-wallet.vercel.app/login" className="bg-zinc-900 border border-zinc-800 text-zinc-300 font-medium rounded-full py-3.5 px-8 transition-all duration-300 hover:scale-105 active:scale-95 hover:text-white hover:border-zinc-700 flex items-center justify-center gap-2">
+                <a href="https://shim-wallet.vercel.app/login" className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
                   Participant Wallet
                 </a>
               </div>
@@ -98,11 +93,11 @@ export default async function Home() {
                 { icon: FileSpreadsheet, title: "Bulk Generation", desc: "Upload a CSV and generate thousands of personalized certificates in seconds." },
                 { icon: ShieldCheck, title: "One-Click Verify", desc: "Embedded QR codes allow anyone to instantly verify a credential's authenticity." }
               ].map((feature, idx) => (
-                <div key={idx} className="p-8 bg-zinc-900/40 border border-zinc-800 hover:border-zinc-600 rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)] group">
-                  <div className={`w-14 h-14 flex items-center justify-center mb-6 rounded-full bg-zinc-800 text-zinc-300 group-hover:bg-white group-hover:text-zinc-900 transition-colors shadow-inner`}>
-                    <feature.icon size={26} />
+                <div key={idx} className="p-8 bg-zinc-900/40 border border-zinc-800 hover:border-zinc-700 rounded-xl transition-colors duration-300 group">
+                  <div className={`w-12 h-12 flex items-center justify-center mb-6 rounded-full bg-zinc-800 text-zinc-300 group-hover:bg-zinc-700 group-hover:text-zinc-100 transition-colors`}>
+                    <feature.icon size={24} />
                   </div>
-                  <h3 className="font-semibold text-zinc-100 text-xl mb-3">{feature.title}</h3>
+                  <h3 className="font-medium text-zinc-100 text-xl mb-3">{feature.title}</h3>
                   <p className="text-zinc-400 text-sm leading-relaxed">{feature.desc}</p>
                 </div>
               ))}
@@ -111,24 +106,18 @@ export default async function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-32 bg-[#0a0a0a] relative overflow-hidden border-t border-zinc-900">
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/20 to-transparent pointer-events-none" />
+        <section className="py-24 bg-[#0a0a0a] relative overflow-hidden border-t border-zinc-900">
           <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-            <div className="inline-block mb-6 border border-zinc-800 bg-zinc-900/50 rounded-full px-4 py-1.5 shadow-lg">
+            <div className="inline-block mb-6 border border-zinc-800 bg-zinc-900/50 rounded-full px-4 py-1.5">
               <span className="text-xs font-medium text-zinc-300 flex items-center gap-2">
-                <Sparkles size={14} className="text-white" /> Ready to upgrade?
+                <Sparkles size={14} /> Ready to upgrade?
               </span>
             </div>
-            <h2 className="text-5xl lg:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-zinc-500 mb-6">
-              Stop Wasting Time<br/>On Manual PDFs.
-            </h2>
-            <p className="text-zinc-400 text-lg mb-10 max-w-2xl mx-auto">
-              Join hundreds of modern event organizers using shim to streamline their post-event credentialing.
-            </p>
+            <h2 className="text-5xl font-bold text-zinc-50 mb-6">Stop Wasting Time<br/>On Manual PDFs.</h2>
+            <p className="text-zinc-400 text-lg mb-10 max-w-2xl mx-auto">Join hundreds of modern event organizers using shim to streamline their post-event credentialing.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <a href="https://shim-studio.vercel.app/register" className="group bg-white text-zinc-950 font-medium py-4 px-10 rounded-full transition-all duration-300 hover:scale-105 active:scale-95 hover:bg-zinc-100 shadow-[0_0_40px_rgba(255,255,255,0.15)] flex items-center gap-2 w-full sm:w-auto justify-center">
-                Get Started For Free
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <a href="https://shim-studio.vercel.app/register" className="bg-zinc-100 text-zinc-900 font-medium py-3 px-8 rounded-md hover:bg-white transition-colors w-full sm:w-auto">
+                Start for free
               </a>
             </div>
           </div>
