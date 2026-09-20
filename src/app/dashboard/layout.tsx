@@ -9,7 +9,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    const host = headers().get("host") || "";
+    const headersList = await headers();
+    const host = headersList.get("host") || "";
     const isLocal = host.includes("localhost");
     redirect(isLocal ? "/login" : "https://shim-hq.vercel.app/login");
   }
