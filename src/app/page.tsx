@@ -72,8 +72,8 @@ export default async function Home() {
         <section className="bg-[#0a0a0a] py-32 border-t border-zinc-900 relative z-10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-20">
-              <h2 className="text-3xl font-semibold text-zinc-50 mb-4 tracking-tight">Built for organizers.</h2>
-              <p className="text-zinc-400 text-lg max-w-xl">Simple tools to manage credentials, whether it's for ten people or ten thousand.</p>
+              <h2 className="text-3xl font-semibold text-zinc-50 mb-4 tracking-tight">Built for organizers and attendees.</h2>
+              <p className="text-zinc-400 text-lg max-w-xl">Simple tools to issue credentials, and a beautiful portal for your attendees to claim and showcase them.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
