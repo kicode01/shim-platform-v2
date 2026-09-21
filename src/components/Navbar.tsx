@@ -92,7 +92,7 @@ export default function Navbar() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -10 }}
                       transition={{ duration: 0.3 }}
-                      className="text-[0.6rem] font-bold text-zinc-400 uppercase tracking-widest absolute top-full left-0 whitespace-nowrap"
+                      className="text-[0.6rem] font-bold text-zinc-400 uppercase tracking-widest absolute top-full -mt-1.5 left-0.5 whitespace-nowrap"
                     >
                       Digital Credential Platform
                     </motion.span>
