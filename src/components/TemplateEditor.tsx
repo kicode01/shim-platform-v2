@@ -251,10 +251,10 @@ export default function TemplateEditor({
       {/* Header */}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-6 shrink-0">
         <div>
-          <Link href="/dashboard/templates" className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-800 transition-colors mb-4">
+          <Link href="/dashboard/templates" className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-700 transition-colors mb-4">
             <ArrowLeft size={16} /> Back to Templates
           </Link>
-          <h1 className="text-3xl font-bold text-zinc-800 flex items-center gap-3 mb-1">
+          <h1 className="text-3xl font-bold text-zinc-700 flex items-center gap-3 mb-1">
             <div className="p-2 bg-zinc-100 rounded-lg text-zinc-600 shrink-0">
               <LayoutTemplate size={24} />
             </div>
@@ -327,10 +327,10 @@ export default function TemplateEditor({
         {/* Left: Administrative Controls */}
         <div className="lg:col-span-4 flex flex-col bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
           <div className="flex border-b border-zinc-200 shrink-0 p-2 bg-zinc-50/50 gap-2">
-            <button className={`flex-1 py-2.5 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-all ${activeTab === "builder" ? "bg-white text-zinc-800 shadow-sm ring-1 ring-zinc-200" : "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-800"}`} onClick={() => setActiveTab("builder")}>
+            <button className={`flex-1 py-2.5 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-all ${activeTab === "builder" ? "bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200" : "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-700"}`} onClick={() => setActiveTab("builder")}>
               <Move size={16} /> Builder
             </button>
-            <button className={`flex-1 py-2.5 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-all ${activeTab === "json" ? "bg-white text-zinc-800 shadow-sm ring-1 ring-zinc-200" : "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-800"}`} onClick={() => setActiveTab("json")}>
+            <button className={`flex-1 py-2.5 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-all ${activeTab === "json" ? "bg-white text-zinc-700 shadow-sm ring-1 ring-zinc-200" : "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-700"}`} onClick={() => setActiveTab("json")}>
               <Code2 size={16} /> JSON
             </button>
           </div>
@@ -369,7 +369,7 @@ export default function TemplateEditor({
                 
                 {/* Global Background */}
                 <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-5 space-y-4">
-                  <h4 className="text-sm font-semibold text-zinc-800 border-b border-zinc-200 pb-2 mb-3 flex items-center justify-between">
+                  <h4 className="text-sm font-semibold text-zinc-700 border-b border-zinc-200 pb-2 mb-3 flex items-center justify-between">
                     Canvas Background
                   </h4>
                   <label className="btn-secondary w-full justify-center cursor-pointer text-sm py-2">
@@ -402,7 +402,7 @@ export default function TemplateEditor({
                 {selectedElement ? (
                   <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-5 space-y-4">
                     <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
-                      <h4 className="text-sm font-semibold text-zinc-800 flex items-center gap-2">
+                      <h4 className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
                         <MousePointer2 size={16} className="text-zinc-500" /> Element Properties
                       </h4>
                       <button onClick={deleteSelectedElement} className="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete Element">
@@ -473,16 +473,16 @@ export default function TemplateEditor({
 
                         <div className="flex gap-2">
                           <div className="flex border border-zinc-200 rounded-lg bg-white overflow-hidden shadow-sm">
-                            <button className={`p-2 transition-colors ${selectedElement.align === 'left' ? 'bg-zinc-100 text-zinc-800' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'left' })}><AlignLeft size={16} /></button>
+                            <button className={`p-2 transition-colors ${selectedElement.align === 'left' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'left' })}><AlignLeft size={16} /></button>
                             <div className="w-px bg-zinc-200"></div>
-                            <button className={`p-2 transition-colors ${selectedElement.align === 'center' ? 'bg-zinc-100 text-zinc-800' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'center' })}><AlignCenter size={16} /></button>
+                            <button className={`p-2 transition-colors ${selectedElement.align === 'center' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'center' })}><AlignCenter size={16} /></button>
                             <div className="w-px bg-zinc-200"></div>
-                            <button className={`p-2 transition-colors ${selectedElement.align === 'right' ? 'bg-zinc-100 text-zinc-800' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'right' })}><AlignRight size={16} /></button>
+                            <button className={`p-2 transition-colors ${selectedElement.align === 'right' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'right' })}><AlignRight size={16} /></button>
                           </div>
                           <div className="flex border border-zinc-200 rounded-lg bg-white overflow-hidden shadow-sm">
-                            <button className={`p-2 transition-colors ${selectedElement.fontWeight === 'bold' ? 'bg-zinc-100 text-zinc-800' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ fontWeight: selectedElement.fontWeight === 'bold' ? 'normal' : 'bold' })}><Bold size={16} /></button>
+                            <button className={`p-2 transition-colors ${selectedElement.fontWeight === 'bold' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ fontWeight: selectedElement.fontWeight === 'bold' ? 'normal' : 'bold' })}><Bold size={16} /></button>
                             <div className="w-px bg-zinc-200"></div>
-                            <button className={`p-2 transition-colors ${selectedElement.fontStyle === 'italic' ? 'bg-zinc-100 text-zinc-800' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ fontStyle: selectedElement.fontStyle === 'italic' ? 'normal' : 'italic' })}><Italic size={16} /></button>
+                            <button className={`p-2 transition-colors ${selectedElement.fontStyle === 'italic' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ fontStyle: selectedElement.fontStyle === 'italic' ? 'normal' : 'italic' })}><Italic size={16} /></button>
                           </div>
                         </div>
                       </>
@@ -597,7 +597,7 @@ export default function TemplateEditor({
                 className="h-full flex flex-col"
               >
                 <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex items-center justify-between shrink-0">
-                  <h3 className="text-sm font-semibold text-zinc-800 flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
                     <Code2 size={16} className="text-zinc-500" /> JSON Schema
                   </h3>
                   <div className="flex gap-2">
@@ -640,7 +640,7 @@ export default function TemplateEditor({
                     ))}
                   </div>
                   <textarea 
-                    className="flex-1 p-4 bg-white text-zinc-800 font-mono text-xs focus:outline-none resize-none overflow-auto whitespace-pre" 
+                    className="flex-1 p-4 bg-white text-zinc-700 font-mono text-xs focus:outline-none resize-none overflow-auto whitespace-pre" 
                     style={{ lineHeight: '1.5' }}
                     value={jsonText} 
                     onChange={handleJsonChange} 

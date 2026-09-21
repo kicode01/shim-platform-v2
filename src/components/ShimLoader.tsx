@@ -7,7 +7,7 @@ export default function ShimLoader({ theme = "light" }: { theme?: "light" | "dar
   return (
     <div className={`flex-1 flex flex-col items-center justify-center h-full w-full min-h-[60vh] gap-4 ${isDark ? "bg-[#0a0a0a]" : ""}`}>
       <motion.div
-        className={`w-8 h-8 border-[2px] rounded-full ${isDark ? "border-zinc-800 border-t-zinc-100" : "border-zinc-200 border-t-zinc-900"}`}
+        className={`w-8 h-8 border-[2px] rounded-full ${isDark ? "border-zinc-700 border-t-zinc-100" : "border-zinc-200 border-t-zinc-700"}`}
         animate={{ rotate: 360 }}
         transition={{ duration: 0.8, ease: "linear", repeat: Infinity }}
       />

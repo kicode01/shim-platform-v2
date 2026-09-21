@@ -38,8 +38,8 @@ export default function Sidebar() {
                 href={item.href}
                 className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors z-10 group ${
                   isActive 
-                    ? "text-zinc-800" 
-                    : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-50"
+                    ? "text-zinc-700" 
+                    : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50"
                 }`}
               >
                 {isActive && (
@@ -50,7 +50,7 @@ export default function Sidebar() {
                     style={{ zIndex: -1 }}
                   />
                 )}
-                <Icon size={18} className={isActive ? "text-zinc-800" : "text-zinc-400 group-hover:text-zinc-600 transition-colors"} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon size={18} className={isActive ? "text-zinc-700" : "text-zinc-400 group-hover:text-zinc-600 transition-colors"} strokeWidth={isActive ? 2.5 : 2} />
                 <span>{item.label}</span>
               </Link>
             );

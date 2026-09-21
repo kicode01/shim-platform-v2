@@ -67,7 +67,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
     <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 min-h-0 overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-800 mb-1">
+          <h1 className="text-3xl font-bold text-zinc-700 mb-1">
             Events Management
           </h1>
           <p className="text-zinc-500 text-sm font-medium">
@@ -81,7 +81,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
         {/* LEFT COLUMN: Event List */}
         <div className="xl:col-span-2 bg-white border border-zinc-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-full min-h-0">
           <div className="px-6 py-5 border-b border-zinc-100 bg-white shrink-0 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-zinc-800">
+            <h2 className="text-lg font-semibold text-zinc-700">
               Your Events
             </h2>
           </div>
@@ -92,7 +92,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
                 <div className="w-12 h-12 bg-zinc-50 border border-zinc-200 rounded-lg flex items-center justify-center mb-4">
                   <Calendar size={20} className="text-zinc-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-zinc-800 mb-1">No events found</h3>
+                <h3 className="text-sm font-semibold text-zinc-700 mb-1">No events found</h3>
                 <p className="text-zinc-500 text-sm max-w-sm mb-6">
                   Create your first event to start issuing credentials.
                 </p>
@@ -117,7 +117,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
                       {events.map((evt) => (
                         <tr key={evt.id} className="hover:bg-zinc-50/80 transition-colors group">
                           <td className="w-[40%] px-6 py-4 overflow-hidden">
-                            <div className="font-medium text-zinc-800 truncate">{evt.name}</div>
+                            <div className="font-medium text-zinc-700 truncate">{evt.name}</div>
                             {evt.description && <div className="text-zinc-500 truncate mt-0.5 text-xs">{evt.description}</div>}
                           </td>
                           <td className="w-[25%] px-6 py-4">
@@ -134,7 +134,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
                             <div className="flex justify-end gap-2">
                               <Link 
                                 href={`/dashboard/events/${evt.id}`}
-                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors"
+                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-md transition-colors"
                                 title="View Attendees"
                               >
                                 <Users size={18} />
@@ -162,7 +162,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
         {/* RIGHT COLUMN: Create Event Form */}
         <div className="bg-white border border-zinc-200 rounded-xl shadow-sm flex flex-col h-full min-h-0 overflow-y-auto">
           <div className="px-6 py-5 border-b border-zinc-100 bg-white shrink-0">
-            <h3 className="text-lg font-semibold text-zinc-800">
+            <h3 className="text-lg font-semibold text-zinc-700">
               Create New Event
             </h3>
           </div>
@@ -171,7 +171,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
               <label className="text-sm font-medium text-zinc-700">Event Name</label>
               <input 
                 type="text" 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-800/10 focus:border-zinc-800 transition-colors shadow-sm" 
+                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
                 value={newEventName} 
                 onChange={e => setNewEventName(e.target.value)} 
                 required 
@@ -182,7 +182,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
               <label className="text-sm font-medium text-zinc-700">Event Date</label>
               <input 
                 type="date" 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800/10 focus:border-zinc-800 transition-colors shadow-sm" 
+                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
                 value={newEventDate} 
                 onChange={e => setNewEventDate(e.target.value)} 
               />
@@ -190,7 +190,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-zinc-700">Description (Optional)</label>
               <textarea 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-800/10 focus:border-zinc-800 transition-colors shadow-sm resize-none overflow-y-scroll min-h-[80px]" 
+                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm resize-none overflow-y-scroll min-h-[80px]" 
                 style={{ scrollbarColor: '#cbd5e1 transparent', scrollbarWidth: 'thin' }}
                 value={newEventDesc} 
                 onChange={e => setNewEventDesc(e.target.value)} 
@@ -202,7 +202,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
               <label className="text-sm font-medium text-zinc-700">Default Role</label>
               <input 
                 type="text" 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-800/10 focus:border-zinc-800 transition-colors shadow-sm" 
+                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
                 value={defaultRole} 
                 onChange={e => setDefaultRole(e.target.value)} 
                 placeholder="e.g. Participant" 
@@ -212,7 +212,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
             <div className="flex flex-col gap-1.5 pb-2">
               <label className="text-sm font-medium text-zinc-700">Automated Kiosk Template (Optional)</label>
               <select
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800/10 focus:border-zinc-800 transition-colors shadow-sm"
+                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm"
                 value={defaultTemplateId}
                 onChange={e => setDefaultTemplateId(e.target.value)}
               >
@@ -228,7 +228,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
 
             <button 
               type="submit" 
-              className="w-full bg-zinc-800 hover:bg-zinc-800 text-white rounded-md px-4 py-2.5 text-sm font-medium transition-colors flex justify-center items-center gap-2 mt-auto shrink-0 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" 
+              className="w-full bg-zinc-700 hover:bg-zinc-700 text-white rounded-md px-4 py-2.5 text-sm font-medium transition-colors flex justify-center items-center gap-2 mt-auto shrink-0 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" 
               disabled={isCreating || !newEventName}
             >
               {isCreating ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />}

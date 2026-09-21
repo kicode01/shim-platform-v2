@@ -52,11 +52,11 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
           transition={{ duration: 0.3 }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-zinc-800 flex items-center justify-center text-white font-bold text-lg shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-zinc-700 flex items-center justify-center text-white font-bold text-lg shrink-0">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <p className="text-base font-bold text-zinc-800">{user.name}</p>
+              <p className="text-base font-bold text-zinc-700">{user.name}</p>
               <div className="flex items-center gap-1 mt-0.5">
                 <Hash size={10} className="text-zinc-400" />
                 <span className="text-[11px] font-mono text-zinc-400">{user.membershipId}</span>
@@ -69,7 +69,7 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
             </span>
             <button 
               onClick={() => setShowQR(true)}
-              className="flex items-center gap-1.5 text-xs font-medium bg-zinc-800 text-white px-3 py-1.5 rounded-full hover:bg-zinc-800 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 text-xs font-medium bg-zinc-700 text-white px-3 py-1.5 rounded-full hover:bg-zinc-700 transition-colors shadow-sm"
             >
               <QrCode size={12} />
               My QR Code
@@ -85,9 +85,9 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
           transition={{ duration: 0.3, delay: 0.05 }}
         >
           {[
-            { label: "Certificates", value: stats.totalCertificates, color: "text-zinc-800" },
-            { label: "Events Attended", value: stats.eventsAttended, color: "text-zinc-800" },
-            { label: "Organizations", value: stats.organizations, color: "text-zinc-800" },
+            { label: "Certificates", value: stats.totalCertificates, color: "text-zinc-700" },
+            { label: "Events Attended", value: stats.eventsAttended, color: "text-zinc-700" },
+            { label: "Organizations", value: stats.organizations, color: "text-zinc-700" },
             { label: "Verifications", value: stats.verifications, color: "text-emerald-600" },
           ].map(stat => (
             <div key={stat.label} className="bg-white border border-zinc-200 rounded-xl px-4 py-4 text-center shadow-sm">
@@ -108,7 +108,7 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
           <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <Building2 size={16} className="text-zinc-500" />
-              <h3 className="text-sm font-semibold text-zinc-800">Trusted Organizations</h3>
+              <h3 className="text-sm font-semibold text-zinc-700">Trusted Organizations</h3>
             </div>
             <p className="text-xs text-zinc-500 mb-3">You've interacted with {stats.organizations} {stats.organizations === 1 ? 'organization' : 'organizations'}.</p>
             {insights.organizations.length > 0 ? (
@@ -128,7 +128,7 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
           <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <Calendar size={16} className="text-zinc-500" />
-              <h3 className="text-sm font-semibold text-zinc-800">Events Attended</h3>
+              <h3 className="text-sm font-semibold text-zinc-700">Events Attended</h3>
             </div>
             <p className="text-xs text-zinc-500 mb-3">You've attended a total of {stats.eventsAttended} {stats.eventsAttended === 1 ? 'event' : 'events'}.</p>
             {insights.events.length > 0 ? (
@@ -174,11 +174,11 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
                 transition={{ duration: 0.25, delay: 0.05 * i }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
                     <span className="text-[11px] font-bold text-white">{cert.role.charAt(0).toUpperCase()}</span>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-zinc-800">{cert.role} Certificate</p>
+                    <p className="text-sm font-semibold text-zinc-700">{cert.role} Certificate</p>
                     <p className="text-xs text-zinc-400 mt-0.5">
                       {cert.event.name} &middot; {new Date(cert.issueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
@@ -200,12 +200,12 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
             {certificates.length === 0 && (
               <div className="bg-white border border-zinc-200 rounded-xl px-4 py-3.5 flex items-center justify-between gap-4 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
                     <span className="text-[11px] font-bold text-white">P</span>
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-zinc-800">Participant Certificate</p>
+                      <p className="text-sm font-semibold text-zinc-700">Participant Certificate</p>
                       <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">Sample</span>
                     </div>
                     <p className="text-xs text-zinc-400 mt-0.5">Intro to Web Development Workshop &middot; Sep 15, 2025</p>
@@ -235,7 +235,7 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
               className="bg-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden transform transition-all duration-300"
             >
               <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
-                <h3 className="font-semibold text-zinc-800">My QR Code</h3>
+                <h3 className="font-semibold text-zinc-700">My QR Code</h3>
                 <button onClick={() => setShowQR(false)} className="text-zinc-400 hover:text-zinc-600 transition-colors">
                   <X size={20} />
                 </button>
@@ -253,7 +253,7 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
                 <p className="text-sm text-zinc-500 text-center mb-1">
                   Present this code for fast check-in at events.
                 </p>
-                <p className="font-mono text-zinc-800 font-bold text-lg tracking-wider bg-zinc-100 px-4 py-2 rounded-lg mt-4">
+                <p className="font-mono text-zinc-700 font-bold text-lg tracking-wider bg-zinc-100 px-4 py-2 rounded-lg mt-4">
                   #{user.membershipId}
                 </p>
               </div>
