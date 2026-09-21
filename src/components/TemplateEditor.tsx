@@ -122,6 +122,8 @@ export default function TemplateEditor({
     e.preventDefault();
     if (!name.trim()) {
       setError("Template name is required.");
+      setActiveTab("builder");
+      setTimeout(() => alert("Please provide a Template Name before saving."), 10);
       return;
     }
     setError('');

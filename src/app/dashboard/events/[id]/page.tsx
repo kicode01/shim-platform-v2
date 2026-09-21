@@ -6,7 +6,7 @@ import EventDetailsClient from "./EventDetailsClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Event Attendees | Attesta",
+  title: "Event Attendees | Shim",
   description: "View and manage event attendees",
 };
 

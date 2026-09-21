@@ -6,7 +6,7 @@ import KioskClient from "./KioskClient";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Kiosk Mode | Attesta",
+  title: "Kiosk Mode | Shim",
   description: "Event check-in kiosk.",
 };
 
