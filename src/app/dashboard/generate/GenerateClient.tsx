@@ -860,8 +860,8 @@ function GenerateCertificatesContent() {
                     />
                   </div>
 
-                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg shrink-0">
-                    <div className="text-sm font-medium text-blue-800 leading-relaxed">
+                  <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg shrink-0">
+                    <div className="text-sm font-medium text-zinc-700 leading-relaxed">
                       <strong className="mr-1">Pro Tip:</strong> Download the sample CSV and upload it immediately to test the batch generation pipeline without writing any real data.
                     </div>
                   </div>
@@ -973,9 +973,9 @@ function GenerateCertificatesContent() {
 export default function GenerateCertificatesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
-        <Loader2 size={40} className="animate-spin mb-4 text-indigo-600" />
-        <p className="font-bold text-lg text-slate-600">Loading Generation Studio...</p>
+      <div className="min-h-screen bg-transparent flex flex-col items-center justify-center">
+        <Loader2 size={40} className="animate-spin mb-4 text-zinc-700" />
+        <p className="font-bold text-lg text-zinc-600">Loading Generation Studio...</p>
       </div>
     }>
       <GenerateCertificatesContent />

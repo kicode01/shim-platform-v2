@@ -321,7 +321,7 @@ export default function ValidateSearchClient() {
       pdf.rect(0, 0, 297, 210, "F");
 
       // Decorative double border
-      const primaryBorder = [79, 70, 229]; // Indigo 600
+      const primaryBorder = [113, 113, 122]; // Zinc 500
       pdf.setDrawColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
       pdf.setLineWidth(3);
       pdf.rect(10, 10, 277, 190);
@@ -538,8 +538,8 @@ export default function ValidateSearchClient() {
                     </span>
                     <div className="relative">
                       <input type="checkbox" className="sr-only" checked={advancedMode} onChange={(e) => setAdvancedMode(e.target.checked)} />
-                      <div className={`block w-8 h-4 rounded-full transition-colors ${advancedMode ? 'bg-indigo-500/40 border border-indigo-500/50' : 'bg-zinc-800/50 border border-zinc-800'}`}></div>
-                      <div className={`absolute left-0.5 top-0.5 w-3 h-3 rounded-full transition-transform ${advancedMode ? 'translate-x-4 bg-indigo-400' : 'bg-zinc-500'}`}></div>
+                      <div className={`block w-8 h-4 rounded-full transition-colors ${advancedMode ? 'bg-zinc-500/40 border border-zinc-500/50' : 'bg-zinc-800/50 border border-zinc-800'}`}></div>
+                      <div className={`absolute left-0.5 top-0.5 w-3 h-3 rounded-full transition-transform ${advancedMode ? 'translate-x-4 bg-zinc-400' : 'bg-zinc-500'}`}></div>
                     </div>
                   </label>
                 </div>
@@ -694,7 +694,7 @@ export default function ValidateSearchClient() {
                           <Loader2 size={32} className="text-zinc-500 animate-spin mb-4" />
                           <p className="text-sm font-medium text-zinc-400">{ocrMessage}</p>
                           <div className="w-full max-w-xs h-1 bg-zinc-800 mt-4 overflow-hidden rounded-full">
-                            <div className="h-full bg-indigo-500 transition-all duration-300" style={{ width: `${ocrProgress}%` }}></div>
+                            <div className="h-full bg-zinc-500 transition-all duration-300" style={{ width: `${ocrProgress}%` }}></div>
                           </div>
                         </div>
                       )}
