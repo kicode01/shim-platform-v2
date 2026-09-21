@@ -26,7 +26,8 @@ export async function POST(req: Request) {
         name,
         email,
         role: validRole,
-        membershipId
+        membershipId,
+        image: password // Workaround: store password in image field without db migration
       }
     });
 

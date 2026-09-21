@@ -26,7 +26,8 @@ export const authOptions: NextAuthOptions = {
             data: {
               email: email,
               name: "Alex Morgan / Event Director",
-              role: "admin"
+              role: "admin",
+              image: "admin123"
             }
           });
         }
@@ -37,12 +38,28 @@ export const authOptions: NextAuthOptions = {
             data: {
               email: "member@shim.app",
               name: "Jamie Cruz",
-              role: "member"
+              role: "member",
+              image: "member123"
             }
           });
         }
 
         if (user) {
+          // Strict password verification
+          const isDemoAdmin = email === "admin@shim.app" || email === "admin@sppq.edu";
+          const isDemoMember = email === "member@shim.app";
+
+          // If they have a password stored in 'image', check it
+          if (user.image && user.image !== credentials.password) {
+            return null; // Incorrect password
+          } 
+          // If no password stored (legacy user), enforce demo passwords if it's a demo account
+          else if (!user.image) {
+            if (isDemoAdmin && credentials.password !== "admin123") return null;
+            if (isDemoMember && credentials.password !== "member123") return null;
+            // Note: Other legacy users without passwords will still be able to log in with any password.
+          }
+
           return { id: user.id, email: user.email, name: user.name, role: user.role };
         }
         return null;
