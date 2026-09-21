@@ -1,5 +1,5 @@
 import ShimLoader from "@/components/ShimLoader";
 
-export default function Loading() {
-  return <ShimLoader />;
+export default function RootLoading() {
+  return <ShimLoader theme="dark" />;
 }
