@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function ShimLoader() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] w-full gap-4">
+    <div className="flex-1 flex flex-col items-center justify-center h-full w-full min-h-[60vh] gap-4">
       <motion.div
         className="w-8 h-8 border-[2px] border-zinc-200 border-t-zinc-900 rounded-full"
         animate={{ rotate: 360 }}
