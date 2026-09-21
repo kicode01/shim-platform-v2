@@ -49,12 +49,9 @@ export default async function Home() {
 
               {/* Action Bar - Multi-domain CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                <Link href="/login" className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
-                  Organizer Login
+                <Link href="/login" className="bg-zinc-100 hover:bg-white text-zinc-900 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2 w-fit">
+                  Get Started
                   <ArrowRight size={18} />
-                </Link>
-                <Link href="/login" className="bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2">
-                  Participant Wallet
                 </Link>
               </div>
             </div>
