@@ -142,7 +142,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
                               <Link 
                                 href={`/kiosk/${evt.id}`}
                                 target="_blank"
-                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-md transition-colors"
                                 title="Launch Kiosk"
                               >
                                 <QrCode size={18} />
