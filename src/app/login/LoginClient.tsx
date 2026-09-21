@@ -16,17 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      if (window.location.hostname.includes("shim-wallet")) {
-        router.replace("/portal");
-      } else if (window.location.hostname.includes("shim-studio")) {
-        router.replace("/dashboard");
-      } else {
-        router.replace(session?.user?.role === "member" ? "/portal" : "/dashboard");
-      }
-    }
-  }, [status, router, session]);
+
 
   const handleDemoFill = (role: "admin" | "member") => {
     if (role === "admin") {
@@ -70,18 +60,15 @@ export default function LoginPage() {
         }
         
         if (window.location.hostname.includes("shim-wallet")) {
-          router.push("/portal");
-          router.refresh();
+          window.location.href = "/portal";
           return;
         } else if (window.location.hostname.includes("shim-studio")) {
-          router.push("/dashboard");
-          router.refresh();
+          window.location.href = "/dashboard";
           return;
         }
 
         const sess = await getSession();
-        router.push(sess?.user?.role === "member" ? "/portal" : "/dashboard");
-        router.refresh();
+        window.location.href = sess?.user?.role === "member" ? "/portal" : "/dashboard";
       }
     } catch (err) {
       console.error(err);
