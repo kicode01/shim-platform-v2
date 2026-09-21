@@ -787,7 +787,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         width: el.width,
         height: el.height,
         cursor: isEditing ? "text" : "move", 
-        border: isSelected ? "2px solid #3b82f6" : "1px dashed transparent", 
+        border: isSelected ? "2px solid #3f3f46" : "1px dashed transparent", 
         padding: "2px",
         fontSize: `${el.fontSize || 16}px`,
         fontFamily: el.fontFamily || "var(--font-sans, sans-serif)",
