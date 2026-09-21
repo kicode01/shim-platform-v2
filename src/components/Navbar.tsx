@@ -51,7 +51,6 @@ export default function Navbar() {
     { href: "/dashboard/audit", label: "Audit Trail", icon: History },
   ];
 
-  if (!isMounted) return <div className="h-16" />; // Prevent hydration mismatch
   if (pathname.startsWith("/kiosk") || pathname.startsWith("/scanner")) return null;
 
   return (
@@ -151,11 +150,12 @@ export default function Navbar() {
 
           {/* Right Section */}
           <div className="flex items-center justify-end h-full w-[300px] shrink-0">
-            <AnimatePresence mode="wait">
-              {isLandingMode && (
-                <motion.div 
-                  key="landing-right"
-                  initial={{ opacity: 0, x: 20 }}
+            {isMounted && (
+              <AnimatePresence mode="wait">
+                {isLandingMode && (
+                  <motion.div 
+                    key="landing-right"
+                    initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
@@ -380,6 +380,7 @@ export default function Navbar() {
                 </motion.div>
               )}
             </AnimatePresence>
+            )}
           </div>
         </div>
       </header>
