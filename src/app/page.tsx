@@ -30,20 +30,22 @@ export default async function Home() {
         <section className="max-w-7xl mx-auto px-6 pt-24 pb-24 relative z-10 animate-in fade-in duration-700">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Hero Content */}
-            <div className="flex flex-col gap-6">
-              <h1 className="text-4xl lg:text-5xl font-semibold text-zinc-50 leading-tight tracking-tight">
-                Verifiable credentials <br className="hidden lg:block"/> for modern events.
+            <div className="flex flex-col gap-8">
+              <h1 className="text-5xl lg:text-6xl font-bold text-zinc-50 leading-tight">
+                Beautiful<br/>
+                Certificates.<br/>
+                Verified.
               </h1>
 
               <p className="text-lg text-zinc-400 leading-relaxed max-w-lg">
-                Design and issue digital certificates in seconds. Backed by cryptographic verification, built for organizers who care about the details.
+                Stop manually generating PDFs. shim automates stunning, QR-secured credentials for your webinars, summits, and hackathons in minutes.
               </p>
 
               {/* Action Bar - Multi-domain CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <Link href="/login" className="bg-zinc-100 hover:bg-white text-zinc-900 text-sm font-medium rounded-md py-3 px-6 transition-colors flex items-center justify-center gap-2 w-fit">
-                  Start issuing
-                  <ArrowRight size={16} />
+              <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                <Link href="/login" className="bg-zinc-100 hover:bg-white text-zinc-800 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2 w-fit">
+                  Get Started
+                  <ArrowRight size={18} />
                 </Link>
               </div>
             </div>
