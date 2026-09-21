@@ -153,7 +153,7 @@ export default function LoginPage() {
             <div className="bg-white border border-zinc-200 rounded-xl relative shadow-sm">
               <div className="p-6 sm:p-8">
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-zinc-900 mb-1">Welcome Back</h2>
+                  <h2 className="text-2xl font-bold text-zinc-800 mb-1">Welcome Back</h2>
                   <p className="text-sm font-medium text-zinc-500 mb-4">Access your organizer dashboard.</p>
                 </div>
 
@@ -163,12 +163,12 @@ export default function LoginPage() {
                   <div className="border border-zinc-200 rounded-md p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-50 relative z-10 group hover:border-zinc-300 transition-colors">
                     <div>
                       <div className="text-xs font-medium text-zinc-500 mb-1">Organizer Demo</div>
-                      <div className="text-sm font-medium text-zinc-900">admin@shim.app</div>
+                      <div className="text-sm font-medium text-zinc-800">admin@shim.app</div>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleDemoFill("admin")}
-                      className="bg-zinc-900 hover:bg-zinc-800 text-white rounded-md transition-colors py-1.5 px-4 text-xs font-medium shrink-0"
+                      className="bg-zinc-800 hover:bg-zinc-800 text-white rounded-md transition-colors py-1.5 px-4 text-xs font-medium shrink-0"
                     >
                       Auto-fill
                     </button>
@@ -178,12 +178,12 @@ export default function LoginPage() {
                   <div className="border border-zinc-200 rounded-md p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-50 relative z-10 group hover:border-zinc-300 transition-colors">
                     <div>
                       <div className="text-xs font-medium text-zinc-500 mb-1">Attendee Demo</div>
-                      <div className="text-sm font-medium text-zinc-900">member@shim.app</div>
+                      <div className="text-sm font-medium text-zinc-800">member@shim.app</div>
                     </div>
                     <button
                       type="button"
                       onClick={() => handleDemoFill("member")}
-                      className="bg-zinc-900 hover:bg-zinc-800 text-white rounded-md transition-colors py-1.5 px-4 text-xs font-medium shrink-0"
+                      className="bg-zinc-800 hover:bg-zinc-800 text-white rounded-md transition-colors py-1.5 px-4 text-xs font-medium shrink-0"
                     >
                       Auto-fill
                     </button>
@@ -204,7 +204,7 @@ export default function LoginPage() {
                       <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                       <input 
                         type="email" 
-                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-md px-3 py-2.5 pl-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
+                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-md px-3 py-2.5 pl-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="admin@shim.app"
@@ -219,7 +219,7 @@ export default function LoginPage() {
                       <Key size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                       <input 
                         type={showPassword ? "text" : "password"} 
-                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-md px-3 py-2.5 pl-10 pr-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
+                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-md px-3 py-2.5 pl-10 pr-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
@@ -237,7 +237,7 @@ export default function LoginPage() {
                   
                   <button 
                     type="submit" 
-                    className="w-full bg-zinc-900 text-white hover:bg-zinc-800 font-medium rounded-md py-2.5 mt-4 transition-colors flex items-center justify-center gap-2 text-sm"
+                    className="w-full bg-zinc-800 text-white hover:bg-zinc-800 font-medium rounded-md py-2.5 mt-4 transition-colors flex items-center justify-center gap-2 text-sm"
                     disabled={loading}
                   >
                     {loading ? <Loader2 size={16} className="animate-spin" /> : <LogIn size={16} />}
@@ -249,7 +249,7 @@ export default function LoginPage() {
 
             <div className="text-center mt-6 text-sm text-zinc-500">
                 No account?{" "}
-                <Link href="/register" className="text-zinc-900 font-medium hover:underline ml-1">
+                <Link href="/register" className="text-zinc-800 font-medium hover:underline ml-1">
                   Create One
                 </Link>
             </div>

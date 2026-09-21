@@ -47,16 +47,16 @@ export default function DashboardClient({
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 mb-1">Overview</h1>
+          <h1 className="text-3xl font-bold text-zinc-800 mb-1">Overview</h1>
           <p className="text-zinc-500 text-sm font-medium">Manage your event credentials and templates</p>
         </div>
         
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/templates" className="flex items-center gap-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm">
+          <Link href="/dashboard/templates" className="flex items-center gap-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-800 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm">
             <Stamp size={16} />
             <span className="hidden sm:inline">Templates</span>
           </Link>
-          <Link href="/dashboard/generate" className="flex items-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm">
+          <Link href="/dashboard/generate" className="flex items-center gap-2 bg-zinc-800 text-white hover:bg-zinc-800 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm">
             <Plus size={16} />
             <span>Issue Credential</span>
           </Link>
@@ -141,7 +141,7 @@ export default function DashboardClient({
               </div>
             </div>
             
-            <div className="text-4xl font-bold text-zinc-900 mt-6 relative z-10">
+            <div className="text-4xl font-bold text-zinc-800 mt-6 relative z-10">
               {stat.value}
             </div>
           </div>
@@ -155,8 +155,8 @@ export default function DashboardClient({
         <div className="xl:col-span-2 bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-full min-h-0">
           
           <div className="p-6 border-b border-zinc-200 flex justify-between items-center bg-white shrink-0">
-            <h2 className="text-xl font-bold text-zinc-900">Recent Events</h2>
-            <Link href="/dashboard/events" className="text-sm font-medium text-zinc-600 hover:text-zinc-900 flex items-center gap-1">
+            <h2 className="text-xl font-bold text-zinc-800">Recent Events</h2>
+            <Link href="/dashboard/events" className="text-sm font-medium text-zinc-600 hover:text-zinc-800 flex items-center gap-1">
               View all <ArrowRight size={16} />
             </Link>
           </div>
@@ -167,7 +167,7 @@ export default function DashboardClient({
                 <div className="w-16 h-16 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-center mb-6">
                   <Calendar size={24} className="text-zinc-400" />
                 </div>
-                <h3 className="text-xl font-bold text-zinc-900 mb-2">No events found</h3>
+                <h3 className="text-xl font-bold text-zinc-800 mb-2">No events found</h3>
                 <p className="text-zinc-500 font-medium max-w-sm">
                   You haven't created any events yet.
                 </p>
@@ -181,18 +181,18 @@ export default function DashboardClient({
                     className="flex items-center justify-between p-4 hover:bg-zinc-50 transition-colors group"
                   >
                     <div>
-                      <h4 className="font-medium text-zinc-900 mb-1 group-hover:text-black transition-colors">{event.name}</h4>
+                      <h4 className="font-medium text-zinc-800 mb-1 group-hover:text-black transition-colors">{event.name}</h4>
                       <p className="text-sm text-zinc-500">
                         {event.date ? new Date(event.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "No date set"}
                       </p>
                     </div>
                     <div className="flex gap-6 text-sm text-zinc-600">
                       <div className="flex flex-col items-end">
-                        <span className="font-semibold text-zinc-900">{event.attendeeCount}</span>
+                        <span className="font-semibold text-zinc-800">{event.attendeeCount}</span>
                         <span className="text-xs text-zinc-500">Attendees</span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="font-semibold text-zinc-900">{event.credentialCount}</span>
+                        <span className="font-semibold text-zinc-800">{event.credentialCount}</span>
                         <span className="text-xs text-zinc-500">Credentials</span>
                       </div>
                     </div>
@@ -206,7 +206,7 @@ export default function DashboardClient({
         {/* Right Col: Analytics Chart */}
         <div className="bg-white border border-zinc-200 rounded-xl shadow-sm flex flex-col h-full min-h-0">
           <div className="p-6 border-b border-zinc-200 shrink-0">
-            <h3 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-zinc-800 flex items-center gap-2">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-400">
                 <polyline points="2 20 8 10 14 14 22 4" />
               </svg>
@@ -253,7 +253,7 @@ export default function DashboardClient({
           </div>
 
           <div className="p-6 bg-zinc-50 border-t border-zinc-200 rounded-b-xl mt-auto text-center shrink-0">
-            <div className="flex items-center justify-center gap-2 text-sm font-medium text-zinc-900 mb-1">
+            <div className="flex items-center justify-center gap-2 text-sm font-medium text-zinc-800 mb-1">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <rect x="4" y="10" width="16" height="12" rx="2" />
                 <path d="M7 10V6a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

@@ -80,14 +80,14 @@ export default function KioskClient({ eventId, eventName, initialCount }: KioskC
   }, [eventId]);
 
   return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 flex flex-col relative font-sans selection:bg-zinc-200">
+    <div className="min-h-screen bg-zinc-50 text-zinc-800 flex flex-col relative font-sans selection:bg-zinc-200">
       
       {/* Main Content */}
       <main className="flex-1 flex flex-col items-center justify-center p-6 w-full">
         <div className="flex flex-col items-center max-w-3xl w-full">
           
           <div className="text-center mb-8">
-            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-zinc-900 mb-4 leading-tight">
+            <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-zinc-800 mb-4 leading-tight">
               {eventName}
             </h1>
             <p className="text-xl md:text-2xl text-zinc-500 max-w-xl mx-auto font-medium">

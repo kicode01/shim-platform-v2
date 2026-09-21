@@ -83,8 +83,8 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
                   key={f}
                   className={`px-4 py-1.5 text-sm font-medium whitespace-nowrap rounded-md transition-colors ${
                     filter === f 
-                      ? "bg-white text-zinc-900 shadow-sm" 
-                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50"
+                      ? "bg-white text-zinc-800 shadow-sm" 
+                      : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/50"
                   }`}
                   onClick={() => setFilter(f)}
                 >
@@ -101,7 +101,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
                 placeholder="Search logs..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-white border border-zinc-200 text-zinc-900 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto"
+                className="w-full pl-9 pr-8 py-2 bg-white border border-zinc-200 text-zinc-800 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto"
               />
             </div>
           </div>
@@ -114,7 +114,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
               <div className="w-16 h-16 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-center mb-6">
                 <Search size={24} className="text-zinc-400" />
               </div>
-              <h3 className="text-xl font-bold text-zinc-900 mb-2">No logs found</h3>
+              <h3 className="text-xl font-bold text-zinc-800 mb-2">No logs found</h3>
               <p className="text-zinc-500 font-medium max-w-sm mb-8">
                 {searchTerm || filter !== "All" 
                   ? "Try adjusting your search or filters." 
@@ -146,7 +146,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
                           </div>
                         </td>
                         <td className="w-[25%] px-4 py-3 overflow-hidden">
-                          <div className="font-medium text-sm text-zinc-900 truncate" title={getActorText(log.action, log.ipAddress)}>
+                          <div className="font-medium text-sm text-zinc-800 truncate" title={getActorText(log.action, log.ipAddress)}>
                             {getActorText(log.action, log.ipAddress)}
                           </div>
                         </td>
@@ -158,7 +158,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
                         <td className="w-[30%] px-4 py-3 overflow-hidden">
                           {log.certificate ? (
                             <div className="flex flex-col">
-                              <span className="text-zinc-900 font-medium truncate" title={log.certificate.recipientName}>{log.certificate.recipientName}</span>
+                              <span className="text-zinc-800 font-medium truncate" title={log.certificate.recipientName}>{log.certificate.recipientName}</span>
                               <span className="text-zinc-500 text-xs truncate" title={log.certificate.event.name}>{log.certificate.event.name}</span>
                             </div>
                           ) : (

@@ -150,10 +150,10 @@ export default function EventDetailsClient({
       {/* Header (Template Studio Style) */}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-6 shrink-0">
         <div>
-          <Link href="/dashboard/events" className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors mb-4">
+          <Link href="/dashboard/events" className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-800 transition-colors mb-4">
             <ArrowLeft size={16} /> Back to Events
           </Link>
-          <h1 className="text-3xl font-bold text-zinc-900 flex items-center gap-3 mb-1">
+          <h1 className="text-3xl font-bold text-zinc-800 flex items-center gap-3 mb-1">
             <div className="p-2 bg-zinc-100 rounded-lg text-zinc-600 shrink-0">
               <Users size={24} />
             </div>
@@ -167,7 +167,7 @@ export default function EventDetailsClient({
         <div className="flex items-center gap-3 shrink-0">
           <Link 
             href={`/scanner/${event.id}`}
-            className="h-10 px-4 bg-zinc-900 text-white text-sm font-semibold rounded-xl hover:bg-zinc-800 transition-colors shadow-sm flex items-center gap-2"
+            className="h-10 px-4 bg-zinc-800 text-white text-sm font-semibold rounded-xl hover:bg-zinc-800 transition-colors shadow-sm flex items-center gap-2"
           >
             <QrCode size={16} /> <span className="hidden sm:inline">Check In</span>
           </Link>
@@ -189,7 +189,7 @@ export default function EventDetailsClient({
           
           {/* Table Header & Search */}
           <div className="p-4 border-b border-zinc-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-50 shrink-0">
-            <div className="flex items-center gap-2 text-zinc-900 font-semibold text-sm">
+            <div className="flex items-center gap-2 text-zinc-800 font-semibold text-sm">
               <Users size={18} className="text-zinc-500" />
               Attendees ({attendances.length})
             </div>
@@ -201,7 +201,7 @@ export default function EventDetailsClient({
                 placeholder="Search..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-8 pr-8 py-1.5 bg-white border border-zinc-200 text-zinc-900 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto shadow-sm"
+                className="w-full pl-8 pr-8 py-1.5 bg-white border border-zinc-200 text-zinc-800 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto shadow-sm"
               />
               {searchTerm && (
                 <button 
@@ -246,7 +246,7 @@ export default function EventDetailsClient({
                       {filtered.map((att) => (
                         <tr key={att.id} className="hover:bg-zinc-50/80 transition-colors group">
                           <td className="w-[35%] px-5 py-3 overflow-hidden">
-                            <div className="font-medium text-zinc-900 truncate">{att.name}</div>
+                            <div className="font-medium text-zinc-800 truncate">{att.name}</div>
                             <div className="text-zinc-500 truncate mt-0.5 text-xs">{att.email}</div>
                           </td>
                           <td className="w-[20%] px-5 py-3">
@@ -271,7 +271,7 @@ export default function EventDetailsClient({
                                   <button
                                     onClick={() => toggleRevoke(att)}
                                     disabled={revokingId === att.certificateId}
-                                    className="text-[10px] uppercase font-bold text-zinc-500 hover:text-zinc-900 underline disabled:opacity-50"
+                                    className="text-[10px] uppercase font-bold text-zinc-500 hover:text-zinc-800 underline disabled:opacity-50"
                                   >
                                     {revokingId === att.certificateId ? "Wait..." : "Restore"}
                                   </button>
@@ -310,7 +310,7 @@ export default function EventDetailsClient({
         <div className="lg:col-span-4 flex flex-col bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
           <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex items-center gap-2 shrink-0">
             <Settings2 size={18} className="text-zinc-500" />
-            <h2 className="text-sm font-semibold text-zinc-900">Event Configuration</h2>
+            <h2 className="text-sm font-semibold text-zinc-800">Event Configuration</h2>
           </div>
           
           <div className="flex-1 overflow-y-auto p-5 space-y-5">

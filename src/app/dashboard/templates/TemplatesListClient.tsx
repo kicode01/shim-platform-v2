@@ -52,7 +52,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 mb-1">
+          <h1 className="text-3xl font-bold text-zinc-800 mb-1">
             Certificate Templates
           </h1>
           <p className="text-zinc-500 text-sm font-medium">
@@ -60,7 +60,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
           </p>
         </div>
 
-        <Link href="/dashboard/templates/new" className="flex items-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm">
+        <Link href="/dashboard/templates/new" className="flex items-center gap-2 bg-zinc-800 text-white hover:bg-zinc-800 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm">
           <Plus size={16} />
           <span>New Template</span>
         </Link>
@@ -72,11 +72,11 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
           <div className="w-16 h-16 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-center mb-6">
             <Stamp size={28} className="text-zinc-400" />
           </div>
-          <h2 className="text-xl font-bold text-zinc-900 mb-2">No templates created yet</h2>
+          <h2 className="text-xl font-bold text-zinc-800 mb-2">No templates created yet</h2>
           <p className="text-zinc-500 font-medium max-w-md mx-auto mb-8 text-sm">
             Create your first event credential design using our visual builder.
           </p>
-          <Link href="/dashboard/templates/new" className="flex items-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 px-6 py-3 rounded-md font-medium text-sm transition-colors shadow-sm">
+          <Link href="/dashboard/templates/new" className="flex items-center gap-2 bg-zinc-800 text-white hover:bg-zinc-800 px-6 py-3 rounded-md font-medium text-sm transition-colors shadow-sm">
             <Plus size={16} />
             <span>Create First Template</span>
           </Link>
@@ -108,8 +108,8 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
                         design={parsedDesign}
                       />
                     </div>
-                    <div className="absolute inset-0 bg-zinc-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
-                      <span className="bg-white text-zinc-900 text-xs font-semibold px-4 py-2 rounded-full shadow-sm flex items-center gap-2">
+                    <div className="absolute inset-0 bg-zinc-800/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]">
+                      <span className="bg-white text-zinc-800 text-xs font-semibold px-4 py-2 rounded-full shadow-sm flex items-center gap-2">
                         <Maximize2 size={14} /> Expand Preview
                       </span>
                     </div>
@@ -118,7 +118,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
                   {/* Info Block */}
                   <div className="p-5 bg-white flex-1 flex flex-col">
                     <div className="flex justify-between items-start gap-2 mb-1">
-                      <h3 className="text-lg font-semibold text-zinc-900 leading-tight line-clamp-1">
+                      <h3 className="text-lg font-semibold text-zinc-800 leading-tight line-clamp-1">
                         {t.name}
                       </h3>
                       <span className="shrink-0 text-[0.65rem] font-bold uppercase tracking-widest text-zinc-500 bg-zinc-100 px-2 py-1 rounded">
@@ -139,14 +139,14 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
                   <div className="flex border-t border-zinc-100 bg-white divide-x divide-zinc-100">
                     <Link 
                       href={`/dashboard/templates/${t.id}`} 
-                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-800 transition-colors"
                     >
                       <Edit3 size={16} /> Edit
                     </Link>
 
                     <Link 
                       href={`/dashboard/generate?templateId=${t.id}`} 
-                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-800 transition-colors"
                     >
                       <FileSpreadsheet size={16} /> Issue
                     </Link>
@@ -191,7 +191,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
             {/* Modal Header */}
             <div className="flex justify-between items-start px-6 py-5 border-b border-zinc-100 bg-white shrink-0">
               <div>
-                <h2 className="text-xl font-semibold text-zinc-900 mb-1">
+                <h2 className="text-xl font-semibold text-zinc-800 mb-1">
                   {inspectingTemplate.name}
                 </h2>
                 <p className="text-sm text-zinc-500">
@@ -201,7 +201,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
 
               <button 
                 onClick={() => setInspectingTemplate(null)}
-                className="p-2 rounded-full text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
+                className="p-2 rounded-full text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition-colors"
               >
                 <X size={20} />
               </button>

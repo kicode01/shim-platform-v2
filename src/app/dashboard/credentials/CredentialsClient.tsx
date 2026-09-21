@@ -131,8 +131,8 @@ export default function CredentialsClient({
                   key={filter}
                   className={`px-4 py-1.5 text-sm font-medium capitalize rounded-md transition-colors ${
                     statusFilter === filter 
-                      ? "bg-white text-zinc-900 shadow-sm" 
-                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-200/50"
+                      ? "bg-white text-zinc-800 shadow-sm" 
+                      : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/50"
                   }`}
                   onClick={() => setStatusFilter(filter)}
                 >
@@ -149,7 +149,7 @@ export default function CredentialsClient({
                 placeholder="Search recipient..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-white border border-zinc-200 text-zinc-900 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto"
+                className="w-full pl-9 pr-8 py-2 bg-white border border-zinc-200 text-zinc-800 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto"
               />
               {searchTerm && (
                 <button 
@@ -170,7 +170,7 @@ export default function CredentialsClient({
               <div className="w-16 h-16 bg-zinc-50 border border-zinc-200 rounded-xl flex items-center justify-center mb-6">
                 <BookOpen size={24} className="text-zinc-400" />
               </div>
-              <h3 className="text-xl font-bold text-zinc-900 mb-2">No credentials found</h3>
+              <h3 className="text-xl font-bold text-zinc-800 mb-2">No credentials found</h3>
               <p className="text-zinc-500 font-medium max-w-sm mb-8">
                 {searchTerm || statusFilter !== "all" 
                   ? "Try adjusting your search or filter settings." 
@@ -198,11 +198,11 @@ export default function CredentialsClient({
                 {certificates.map((cert) => (
                   <tr key={cert.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
                     <td className="w-[28%] px-4 py-3 overflow-hidden">
-                      <div className="font-medium text-sm text-zinc-900 mb-1 truncate" title={cert.recipientName}>{cert.recipientName}</div>
+                      <div className="font-medium text-sm text-zinc-800 mb-1 truncate" title={cert.recipientName}>{cert.recipientName}</div>
                       <div className="text-sm text-zinc-500 truncate" title={cert.recipientEmail || "No email"}>{cert.recipientEmail || "No email"}</div>
                     </td>
                     <td className="w-[22%] px-4 py-3 overflow-hidden">
-                      <div className="font-medium text-sm text-zinc-900 mb-1 truncate" title={cert.role || "Participant"}>{cert.role || "Participant"}</div>
+                      <div className="font-medium text-sm text-zinc-800 mb-1 truncate" title={cert.role || "Participant"}>{cert.role || "Participant"}</div>
                       <div className="text-sm text-zinc-500 truncate" title={cert.template?.name || "Standard Template"}>
                         {cert.template?.name || "Standard Template"}
                       </div>

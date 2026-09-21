@@ -117,7 +117,7 @@ export default function RegisterPage() {
             <div className="bg-white border border-zinc-200 rounded-xl relative shadow-sm">
               <div className="p-6 sm:p-8">
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-zinc-900 mb-1">Create Account</h2>
+                  <h2 className="text-2xl font-bold text-zinc-800 mb-1">Create Account</h2>
                   <p className="text-sm font-medium text-zinc-500 mb-4">Join the standard in digital credentials.</p>
                 </div>
 
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                       <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                       <input 
                         type="text" 
-                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-md px-3 py-2.5 pl-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
+                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-md px-3 py-2.5 pl-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Jane Doe / Tech Corp"
@@ -150,7 +150,7 @@ export default function RegisterPage() {
                       <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                       <input 
                         type="email" 
-                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-md px-3 py-2.5 pl-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
+                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-md px-3 py-2.5 pl-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="jane@shim.app"
@@ -165,7 +165,7 @@ export default function RegisterPage() {
                       <Key size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                       <input 
                         type={showPassword ? "text" : "password"} 
-                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-md px-3 py-2.5 pl-10 pr-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
+                        className="w-full bg-zinc-50 border border-zinc-200 text-zinc-800 rounded-md px-3 py-2.5 pl-10 pr-10 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm" 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
@@ -184,17 +184,17 @@ export default function RegisterPage() {
                   <div>
                     <label className="block text-sm font-medium text-zinc-700 mb-2">I want to...</label>
                     <div className="grid grid-cols-2 gap-3">
-                      <label className={`border rounded-lg p-3 cursor-pointer flex flex-col transition-all ${role === "organizer" ? "bg-zinc-50 border-zinc-900 ring-1 ring-zinc-900" : "bg-white border-zinc-200 hover:border-zinc-300"}`}>
+                      <label className={`border rounded-lg p-3 cursor-pointer flex flex-col transition-all ${role === "organizer" ? "bg-zinc-50 border-zinc-800 ring-1 ring-zinc-800" : "bg-white border-zinc-200 hover:border-zinc-300"}`}>
                         <input type="radio" name="role" value="organizer" className="sr-only" checked={role === "organizer"} onChange={() => setRole("organizer")} />
                         <div className="flex-1 flex flex-col justify-start">
-                          <span className="text-sm font-semibold text-zinc-900 mb-1 leading-tight">Host Events</span>
+                          <span className="text-sm font-semibold text-zinc-800 mb-1 leading-tight">Host Events</span>
                           <span className="text-xs text-zinc-500 leading-snug">I am an organizer.</span>
                         </div>
                       </label>
-                      <label className={`border rounded-lg p-3 cursor-pointer flex flex-col transition-all ${role === "member" ? "bg-zinc-50 border-zinc-900 ring-1 ring-zinc-900" : "bg-white border-zinc-200 hover:border-zinc-300"}`}>
+                      <label className={`border rounded-lg p-3 cursor-pointer flex flex-col transition-all ${role === "member" ? "bg-zinc-50 border-zinc-800 ring-1 ring-zinc-800" : "bg-white border-zinc-200 hover:border-zinc-300"}`}>
                         <input type="radio" name="role" value="member" className="sr-only" checked={role === "member"} onChange={() => setRole("member")} />
                         <div className="flex-1 flex flex-col justify-start">
-                          <span className="text-sm font-semibold text-zinc-900 mb-1 leading-tight">Earn Credentials</span>
+                          <span className="text-sm font-semibold text-zinc-800 mb-1 leading-tight">Earn Credentials</span>
                           <span className="text-xs text-zinc-500 leading-snug">I am an attendee.</span>
                         </div>
                       </label>
@@ -203,7 +203,7 @@ export default function RegisterPage() {
                   
                   <button 
                     type="submit" 
-                    className="w-full bg-zinc-900 text-white hover:bg-zinc-800 font-medium rounded-md py-2.5 mt-4 transition-colors flex items-center justify-center gap-2 text-sm"
+                    className="w-full bg-zinc-800 text-white hover:bg-zinc-800 font-medium rounded-md py-2.5 mt-4 transition-colors flex items-center justify-center gap-2 text-sm"
                     disabled={loading}
                   >
                     {loading ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
@@ -215,7 +215,7 @@ export default function RegisterPage() {
 
             <div className="text-center mt-6 text-sm text-zinc-500">
               Already have an account?{" "}
-              <Link href="/login" className="text-zinc-900 font-medium hover:underline ml-1">
+              <Link href="/login" className="text-zinc-800 font-medium hover:underline ml-1">
                 Sign In
               </Link>
             </div>

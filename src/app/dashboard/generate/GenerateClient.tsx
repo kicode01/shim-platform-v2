@@ -494,7 +494,7 @@ function GenerateCertificatesContent() {
         <div className="relative">
           <LayoutTemplate size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <select
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent cursor-pointer shadow-sm transition-shadow appearance-none"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 focus:border-transparent cursor-pointer shadow-sm transition-shadow appearance-none"
             value={selectedTemplate?.id || ""}
             onChange={(e) => {
               const t = templates.find(item => item.id === e.target.value);
@@ -518,7 +518,7 @@ function GenerateCertificatesContent() {
           <Plus size={16} /> New Template
         </Link>
         {selectedTemplate && (
-          <Link href={`/dashboard/templates/${selectedTemplate.id}`} className="flex-1 flex justify-center items-center gap-2 px-4 py-2 border border-transparent bg-zinc-900 hover:bg-zinc-800 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+          <Link href={`/dashboard/templates/${selectedTemplate.id}`} className="flex-1 flex justify-center items-center gap-2 px-4 py-2 border border-transparent bg-zinc-800 hover:bg-zinc-800 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
             Customize
           </Link>
         )}
@@ -551,7 +551,7 @@ function GenerateCertificatesContent() {
     <div className="flex flex-col h-full min-h-0">
       <div className="bg-white border border-zinc-200 rounded-xl p-4 sm:p-6 flex-1 flex flex-col relative min-h-0 overflow-hidden shadow-sm">
         <div className="flex justify-between items-center mb-4 pb-4 border-b border-zinc-100 shrink-0">
-          <h3 className="text-lg font-semibold text-zinc-900 flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-zinc-800 flex items-center gap-2">
             Live Preview
           </h3>
           <span className="text-xs font-medium text-zinc-600 bg-zinc-100 px-3 py-1 rounded-full hidden sm:inline-block">A4 Landscape</span>
@@ -606,7 +606,7 @@ function GenerateCertificatesContent() {
         {/* Page Header */}
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-6 shrink-0">
           <div>
-            <h1 className="text-3xl font-bold text-zinc-900 mb-1">
+            <h1 className="text-3xl font-bold text-zinc-800 mb-1">
               Generation Studio
             </h1>
             <p className="text-zinc-500 text-sm font-medium">
@@ -620,7 +620,7 @@ function GenerateCertificatesContent() {
               onClick={() => setMode("single")}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                 mode === "single" 
-                  ? "bg-white text-zinc-900 shadow-sm" 
+                  ? "bg-white text-zinc-800 shadow-sm" 
                   : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
               }`}
             >
@@ -631,7 +631,7 @@ function GenerateCertificatesContent() {
               onClick={() => setMode("bulk")}
               className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                 mode === "bulk" 
-                  ? "bg-white text-zinc-900 shadow-sm" 
+                  ? "bg-white text-zinc-800 shadow-sm" 
                   : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
               }`}
             >
@@ -654,7 +654,7 @@ function GenerateCertificatesContent() {
                 <div className="bg-white border border-zinc-200 rounded-xl p-8 flex-1 overflow-y-auto min-h-0 flex flex-col shadow-sm">
                   <div className="mb-6 border-b border-zinc-100 pb-5 shrink-0 flex justify-between items-start">
                     <div>
-                      <h3 className="text-xl font-semibold text-zinc-900">Recipient Details</h3>
+                      <h3 className="text-xl font-semibold text-zinc-800">Recipient Details</h3>
                       <p className="text-sm font-medium text-zinc-500 mt-1">
                         Enter the details to generate a credential instantly.
                       </p>
@@ -668,7 +668,7 @@ function GenerateCertificatesContent() {
                         setSingleEventId("");
                         setSingleSuccess(null);
                       }}
-                      className="text-xs font-medium text-zinc-500 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded-md transition-colors"
+                      className="text-xs font-medium text-zinc-500 hover:text-zinc-800 bg-zinc-100 hover:bg-zinc-200 px-3 py-1.5 rounded-md transition-colors"
                     >
                       Clear
                     </button>
@@ -707,7 +707,7 @@ function GenerateCertificatesContent() {
                       <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Full Name *</label>
                       <input 
                         type="text" 
-                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
+                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
                         value={singleName}
                         onChange={e => setSingleName(e.target.value)}
                         placeholder="e.g. Jane Doe"
@@ -719,7 +719,7 @@ function GenerateCertificatesContent() {
                       <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Email Address (Optional)</label>
                       <input 
                         type="email" 
-                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
+                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
                         value={singleEmail}
                         onChange={e => setSingleEmail(e.target.value)}
                         placeholder="jane@example.com"
@@ -730,7 +730,7 @@ function GenerateCertificatesContent() {
                       <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Role / Participation</label>
                       <input 
                         type="text" 
-                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
+                        className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 focus:border-transparent placeholder:text-zinc-400 shadow-sm" 
                         value={singleRole}
                         onChange={e => setSingleRole(e.target.value)}
                         placeholder={selectedTemplate?.name || "e.g. Keynote Speaker"}
@@ -741,7 +741,7 @@ function GenerateCertificatesContent() {
                       <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Select Event</label>
                       <div className="relative">
                         <select 
-                          className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent shadow-sm appearance-none cursor-pointer"
+                          className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 focus:border-transparent shadow-sm appearance-none cursor-pointer"
                           value={singleEventId}
                           onChange={e => setSingleEventId(e.target.value)}
                         >
@@ -768,7 +768,7 @@ function GenerateCertificatesContent() {
                       </button>
                       <button 
                         type="submit" 
-                        className="sm:w-1/2 bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-md text-sm font-medium flex justify-center items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="sm:w-1/2 bg-zinc-800 hover:bg-zinc-800 text-white py-3 rounded-md text-sm font-medium flex justify-center items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
                         disabled={singleIssuing || !singleName.trim()}
                       >
                         {singleIssuing && <Loader2 size={18} className="animate-spin" />}
@@ -795,7 +795,7 @@ function GenerateCertificatesContent() {
                 <div className="bg-white border border-zinc-200 rounded-xl p-8 max-w-4xl mx-auto w-full flex-1 overflow-y-auto min-h-0 flex flex-col shadow-sm">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-zinc-100 pb-5 shrink-0">
                     <div>
-                      <h3 className="text-xl font-semibold text-zinc-900">Upload CSV Roster</h3>
+                      <h3 className="text-xl font-semibold text-zinc-800">Upload CSV Roster</h3>
                       <p className="text-sm font-medium text-zinc-500 mt-1">
                         Batch process thousands of certificates at once.
                       </p>
@@ -814,7 +814,7 @@ function GenerateCertificatesContent() {
                     <p className="text-xs text-zinc-500 mb-2">If your CSV doesn't specify an event for a row, this event will be used.</p>
                     <div className="relative">
                       <select 
-                        className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent shadow-sm appearance-none cursor-pointer"
+                        className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 focus:border-transparent shadow-sm appearance-none cursor-pointer"
                         value={bulkEventId}
                         onChange={e => setBulkEventId(e.target.value)}
                       >
@@ -830,16 +830,16 @@ function GenerateCertificatesContent() {
                   </div>
 
                   <div 
-                    className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer flex flex-col items-center justify-center relative mb-8 hover:bg-zinc-50 ${isDragging ? "border-zinc-900 bg-zinc-50" : "border-zinc-300 bg-white hover:border-zinc-400"}`}
+                    className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer flex flex-col items-center justify-center relative mb-8 hover:bg-zinc-50 ${isDragging ? "border-zinc-800 bg-zinc-50" : "border-zinc-300 bg-white hover:border-zinc-400"}`}
                     onClick={() => document.getElementById("csv-file-input")?.click()}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                   >
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-5 transition-colors ${isDragging ? "bg-zinc-900 text-white shadow-md" : "bg-zinc-100 text-zinc-500 shadow-sm"}`}>
+                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-5 transition-colors ${isDragging ? "bg-zinc-800 text-white shadow-md" : "bg-zinc-100 text-zinc-500 shadow-sm"}`}>
                       <Upload size={24} />
                     </div>
-                    <h4 className="text-lg font-semibold text-zinc-900 mb-2">
+                    <h4 className="text-lg font-semibold text-zinc-800 mb-2">
                       {isDragging ? "Drop CSV Here" : "Click or Drag CSV to upload"}
                     </h4>
                     <p className="text-sm font-medium text-zinc-500 max-w-sm mx-auto leading-relaxed">
@@ -872,7 +872,7 @@ function GenerateCertificatesContent() {
                 <div className="bg-white border border-zinc-200 rounded-xl p-8 max-w-5xl mx-auto w-full flex-1 overflow-y-auto min-h-0 shadow-sm">
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-5 border-b border-zinc-100">
                     <div>
-                      <h3 className="text-xl font-semibold text-zinc-900 flex items-center gap-2">
+                      <h3 className="text-xl font-semibold text-zinc-800 flex items-center gap-2">
                         Validation: {csvData.length} Records
                       </h3>
                       <p className="text-sm font-medium text-zinc-500 mt-1">
@@ -907,7 +907,7 @@ function GenerateCertificatesContent() {
                             className={`transition-colors cursor-pointer ${previewIndex === i ? 'bg-zinc-100' : 'hover:bg-zinc-50'}`}
                           >
                             <td className="px-6 py-3 text-sm font-medium text-zinc-500">{i + 1}</td>
-                            <td className="px-6 py-3 text-sm font-semibold text-zinc-900">{row.name}</td>
+                            <td className="px-6 py-3 text-sm font-semibold text-zinc-800">{row.name}</td>
                             <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.email || "—"}</td>
                             <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.role || selectedTemplate?.name || "Default"}</td>
                           </tr>
@@ -919,7 +919,7 @@ function GenerateCertificatesContent() {
                   <div className="flex justify-end">
                     <button 
                       onClick={handleBulkIssue} 
-                      className="bg-zinc-900 hover:bg-zinc-800 text-white py-3 px-8 rounded-md text-sm font-medium flex items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="bg-zinc-800 hover:bg-zinc-800 text-white py-3 px-8 rounded-md text-sm font-medium flex items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
                       disabled={bulkIssuing}
                     >
                       {bulkIssuing ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
@@ -951,7 +951,7 @@ function GenerateCertificatesContent() {
                       >
                         New Batch
                       </button>
-                      <Link href="/dashboard" className="px-6 py-3 bg-zinc-900 text-white hover:bg-zinc-800 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2 flex-1">
+                      <Link href="/dashboard" className="px-6 py-3 bg-zinc-800 text-white hover:bg-zinc-800 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2 flex-1">
                         View Overview <ArrowRight size={16} />
                       </Link>
                     </div>

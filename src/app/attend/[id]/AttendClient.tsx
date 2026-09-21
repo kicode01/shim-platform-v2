@@ -78,7 +78,7 @@ export default function AttendClient({ event }: AttendClientProps) {
         
         <div className="text-left mb-12">
           <p className="text-zinc-500 font-bold uppercase tracking-widest text-xs mb-4">Event Check-In</p>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3 text-zinc-900 leading-none">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3 text-zinc-800 leading-none">
             {event.name}
           </h1>
           {event.date && (
@@ -91,16 +91,16 @@ export default function AttendClient({ event }: AttendClientProps) {
         <div className="flex-1 flex flex-col justify-between">
           {success ? (
             <div className="text-center animate-fade-in py-16 flex flex-col items-center justify-center h-full">
-              <h2 className="text-4xl md:text-5xl font-black mb-4 text-zinc-900 tracking-tight">Checked In!</h2>
+              <h2 className="text-4xl md:text-5xl font-black mb-4 text-zinc-800 tracking-tight">Checked In!</h2>
               <p className="text-zinc-500 text-xl md:text-2xl max-w-md mx-auto">
                 Your digital certificate will be issued by the organizers soon.
               </p>
             </div>
           ) : certificateId ? (
             <div className="text-center animate-fade-in py-16 flex flex-col items-center justify-center h-full">
-              <h2 className="text-4xl md:text-5xl font-black mb-4 text-zinc-900 tracking-tight">Certificate Minted!</h2>
+              <h2 className="text-4xl md:text-5xl font-black mb-4 text-zinc-800 tracking-tight">Certificate Minted!</h2>
               <p className="text-zinc-500 text-xl md:text-2xl max-w-md mx-auto flex items-center justify-center gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-zinc-900" /> Redirecting to your vault...
+                <Loader2 className="w-6 h-6 animate-spin text-zinc-800" /> Redirecting to your vault...
               </p>
             </div>
           ) : (
@@ -120,12 +120,12 @@ export default function AttendClient({ event }: AttendClientProps) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder=" "
-                    className="peer w-full bg-transparent border-b-2 border-zinc-200 focus:border-zinc-900 text-zinc-900 text-xl md:text-2xl py-4 focus:outline-none transition-colors placeholder:text-transparent disabled:opacity-50"
+                    className="peer w-full bg-transparent border-b-2 border-zinc-200 focus:border-zinc-800 text-zinc-800 text-xl md:text-2xl py-4 focus:outline-none transition-colors placeholder:text-transparent disabled:opacity-50"
                     disabled={isSubmitting}
                   />
                   <label 
                     htmlFor="name" 
-                    className="absolute left-0 top-4 text-zinc-400 text-xl md:text-2xl transition-all peer-focus:-top-3 peer-focus:text-xs peer-focus:font-bold peer-focus:text-zinc-900 peer-focus:uppercase peer-focus:tracking-widest peer-valid:-top-3 peer-valid:text-xs peer-valid:font-bold peer-valid:text-zinc-400 peer-valid:uppercase peer-valid:tracking-widest pointer-events-none"
+                    className="absolute left-0 top-4 text-zinc-400 text-xl md:text-2xl transition-all peer-focus:-top-3 peer-focus:text-xs peer-focus:font-bold peer-focus:text-zinc-800 peer-focus:uppercase peer-focus:tracking-widest peer-valid:-top-3 peer-valid:text-xs peer-valid:font-bold peer-valid:text-zinc-400 peer-valid:uppercase peer-valid:tracking-widest pointer-events-none"
                   >
                     Full Name
                   </label>
@@ -140,12 +140,12 @@ export default function AttendClient({ event }: AttendClientProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder=" "
-                    className="peer w-full bg-transparent border-b-2 border-zinc-200 focus:border-zinc-900 text-zinc-900 text-xl md:text-2xl py-4 focus:outline-none transition-colors placeholder:text-transparent disabled:opacity-50"
+                    className="peer w-full bg-transparent border-b-2 border-zinc-200 focus:border-zinc-800 text-zinc-800 text-xl md:text-2xl py-4 focus:outline-none transition-colors placeholder:text-transparent disabled:opacity-50"
                     disabled={isSubmitting}
                   />
                   <label 
                     htmlFor="email" 
-                    className="absolute left-0 top-10 text-zinc-400 text-xl md:text-2xl transition-all peer-focus:top-3 peer-focus:text-xs peer-focus:font-bold peer-focus:text-zinc-900 peer-focus:uppercase peer-focus:tracking-widest peer-valid:top-3 peer-valid:text-xs peer-valid:font-bold peer-valid:text-zinc-400 peer-valid:uppercase peer-valid:tracking-widest pointer-events-none"
+                    className="absolute left-0 top-10 text-zinc-400 text-xl md:text-2xl transition-all peer-focus:top-3 peer-focus:text-xs peer-focus:font-bold peer-focus:text-zinc-800 peer-focus:uppercase peer-focus:tracking-widest peer-valid:top-3 peer-valid:text-xs peer-valid:font-bold peer-valid:text-zinc-400 peer-valid:uppercase peer-valid:tracking-widest pointer-events-none"
                   >
                     Email Address
                   </label>
@@ -156,7 +156,7 @@ export default function AttendClient({ event }: AttendClientProps) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 px-6 bg-zinc-900 text-white font-bold text-lg rounded-xl hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  className="w-full py-4 px-6 bg-zinc-800 text-white font-bold text-lg rounded-xl hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                 >
                   {isSubmitting ? (
                     <>
@@ -172,7 +172,7 @@ export default function AttendClient({ event }: AttendClientProps) {
         </div>
 
         <div className="mt-12 text-center text-sm font-medium text-zinc-400">
-          <p>Powered by <Link href="/" className="text-zinc-900 hover:text-black transition-colors font-bold">shim</Link></p>
+          <p>Powered by <Link href="/" className="text-zinc-800 hover:text-black transition-colors font-bold">shim</Link></p>
         </div>
       </main>
     </div>

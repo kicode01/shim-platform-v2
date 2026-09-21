@@ -501,7 +501,7 @@ export default function ValidateSearchClient() {
               </div>
 
               <div className="w-full max-w-2xl">
-                <form onSubmit={handleSearch} className="flex bg-zinc-900/50 rounded-xl overflow-hidden mb-4 h-14 shadow-lg border border-zinc-800/80 transition-all focus-within:border-zinc-700">
+                <form onSubmit={handleSearch} className="flex bg-zinc-800/50 rounded-xl overflow-hidden mb-4 h-14 shadow-lg border border-zinc-800/80 transition-all focus-within:border-zinc-700">
                   <div className="flex items-center justify-center px-4">
                     <Search className="text-zinc-500" size={20} />
                   </div>
@@ -577,7 +577,7 @@ export default function ValidateSearchClient() {
                         <button
                           key={check.id}
                           onClick={() => { setSearchId(check.id); fetchCertificate(check.id); }}
-                          className="bg-zinc-900/40 hover:bg-zinc-900 border border-zinc-800/80 hover:border-zinc-700 rounded-lg p-4 text-left transition-colors flex items-center justify-between group"
+                          className="bg-zinc-800/40 hover:bg-zinc-800 border border-zinc-800/80 hover:border-zinc-700 rounded-lg p-4 text-left transition-colors flex items-center justify-between group"
                         >
                           <div className="overflow-hidden flex-1 mr-4">
                             <div className="text-sm font-medium text-zinc-200 truncate mb-1">
@@ -679,7 +679,7 @@ export default function ValidateSearchClient() {
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                       className={`w-full max-w-2xl mx-auto mt-12 p-6 rounded-xl border ${
-                        ocrStatus === 'loading' ? 'bg-zinc-900/50 border-zinc-800' :
+                        ocrStatus === 'loading' ? 'bg-zinc-800/50 border-zinc-800' :
                         ocrStatus === 'success' ? 'bg-green-500/5 border-green-500/20' :
                         ocrStatus === 'mismatch' ? 'bg-red-500/5 border-red-500/20' :
                         'bg-orange-500/5 border-orange-500/20'
@@ -732,7 +732,7 @@ export default function ValidateSearchClient() {
                 {/* 3. Minimal Details Grid */}
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-                  className="w-full max-w-3xl mx-auto border-t border-zinc-900 pt-10"
+                  className="w-full max-w-3xl mx-auto border-t border-zinc-800 pt-10"
                 >
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-10 gap-x-6 text-left">
                     <div>

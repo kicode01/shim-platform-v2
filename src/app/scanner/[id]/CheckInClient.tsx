@@ -57,7 +57,7 @@ export default function CheckInClient({ event }: CheckInClientProps) {
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Event Check-in</h1>
+          <h1 className="text-2xl font-bold text-zinc-800 tracking-tight">Event Check-in</h1>
           <p className="text-sm text-zinc-500">{event.name}</p>
         </div>
       </div>
@@ -69,13 +69,13 @@ export default function CheckInClient({ event }: CheckInClientProps) {
             <div className="flex border-b border-zinc-100">
               <button
                 onClick={() => setMode("scan")}
-                className={`flex-1 py-4 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${mode === "scan" ? "text-zinc-900 border-b-2 border-zinc-900 bg-zinc-50/50" : "text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"}`}
+                className={`flex-1 py-4 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${mode === "scan" ? "text-zinc-800 border-b-2 border-zinc-800 bg-zinc-50/50" : "text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"}`}
               >
                 <QrCode size={16} /> Scan QR
               </button>
               <button
                 onClick={() => setMode("manual")}
-                className={`flex-1 py-4 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${mode === "manual" ? "text-zinc-900 border-b-2 border-zinc-900 bg-zinc-50/50" : "text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"}`}
+                className={`flex-1 py-4 text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${mode === "manual" ? "text-zinc-800 border-b-2 border-zinc-800 bg-zinc-50/50" : "text-zinc-400 hover:text-zinc-600 hover:bg-zinc-50"}`}
               >
                 <Keyboard size={16} /> Manual Entry
               </button>
@@ -112,12 +112,12 @@ export default function CheckInClient({ event }: CheckInClientProps) {
                 </div>
               ) : (
                 <div className="flex flex-col">
-                  <label className="text-sm font-semibold text-zinc-900 mb-2">Member ID</label>
+                  <label className="text-sm font-semibold text-zinc-800 mb-2">Member ID</label>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <input
                       type="text"
                       placeholder="e.g. MEMBER-123"
-                      className="flex-1 h-12 bg-zinc-50 border border-zinc-200 rounded-xl px-4 text-zinc-900 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition-all"
+                      className="flex-1 h-12 bg-zinc-50 border border-zinc-200 rounded-xl px-4 text-zinc-800 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-800 focus:border-transparent transition-all"
                       value={manualId}
                       onChange={(e) => setManualId(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && manualId && handleCheckIn(manualId)}
@@ -125,7 +125,7 @@ export default function CheckInClient({ event }: CheckInClientProps) {
                     <button
                       onClick={() => handleCheckIn(manualId)}
                       disabled={!manualId || loading}
-                      className="h-12 px-8 bg-zinc-900 text-white text-sm font-semibold rounded-xl hover:bg-zinc-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
+                      className="h-12 px-8 bg-zinc-800 text-white text-sm font-semibold rounded-xl hover:bg-zinc-800 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 whitespace-nowrap"
                     >
                       {loading && <Loader2 size={16} className="animate-spin" />}
                       Check In
@@ -162,7 +162,7 @@ export default function CheckInClient({ event }: CheckInClientProps) {
         <div className="lg:col-span-2 flex flex-col">
           <div className="flex flex-col h-full bg-zinc-50/50 rounded-2xl border border-zinc-200 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-sm font-bold text-zinc-900 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-zinc-800 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 Live Check-ins
               </h3>
@@ -175,7 +175,7 @@ export default function CheckInClient({ event }: CheckInClientProps) {
                   <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center mb-3">
                     <QrCode size={20} className="text-zinc-400" />
                   </div>
-                  <p className="text-sm font-medium text-zinc-900">Waiting for scans</p>
+                  <p className="text-sm font-medium text-zinc-800">Waiting for scans</p>
                   <p className="text-xs text-zinc-400 mt-1">Checked-in members will appear here</p>
                 </div>
               ) : (
@@ -193,7 +193,7 @@ export default function CheckInClient({ event }: CheckInClientProps) {
                           {att.name.charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 truncate">
-                          <p className="text-sm font-semibold text-zinc-900 truncate">{att.name}</p>
+                          <p className="text-sm font-semibold text-zinc-800 truncate">{att.name}</p>
                           <p className="text-[11px] text-zinc-500 truncate">{att.email}</p>
                         </div>
                       </div>

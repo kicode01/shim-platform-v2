@@ -60,7 +60,7 @@ export default async function AuditPage() {
     <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-8 py-6 min-h-0 overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-900 mb-1">Audit Trail</h1>
+          <h1 className="text-3xl font-bold text-zinc-800 mb-1">Audit Trail</h1>
           <p className="text-zinc-500 text-sm font-medium">Every attendance scan, issuance, claim, and revocation</p>
         </div>
       </div>
