@@ -25,13 +25,13 @@ export default async function Home() {
   return (
     <div className="flex-1 flex flex-col bg-white min-h-0">
       {/* Modern Hero Section */}
-      <main className="flex-1 relative overflow-y-auto bg-zinc-900 text-zinc-300">
+      <main className="flex-1 relative overflow-y-auto bg-[#0a0a0a] text-zinc-100">
         
         <section className="max-w-7xl mx-auto px-6 pt-24 pb-24 relative z-10 animate-in fade-in duration-700">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left Hero Content */}
             <div className="flex flex-col gap-8">
-              <h1 className="text-5xl lg:text-6xl font-bold text-zinc-200 leading-tight">
+              <h1 className="text-5xl lg:text-6xl font-bold text-zinc-50 leading-tight">
                 Beautiful<br/>
                 Certificates.<br/>
                 Verified.
@@ -43,7 +43,7 @@ export default async function Home() {
 
               {/* Action Bar - Multi-domain CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                <Link href="/login" className="bg-zinc-200 hover:bg-zinc-100 text-zinc-800 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2 w-fit">
+                <Link href="/login" className="bg-zinc-100 hover:bg-white text-zinc-800 font-medium rounded-md py-3 px-8 transition-colors flex items-center justify-center gap-2 w-fit">
                   Get Started
                   <ArrowRight size={18} />
                 </Link>
@@ -52,7 +52,7 @@ export default async function Home() {
 
             {/* Right Hero Visuals */}
             <div className="relative">
-              <div className="p-8 bg-zinc-800/30 border border-zinc-800/50 rounded-xl relative group">
+              <div className="p-8 bg-zinc-900/30 border border-zinc-800/50 rounded-xl relative group">
                 <div className="flex justify-between items-center mb-5 pb-4 border-b border-zinc-800/50">
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-zinc-500 animate-pulse rounded-full" />
@@ -69,10 +69,10 @@ export default async function Home() {
         </section>
 
         {/* Feature Grid */}
-        <section className="bg-zinc-900 py-32 border-t border-zinc-800/60 relative z-10">
+        <section className="bg-[#0a0a0a] py-32 border-t border-zinc-900 relative z-10">
           <div className="max-w-7xl mx-auto px-6">
             <div className="mb-20">
-              <h2 className="text-3xl font-semibold text-zinc-200 mb-4 tracking-tight">Built for organizers and attendees.</h2>
+              <h2 className="text-3xl font-semibold text-zinc-50 mb-4 tracking-tight">Built for organizers and attendees.</h2>
               <p className="text-zinc-400 text-lg max-w-xl">Simple tools to issue credentials, and a beautiful portal for your attendees to claim and showcase them.</p>
             </div>
 
@@ -84,10 +84,10 @@ export default async function Home() {
                 { icon: CheckCircle, title: "Instant Verification", desc: "Every certificate includes a unique QR code for immediate authenticity checks." }
               ].map((feature, idx) => (
                 <div key={idx} className="group">
-                  <div className={`w-10 h-10 flex items-center justify-center mb-6 rounded-md bg-zinc-800/50 border border-zinc-700/50 text-zinc-300`}>
+                  <div className={`w-10 h-10 flex items-center justify-center mb-6 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400`}>
                     <feature.icon size={18} strokeWidth={1.5} />
                   </div>
-                  <h3 className="font-medium text-zinc-300 text-lg mb-2">{feature.title}</h3>
+                  <h3 className="font-medium text-zinc-100 text-lg mb-2">{feature.title}</h3>
                   <p className="text-zinc-500 text-sm leading-relaxed">{feature.desc}</p>
                 </div>
               ))}
@@ -96,12 +96,12 @@ export default async function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-32 bg-zinc-900 relative overflow-hidden border-t border-zinc-800/60">
+        <section className="py-32 bg-[#0a0a0a] relative overflow-hidden border-t border-zinc-900">
           <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
-            <h2 className="text-4xl font-semibold text-zinc-200 mb-6 tracking-tight">Issue your first credential today.</h2>
+            <h2 className="text-4xl font-semibold text-zinc-50 mb-6 tracking-tight">Issue your first credential today.</h2>
             <p className="text-zinc-400 text-lg mb-10 max-w-xl mx-auto">Join the organizers using shim to modernize their event experience.</p>
             <div className="flex items-center justify-center">
-              <Link href="/register" className="bg-zinc-200 text-zinc-800 text-sm font-medium py-3 px-8 rounded-md hover:bg-white transition-colors">
+              <Link href="/register" className="bg-zinc-100 text-zinc-900 text-sm font-medium py-3 px-8 rounded-md hover:bg-white transition-colors">
                 Create an account
               </Link>
             </div>
