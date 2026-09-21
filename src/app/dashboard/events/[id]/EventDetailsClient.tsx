@@ -166,6 +166,13 @@ export default function EventDetailsClient({
 
         <div className="flex items-center gap-3 shrink-0">
           <Link 
+            href={`/kiosk/${event.id}`}
+            target="_blank"
+            className="h-10 px-4 bg-white border border-zinc-200 text-zinc-700 text-sm font-semibold rounded-xl hover:bg-zinc-50 transition-colors shadow-sm flex items-center gap-2"
+          >
+            <LayoutTemplate size={16} /> <span className="hidden sm:inline">Open Kiosk</span>
+          </Link>
+          <Link 
             href={`/scanner/${event.id}`}
             className="h-10 px-4 bg-zinc-700 text-white text-sm font-semibold rounded-xl hover:bg-zinc-700 transition-colors shadow-sm flex items-center gap-2"
           >
