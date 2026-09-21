@@ -9,6 +9,11 @@ export async function GET(
 ) {
   const { id } = await props.params;
 
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const template = await prisma.template.findUnique({
       where: { id },
@@ -19,7 +24,7 @@ export async function GET(
       }
     });
 
-    if (!template) {
+    if (!template || template.userId !== (session.user as any).id) {
       return NextResponse.json({ message: "Template not found" }, { status: 404 });
     }
 
@@ -45,6 +50,12 @@ export async function PUT(
     const { name, description, designData } = await req.json();
 
     const userId = (session.user as any).id;
+
+    const existingTemplate = await prisma.template.findUnique({ where: { id } });
+    if (!existingTemplate || existingTemplate.userId !== userId) {
+      return NextResponse.json({ message: "Template not found" }, { status: 404 });
+    }
+
     let finalName = name.trim();
 
     // Fetch existing templates that start with this name to determine if we need a suffix, excluding the current one
@@ -97,6 +108,13 @@ export async function DELETE(
   const { id } = await props.params;
 
   try {
+    const userId = (session.user as any).id;
+
+    const existingTemplate = await prisma.template.findUnique({ where: { id } });
+    if (!existingTemplate || existingTemplate.userId !== userId) {
+      return NextResponse.json({ message: "Template not found" }, { status: 404 });
+    }
+
     // Check if certificates are linked to this template
     const count = await prisma.certificate.count({
       where: { templateId: id }

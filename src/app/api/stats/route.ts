@@ -10,6 +10,8 @@ export async function GET() {
   }
 
   try {
+    const userId = (session.user as any).id;
+
     const [
       totalCertificates, 
       validCertificates, 
@@ -20,11 +22,12 @@ export async function GET() {
       totalVerifications,
       totalClaimed
     ] = await Promise.all([
-      prisma.certificate.count(),
-      prisma.certificate.count({ where: { status: "valid" } }),
-      prisma.certificate.count({ where: { status: "revoked" } }),
-      prisma.template.count(),
+      prisma.certificate.count({ where: { issuerId: userId } }),
+      prisma.certificate.count({ where: { issuerId: userId, status: "valid" } }),
+      prisma.certificate.count({ where: { issuerId: userId, status: "revoked" } }),
+      prisma.template.count({ where: { userId } }),
       prisma.certificate.findMany({
+        where: { issuerId: userId },
         take: 6,
         orderBy: { issueDate: "desc" },
         include: {
@@ -32,10 +35,11 @@ export async function GET() {
         }
       }),
       prisma.certificate.findMany({
+        where: { issuerId: userId },
         select: { issueDate: true, status: true }
       }),
-      prisma.auditLog.count({ where: { action: "VERIFIED" } }),
-      prisma.certificate.count({ where: { isClaimed: true } })
+      prisma.auditLog.count({ where: { action: "VERIFIED", certificate: { issuerId: userId } } }),
+      prisma.certificate.count({ where: { issuerId: userId, isClaimed: true } })
     ]);
 
     // Aggregate monthly data for the last 6 months

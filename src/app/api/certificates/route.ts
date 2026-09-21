@@ -14,7 +14,9 @@ export async function GET(req: Request) {
   const status = searchParams.get("status") || "";
 
   try {
-    const whereClause: any = {};
+    const whereClause: any = {
+      issuerId: (session.user as any).id
+    };
 
     if (search) {
       whereClause.OR = [

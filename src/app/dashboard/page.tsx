@@ -25,6 +25,7 @@ export default async function DashboardPage() {
   }
 
   // Load server-side initial stats and events
+  const userId = session.user.id;
   const [
     totalCertificates, 
     validCertificates, 
@@ -35,14 +36,14 @@ export default async function DashboardPage() {
     recentEvents,
     allCertificates
   ] = await Promise.all([
-    prisma.certificate.count(),
-    prisma.certificate.count({ where: { status: "valid" } }),
-    prisma.certificate.count({ where: { status: "revoked" } }),
-    prisma.template.count(),
-    prisma.auditLog.count({ where: { action: "VERIFIED" } }),
-    prisma.certificate.count({ where: { isClaimed: true } }),
+    prisma.certificate.count({ where: { issuerId: userId } }),
+    prisma.certificate.count({ where: { issuerId: userId, status: "valid" } }),
+    prisma.certificate.count({ where: { issuerId: userId, status: "revoked" } }),
+    prisma.template.count({ where: { userId } }),
+    prisma.auditLog.count({ where: { action: "VERIFIED", certificate: { issuerId: userId } } }),
+    prisma.certificate.count({ where: { issuerId: userId, isClaimed: true } }),
     prisma.event.findMany({
-      where: { organizerId: session.user.id },
+      where: { organizerId: userId },
       take: 5,
       orderBy: { createdAt: "desc" },
       include: {
@@ -52,6 +53,7 @@ export default async function DashboardPage() {
       }
     }),
     prisma.certificate.findMany({
+      where: { issuerId: userId },
       select: { issueDate: true, status: true }
     })
   ]);

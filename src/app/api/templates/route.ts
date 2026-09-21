@@ -12,6 +12,7 @@ export async function GET() {
 
   try {
     const templates = await prisma.template.findMany({
+      where: { userId: (session.user as any).id },
       include: {
         _count: {
           select: { certificates: true }

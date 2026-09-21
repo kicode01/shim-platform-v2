@@ -60,6 +60,12 @@ export async function PATCH(
       return NextResponse.json({ message: "Invalid status value" }, { status: 400 });
     }
 
+    const userId = (session.user as any).id;
+    const existing = await prisma.certificate.findUnique({ where: { id } });
+    if (!existing || existing.issuerId !== userId) {
+      return NextResponse.json({ message: "Certificate not found" }, { status: 404 });
+    }
+
     const updated = await prisma.certificate.update({
       where: { id },
       data: { status }
@@ -94,6 +100,12 @@ export async function DELETE(
   const { id } = await props.params;
 
   try {
+    const userId = (session.user as any).id;
+    const existing = await prisma.certificate.findUnique({ where: { id } });
+    if (!existing || existing.issuerId !== userId) {
+      return NextResponse.json({ message: "Certificate not found" }, { status: 404 });
+    }
+
     await prisma.certificate.delete({
       where: { id }
     });

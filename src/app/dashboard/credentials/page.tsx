@@ -19,6 +19,7 @@ export default async function CredentialsPage() {
 
   // Load server-side initial certificates
   const certificates = await prisma.certificate.findMany({
+    where: { issuerId: (session.user as any).id },
     take: 50,
     orderBy: { issueDate: "desc" },
     include: {
