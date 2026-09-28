@@ -42,7 +42,7 @@ export default function DashboardClient({
 }) {
 
   return (
-    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-8 py-6 min-h-0 overflow-hidden">
+    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-8 py-6 min-h-0 overflow-y-auto">
       
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 shrink-0">
@@ -149,7 +149,7 @@ export default function DashboardClient({
       </div>
 
       {/* Main Grid: Recent Events & Charts */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 flex-1 min-h-0">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 flex-1 min-h-[400px] shrink-0">
         
         {/* Left Col: Recent Events */}
         <div className="xl:col-span-2 bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-full min-h-0">
