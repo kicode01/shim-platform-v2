@@ -63,7 +63,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto w-full h-full flex justify-between items-center">
           
           {/* Left area begins - Logo */}
-          <div className="w-[200px] shrink-0 h-full flex items-center">
+          <div className="w-auto lg:w-[200px] shrink-0 h-full flex items-center">
             <Link 
               href={isLandingMode ? "/" : isPortalMode ? "/portal" : "/dashboard"} 
               className={`flex items-center h-full z-50 ${
@@ -72,7 +72,6 @@ export default function Navbar() {
             >
               <div className="flex items-baseline relative">
                 <motion.span 
-                  layout="position"
                   animate={{ 
                     fontSize: isLandingMode ? "36px" : "24px",
                     color: isLandingMode ? "#ffffff" : "#18181b"
@@ -149,7 +148,7 @@ export default function Navbar() {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center justify-end h-full w-[300px] shrink-0">
+          <div className="flex items-center justify-end h-full w-auto lg:w-[300px] shrink-0">
             {isMounted && (
               <AnimatePresence mode="wait">
                 {isLandingMode && (

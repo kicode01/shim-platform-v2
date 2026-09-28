@@ -74,7 +74,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable} ${cinzel.variable} ${cormorant.variable} ${greatVibes.variable} ${playfair.variable} ${spaceMono.variable} ${spaceGrotesk.variable}`}>
-      <body className="flex flex-col h-screen w-screen overflow-hidden">
+      <body className="flex flex-col min-h-screen w-full">
         <AuthProvider>
           <Navbar />
           <main className="flex-1 flex flex-col relative min-h-0">

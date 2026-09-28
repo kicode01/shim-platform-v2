@@ -280,11 +280,21 @@ export default function ValidateSearchClient() {
   };
 
   const handleScannedUrl = async (url: string, fileOrImage?: File | string) => {
-    // Extract ID from URL (e.g. https://shim.app/validate/cmtzoowrv0008...)
-    const match = url.match(/\/validate\/([a-zA-Z0-9]+)/);
+    // Extract ID from URL (e.g. https://shim.app/validate/cmtzoowrv0008... or https://shim.app/validate?id=cmtzoowrv0008...)
     let idToFetch = url;
-    if (match && match[1]) {
-      idToFetch = match[1];
+    
+    // Check for query param ?id=
+    const urlObj = new URL(url, window.location.origin);
+    const idParam = urlObj.searchParams.get("id");
+    
+    if (idParam) {
+      idToFetch = idParam;
+    } else {
+      // Fallback to path param /validate/
+      const match = url.match(/\/validate\/([a-zA-Z0-9]+)/);
+      if (match && match[1]) {
+        idToFetch = match[1];
+      }
     }
     
     setSearchId(idToFetch);
@@ -448,7 +458,7 @@ export default function ValidateSearchClient() {
   };
 
   return (
-    <div className="h-full flex flex-col w-full font-sans min-h-0 bg-[#0a0a0a] text-zinc-100">
+    <div className="flex-1 flex flex-col w-full font-sans min-h-0 bg-[#0a0a0a] text-zinc-100">
       <main className="flex-1 w-full flex flex-col min-h-0">
         <input 
           type="file" 

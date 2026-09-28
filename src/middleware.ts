@@ -13,25 +13,54 @@ export function middleware(req: NextRequest) {
     pathname.includes('.') ||
     pathname === '/login' ||
     pathname === '/register' ||
-    pathname.startsWith('/validate') // Keep validate public
+    pathname.startsWith('/validate') ||
+    pathname.startsWith('/attend') ||
+    pathname.startsWith('/kiosk') ||
+    pathname.startsWith('/scanner')
   ) {
     return NextResponse.next();
   }
 
+  const isStudio = hostname.includes('shim-studio');
+  const isWallet = hostname.includes('shim-wallet');
+
   // Organizer Workspace (shim-studio)
-  if (hostname.includes('shim-studio')) {
+  if (isStudio) {
+    // Block access to portal from studio domain
+    if (pathname.startsWith('/portal')) {
+      url.pathname = '/404';
+      return NextResponse.rewrite(url);
+    }
+    
     // Map root and subpaths to /dashboard seamlessly
     if (!pathname.startsWith('/dashboard')) {
       url.pathname = `/dashboard${pathname === '/' ? '' : pathname}`;
       return NextResponse.rewrite(url);
     }
+    return NextResponse.next();
   }
 
   // Participant Wallet (shim-wallet)
-  if (hostname.includes('shim-wallet')) {
+  if (isWallet) {
+    // Block access to dashboard from wallet domain
+    if (pathname.startsWith('/dashboard')) {
+      url.pathname = '/404';
+      return NextResponse.rewrite(url);
+    }
+
     // Map root and subpaths to /portal seamlessly
     if (!pathname.startsWith('/portal')) {
       url.pathname = `/portal${pathname === '/' ? '' : pathname}`;
+      return NextResponse.rewrite(url);
+    }
+    return NextResponse.next();
+  }
+
+  // Main Domain (HQ)
+  if (!isStudio && !isWallet) {
+    // Block access to dashboard and portal from main domain
+    if (pathname.startsWith('/dashboard') || pathname.startsWith('/portal')) {
+      url.pathname = '/404';
       return NextResponse.rewrite(url);
     }
   }

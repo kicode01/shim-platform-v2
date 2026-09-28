@@ -25,7 +25,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-[220px] flex-shrink-0 border-r border-zinc-200 bg-white/50 backdrop-blur-md hidden md:flex flex-col h-full sticky top-16 overflow-y-auto z-40">
+    <aside className="w-[72px] lg:w-[220px] flex-shrink-0 border-r border-zinc-200 bg-white/50 backdrop-blur-md flex flex-col h-full sticky top-16 overflow-y-auto z-40 transition-all duration-300">
       <div className="p-4 py-8 flex-1">
         <nav className="space-y-1 flex flex-col">
           {navItems.map((item) => {
@@ -36,11 +36,12 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors z-10 group ${
+                className={`relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors z-10 group ${
                   isActive 
                     ? "text-zinc-700" 
                     : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50"
                 }`}
+                title={item.label}
               >
                 {isActive && (
                   <motion.div 
@@ -50,8 +51,8 @@ export default function Sidebar() {
                     style={{ zIndex: -1 }}
                   />
                 )}
-                <Icon size={18} className={isActive ? "text-zinc-700" : "text-zinc-400 group-hover:text-zinc-600 transition-colors"} strokeWidth={isActive ? 2.5 : 2} />
-                <span>{item.label}</span>
+                <Icon size={18} className={isActive ? "text-zinc-700 shrink-0" : "text-zinc-400 group-hover:text-zinc-600 transition-colors shrink-0"} strokeWidth={isActive ? 2.5 : 2} />
+                <span className="hidden lg:block whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
               </Link>
             );
           })}

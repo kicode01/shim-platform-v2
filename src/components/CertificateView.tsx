@@ -185,7 +185,7 @@ export default function CertificateView({
 
   useEffect(() => {
     if (certificateId && typeof window !== "undefined") {
-      const validateUrl = `${window.location.origin}/validate/${certificateId}`;
+      const validateUrl = `${window.location.origin}/validate?id=${certificateId}`;
       QRCode.toDataURL(validateUrl, {
         width: 160,
         margin: 1,

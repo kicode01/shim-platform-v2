@@ -51,7 +51,7 @@ export default function AttendClient({ event }: AttendClientProps) {
         setCertificateId(data.certificateId);
         // Redirect after a short delay so they see the success message
         setTimeout(() => {
-          router.push(`/validate/${data.certificateId}`);
+          router.push(`/validate?id=${data.certificateId}`);
         }, 1500);
       } else {
         // Deferred issuance: just added to attendance list
