@@ -36,10 +36,10 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-colors z-10 group ${
+                className={`relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 z-10 group ${
                   isActive 
-                    ? "text-zinc-700" 
-                    : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-50"
+                    ? "text-zinc-800" 
+                    : "text-zinc-500 hover:text-zinc-800"
                 }`}
                 title={item.label}
               >
@@ -51,7 +51,7 @@ export default function Sidebar() {
                     style={{ zIndex: -1 }}
                   />
                 )}
-                <Icon size={18} className={isActive ? "text-zinc-700 shrink-0" : "text-zinc-400 group-hover:text-zinc-600 transition-colors shrink-0"} strokeWidth={isActive ? 2.5 : 2} />
+                <Icon size={18} className={`shrink-0 transition-all duration-200 ${isActive ? "text-zinc-800" : "text-zinc-400 group-hover:text-zinc-600"}`} strokeWidth={isActive ? 2.5 : 2} />
                 <span className="hidden lg:block whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
               </Link>
             );
