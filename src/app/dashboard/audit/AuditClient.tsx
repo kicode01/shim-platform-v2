@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, LayoutGroup } from "framer-motion";
 import { Search, Loader2 } from "lucide-react";
 
 type AuditLogType = {
@@ -84,32 +83,22 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             {/* Filter */}
             <div className="flex bg-zinc-100 rounded-lg p-1 w-full sm:w-auto overflow-x-auto scrollbar-hide">
-              <LayoutGroup id="audit-filters">
-                {filters.map((f) => {
-                  const isActive = filter === f;
-                  return (
-                    <button 
-                      key={f}
-                      className={`relative px-4 py-1.5 text-sm font-medium whitespace-nowrap rounded-md transition-all duration-200 z-10 ${
-                        isActive 
-                          ? "text-zinc-800" 
-                          : "text-zinc-500 hover:text-zinc-800"
-                      }`}
-                      onClick={() => handleFilterChange(f)}
-                    >
-                      {isActive && (
-                        <motion.div 
-                          layoutId="audit-filter-pill" 
-                          className="absolute inset-0 bg-white shadow-sm rounded-md"
-                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          style={{ zIndex: -1 }}
-                        />
-                      )}
-                      {f}
-                    </button>
-                  );
-                })}
-              </LayoutGroup>
+              {filters.map((f) => {
+                const isActive = filter === f;
+                return (
+                  <button 
+                    key={f}
+                    className={`relative px-4 py-1.5 text-sm font-medium whitespace-nowrap rounded-md transition-colors duration-200 z-10 ${
+                      isActive 
+                        ? "bg-white text-zinc-800 shadow-sm" 
+                        : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/50"
+                    }`}
+                    onClick={() => handleFilterChange(f)}
+                  >
+                    {f}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Search */}

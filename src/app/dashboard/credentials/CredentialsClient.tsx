@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Search, 
   ExternalLink, 
@@ -134,32 +134,22 @@ export default function CredentialsClient({
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             {/* Filter */}
             <div className="flex bg-zinc-100 rounded-lg p-1 w-full sm:w-auto">
-              <LayoutGroup id="credentials-filters">
-                {["all", "valid", "revoked"].map((filter) => {
-                  const isActive = statusFilter === filter;
-                  return (
-                    <button 
-                      key={filter}
-                      className={`relative px-4 py-1.5 text-sm font-medium capitalize rounded-md transition-all duration-200 z-10 ${
-                        isActive 
-                          ? "text-zinc-800" 
-                          : "text-zinc-500 hover:text-zinc-800"
-                      }`}
-                      onClick={() => setStatusFilter(filter)}
-                    >
-                      {isActive && (
-                        <motion.div 
-                          layoutId="credentials-filter-pill" 
-                          className="absolute inset-0 bg-white shadow-sm rounded-md"
-                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          style={{ zIndex: -1 }}
-                        />
-                      )}
-                      {filter}
-                    </button>
-                  );
-                })}
-              </LayoutGroup>
+              {["all", "valid", "revoked"].map((filter) => {
+                const isActive = statusFilter === filter;
+                return (
+                  <button 
+                    key={filter}
+                    className={`relative px-4 py-1.5 text-sm font-medium capitalize rounded-md transition-colors duration-200 z-10 ${
+                      isActive 
+                        ? "bg-white text-zinc-800 shadow-sm" 
+                        : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/50"
+                    }`}
+                    onClick={() => setStatusFilter(filter)}
+                  >
+                    {filter}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Search */}
