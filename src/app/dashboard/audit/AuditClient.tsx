@@ -100,18 +100,18 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
                 );
               })}
             </div>
+          </div>
 
-            {/* Search */}
-            <div className="relative w-full sm:w-auto">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input 
-                type="text" 
-                placeholder="Search logs..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 bg-white border border-zinc-200 text-zinc-700 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto"
-              />
-            </div>
+          {/* Search */}
+          <div className="relative w-full sm:w-auto sm:w-64 lg:w-72">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <input 
+              type="text" 
+              placeholder="Search logs..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 bg-white border border-zinc-200 text-zinc-700 rounded-md focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400 text-sm h-auto"
+            />
           </div>
         </div>
 
