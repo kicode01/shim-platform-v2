@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { 
   Search, 
   ExternalLink, 
@@ -134,30 +134,32 @@ export default function CredentialsClient({
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             {/* Filter */}
             <div className="flex bg-zinc-100 rounded-lg p-1 w-full sm:w-auto">
-              {["all", "valid", "revoked"].map((filter) => {
-                const isActive = statusFilter === filter;
-                return (
-                  <button 
-                    key={filter}
-                    className={`relative px-4 py-1.5 text-sm font-medium capitalize rounded-md transition-all duration-200 z-10 ${
-                      isActive 
-                        ? "text-zinc-800" 
-                        : "text-zinc-500 hover:text-zinc-800"
-                    }`}
-                    onClick={() => setStatusFilter(filter)}
-                  >
-                    {isActive && (
-                      <motion.div 
-                        layoutId="credentials-filter-pill" 
-                        className="absolute inset-0 bg-white shadow-sm rounded-md"
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        style={{ zIndex: -1 }}
-                      />
-                    )}
-                    {filter}
-                  </button>
-                );
-              })}
+              <LayoutGroup id="credentials-filters">
+                {["all", "valid", "revoked"].map((filter) => {
+                  const isActive = statusFilter === filter;
+                  return (
+                    <button 
+                      key={filter}
+                      className={`relative px-4 py-1.5 text-sm font-medium capitalize rounded-md transition-all duration-200 z-10 ${
+                        isActive 
+                          ? "text-zinc-800" 
+                          : "text-zinc-500 hover:text-zinc-800"
+                      }`}
+                      onClick={() => setStatusFilter(filter)}
+                    >
+                      {isActive && (
+                        <motion.div 
+                          layoutId="credentials-filter-pill" 
+                          className="absolute inset-0 bg-white shadow-sm rounded-md"
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          style={{ zIndex: -1 }}
+                        />
+                      )}
+                      {filter}
+                    </button>
+                  );
+                })}
+              </LayoutGroup>
             </div>
 
             {/* Search */}
@@ -213,8 +215,17 @@ export default function CredentialsClient({
               </div>
               <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
                 <table className="table-modern w-full table-fixed">
-                  <tbody className={`divide-y divide-zinc-100 transition-opacity duration-200 ${isTabLoading ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
-                {certificates.map((cert) => (
+                  <tbody className="divide-y divide-zinc-100">
+                {isTabLoading ? (
+                  <tr>
+                    <td colSpan={5} className="py-20 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
+                        <p className="text-zinc-500 font-medium">Loading credentials...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : certificates.map((cert) => (
                   <tr key={cert.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
                     <td className="w-[28%] px-4 py-3 overflow-hidden">
                       <div className="font-medium text-sm text-zinc-700 mb-1 truncate" title={cert.recipientName}>{cert.recipientName}</div>

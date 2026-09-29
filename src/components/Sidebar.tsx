@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, LayoutGroup } from "framer-motion";
 import { 
   LayoutDashboard, 
   Stamp, 
@@ -28,34 +28,36 @@ export default function Sidebar() {
     <aside className="w-[72px] lg:w-[220px] flex-shrink-0 border-r border-zinc-200 bg-white/50 backdrop-blur-md flex flex-col h-full sticky top-16 overflow-y-auto z-40 transition-all duration-300">
       <div className="p-4 py-8 flex-1">
         <nav className="space-y-1 flex flex-col">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href) && item.href !== "/validate");
-            
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 z-10 group ${
-                  isActive 
-                    ? "text-zinc-800" 
-                    : "text-zinc-500 hover:text-zinc-800"
-                }`}
-                title={item.label}
-              >
-                {isActive && (
-                  <motion.div 
-                    layoutId="sidebar-active-pill" 
-                    className="absolute inset-0 bg-zinc-100 rounded-lg"
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    style={{ zIndex: -1 }}
-                  />
-                )}
-                <Icon size={18} className={`shrink-0 transition-all duration-200 ${isActive ? "text-zinc-800" : "text-zinc-400 group-hover:text-zinc-600"}`} strokeWidth={isActive ? 2.5 : 2} />
-                <span className="hidden lg:block whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
-              </Link>
-            );
-          })}
+          <LayoutGroup id="sidebar">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href) && item.href !== "/validate");
+              
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`relative flex items-center justify-center lg:justify-start gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 z-10 group ${
+                    isActive 
+                      ? "text-zinc-800" 
+                      : "text-zinc-500 hover:text-zinc-800"
+                  }`}
+                  title={item.label}
+                >
+                  {isActive && (
+                    <motion.div 
+                      layoutId="sidebar-active-pill" 
+                      className="absolute inset-0 bg-zinc-100 rounded-lg"
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      style={{ zIndex: -1 }}
+                    />
+                  )}
+                  <Icon size={18} className={`shrink-0 transition-all duration-200 ${isActive ? "text-zinc-800" : "text-zinc-400 group-hover:text-zinc-600"}`} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className="hidden lg:block whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
+                </Link>
+              );
+            })}
+          </LayoutGroup>
         </nav>
       </div>
     </aside>

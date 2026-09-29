@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, LayoutGroup } from "framer-motion";
 import { Search, Loader2 } from "lucide-react";
 
 type AuditLogType = {
@@ -84,30 +84,32 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             {/* Filter */}
             <div className="flex bg-zinc-100 rounded-lg p-1 w-full sm:w-auto overflow-x-auto scrollbar-hide">
-              {filters.map((f) => {
-                const isActive = filter === f;
-                return (
-                  <button 
-                    key={f}
-                    className={`relative px-4 py-1.5 text-sm font-medium whitespace-nowrap rounded-md transition-all duration-200 z-10 ${
-                      isActive 
-                        ? "text-zinc-800" 
-                        : "text-zinc-500 hover:text-zinc-800"
-                    }`}
-                    onClick={() => handleFilterChange(f)}
-                  >
-                    {isActive && (
-                      <motion.div 
-                        layoutId="audit-filter-pill" 
-                        className="absolute inset-0 bg-white shadow-sm rounded-md"
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        style={{ zIndex: -1 }}
-                      />
-                    )}
-                    {f}
-                  </button>
-                );
-              })}
+              <LayoutGroup id="audit-filters">
+                {filters.map((f) => {
+                  const isActive = filter === f;
+                  return (
+                    <button 
+                      key={f}
+                      className={`relative px-4 py-1.5 text-sm font-medium whitespace-nowrap rounded-md transition-all duration-200 z-10 ${
+                        isActive 
+                          ? "text-zinc-800" 
+                          : "text-zinc-500 hover:text-zinc-800"
+                      }`}
+                      onClick={() => handleFilterChange(f)}
+                    >
+                      {isActive && (
+                        <motion.div 
+                          layoutId="audit-filter-pill" 
+                          className="absolute inset-0 bg-white shadow-sm rounded-md"
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          style={{ zIndex: -1 }}
+                        />
+                      )}
+                      {f}
+                    </button>
+                  );
+                })}
+              </LayoutGroup>
             </div>
 
             {/* Search */}
@@ -154,8 +156,17 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
               </div>
               <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
                 <table className="table-modern w-full table-fixed">
-                  <tbody className={`divide-y divide-zinc-100 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
-                    {filteredLogs.map((log) => (
+                  <tbody className="divide-y divide-zinc-100">
+                    {isPending ? (
+                      <tr>
+                        <td colSpan={4} className="py-20 text-center">
+                          <div className="flex flex-col items-center justify-center">
+                            <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
+                            <p className="text-zinc-500 font-medium">Loading audit logs...</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredLogs.map((log) => (
                       <tr key={log.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
                         <td className="w-[20%] px-4 py-3 overflow-hidden">
                           <div className="text-sm text-zinc-500 truncate" title={formatDate(log.createdAt)}>
