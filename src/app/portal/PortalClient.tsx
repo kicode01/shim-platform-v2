@@ -44,180 +44,136 @@ export default function PortalClient({ user, certificates, stats, insights }: Po
     <div className="flex-1 w-full bg-zinc-50 font-sans overflow-y-auto">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-8">
 
-        {/* Profile Row */}
-        <motion.div
-          className="flex items-center justify-between"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-200 pb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+              <span className="bg-zinc-900 text-white p-2 rounded-xl">
+                <ShieldCheck size={24} />
+              </span>
+              Digital Wallet
+            </h1>
+            <p className="text-zinc-500 mt-2">Manage your verified credentials and event certificates.</p>
+          </div>
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-zinc-700 flex items-center justify-center text-white font-bold text-lg shrink-0">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p className="text-base font-bold text-zinc-700">{user.name}</p>
-              <div className="flex items-center gap-1 mt-0.5">
-                <Hash size={10} className="text-zinc-400" />
-                <span className="text-[11px] font-mono text-zinc-400">{user.membershipId}</span>
+            <div className="bg-white px-4 py-2 rounded-xl border border-zinc-200 shadow-sm flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-zinc-700">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-zinc-700 leading-none">{user.name}</p>
+                <div className="flex items-center gap-1 mt-1">
+                  <Hash size={10} className="text-zinc-400" />
+                  <span className="text-[10px] font-mono text-zinc-400 leading-none">{user.membershipId}</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex text-xs font-medium bg-zinc-100 border border-zinc-200 text-zinc-600 px-3 py-1 rounded-full">
-              Active Member
-            </span>
             <button 
               onClick={() => setShowQR(true)}
-              className="flex items-center gap-1.5 text-xs font-medium bg-zinc-700 text-white px-3 py-1.5 rounded-full hover:bg-zinc-700 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 text-sm font-medium bg-zinc-900 text-white px-4 py-3 rounded-xl hover:bg-zinc-800 transition-colors shadow-sm h-[42px]"
             >
-              <QrCode size={12} />
-              My QR Code
+              <QrCode size={16} />
+              <span className="hidden sm:inline">Wallet ID</span>
             </button>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Stats Row */}
+        {/* Wallet Stats */}
         <motion.div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-4"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.05 }}
         >
           {[
-            { label: "Certificates", value: stats.totalCertificates, color: "text-zinc-700" },
-            { label: "Events Attended", value: stats.eventsAttended, color: "text-zinc-700" },
-            { label: "Organizations", value: stats.organizations, color: "text-zinc-700" },
-            { label: "Verifications", value: stats.verifications, color: "text-emerald-600" },
+            { label: "Total Credentials", value: stats.totalCertificates, color: "text-zinc-900" },
+            { label: "Verified Claims", value: stats.verifications, color: "text-emerald-600" },
+            { label: "Events Attended", value: stats.eventsAttended, color: "text-zinc-900" },
+            { label: "Issuers", value: stats.organizations, color: "text-zinc-900" },
           ].map(stat => (
-            <div key={stat.label} className="bg-white border border-zinc-200 rounded-xl px-4 py-4 text-center shadow-sm">
-              <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-              <p className="text-xs text-zinc-500 mt-0.5">{stat.label}</p>
+            <div key={stat.label} className="bg-white border border-zinc-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <p className={`text-3xl font-bold tracking-tight ${stat.color}`}>{stat.value}</p>
+              <p className="text-sm font-medium text-zinc-500 mt-1">{stat.label}</p>
             </div>
           ))}
         </motion.div>
 
-        {/* Insights Section */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-4"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.08 }}
-        >
-          {/* Organizations List */}
-          <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <Building2 size={16} className="text-zinc-500" />
-              <h3 className="text-sm font-semibold text-zinc-700">Trusted Organizations</h3>
-            </div>
-            <p className="text-xs text-zinc-500 mb-3">You've interacted with {stats.organizations} {stats.organizations === 1 ? 'organization' : 'organizations'}.</p>
-            {insights.organizations.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {insights.organizations.map((org, idx) => (
-                  <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-100 text-zinc-700 border border-zinc-200">
-                    {org}
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-zinc-400 italic">No organizations yet.</p>
-            )}
-          </div>
-
-          {/* Events List */}
-          <div className="bg-white border border-zinc-200 rounded-xl p-5 shadow-sm">
-            <div className="flex items-center gap-2 mb-3">
-              <Calendar size={16} className="text-zinc-500" />
-              <h3 className="text-sm font-semibold text-zinc-700">Events Attended</h3>
-            </div>
-            <p className="text-xs text-zinc-500 mb-3">You've attended a total of {stats.eventsAttended} {stats.eventsAttended === 1 ? 'event' : 'events'}.</p>
-            {insights.events.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {insights.events.slice(0, 5).map((evt, idx) => (
-                  <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-zinc-50 text-zinc-600 border border-zinc-200">
-                    {evt}
-                  </span>
-                ))}
-                {insights.events.length > 5 && (
-                  <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-zinc-50 text-zinc-400 border border-zinc-200">
-                    +{insights.events.length - 5} more
-                  </span>
-                )}
-              </div>
-            ) : (
-              <p className="text-xs text-zinc-400 italic">No events yet.</p>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Certificates Section */}
+        {/* Credentials Section - Wallet Cards */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
+          className="space-y-4"
         >
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-zinc-700">Certificates</p>
-            {certificates.length > 0 && (
-              <span className="text-xs text-zinc-400">{certificates.length} issued</span>
-            )}
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-zinc-800 flex items-center gap-2">
+              My Credentials
+            </h2>
           </div>
 
-          <div className="flex flex-col gap-2">
-            {/* Real certificates */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Real credentials */}
             {certificates.map((cert, i) => (
               <motion.div
                 key={cert.id}
-                className="bg-white border border-zinc-200 rounded-xl px-4 py-3.5 flex items-center justify-between gap-4 hover:border-zinc-300 transition-colors shadow-sm"
+                className="relative bg-gradient-to-br from-zinc-900 to-zinc-800 text-white border border-zinc-700/50 rounded-2xl p-6 flex flex-col gap-6 shadow-xl overflow-hidden group"
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: 0.05 * i }}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
-                    <span className="text-[11px] font-bold text-white">{cert.role.charAt(0).toUpperCase()}</span>
-                  </div>
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                
+                <div className="relative z-10 flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-zinc-700">{cert.role} Certificate</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">
-                      {cert.event.name} &middot; {new Date(cert.issueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </p>
+                    <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md">
+                      {cert.template.name}
+                    </span>
+                    <h3 className="text-xl font-bold mt-4 leading-tight">{cert.role}</h3>
+                    <p className="text-zinc-300 font-medium mt-1">{cert.event.name}</p>
+                  </div>
+                  <div className="bg-white p-2 rounded-xl shadow-inner shrink-0">
+                    <QrCode size={40} className="text-zinc-900" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${cert.status === "valid" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-zinc-100 text-zinc-500 border-zinc-200"}`}>
-                    {cert.status === "valid" && <ShieldCheck size={11} />}
-                    {cert.status === "valid" ? "Verified" : "Revoked"}
-                  </span>
-                  <Link href={`/validate?id=${cert.id}`} className="inline-flex items-center gap-1 px-2.5 py-1 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 rounded-lg text-[11px] font-medium transition-colors">
-                    <ExternalLink size={11} /> View
+
+                <div className="relative z-10 flex items-center justify-between border-t border-white/20 pt-4 mt-auto">
+                  <div>
+                    <p className="text-xs text-zinc-400 font-medium uppercase tracking-wider">Issued</p>
+                    <p className="text-sm font-semibold">{new Date(cert.issueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>
+                  </div>
+                  <Link href={`/validate?id=${cert.id}`} className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-zinc-900 hover:bg-zinc-100 rounded-xl text-sm font-bold transition-colors">
+                    <ExternalLink size={14} /> Open
                   </Link>
                 </div>
               </motion.div>
             ))}
 
-            {/* Hardcoded sample certificate (always visible when no real certs) */}
+            {/* Hardcoded sample certificate */}
             {certificates.length === 0 && (
-              <div className="bg-white border border-zinc-200 rounded-xl px-4 py-3.5 flex items-center justify-between gap-4 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-700 flex items-center justify-center shrink-0">
-                    <span className="text-[11px] font-bold text-white">P</span>
-                  </div>
+              <div className="relative bg-gradient-to-br from-emerald-900 to-emerald-800 text-white border border-emerald-700/50 rounded-2xl p-6 flex flex-col gap-6 shadow-xl overflow-hidden">
+                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+                
+                <div className="relative z-10 flex items-start justify-between">
                   <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-zinc-700">Participant Certificate</p>
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">Sample</span>
-                    </div>
-                    <p className="text-xs text-zinc-400 mt-0.5">Intro to Web Development Workshop &middot; Sep 15, 2025</p>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">Issued by SPPQ Organization</p>
+                    <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md">
+                      Sample Credential
+                    </span>
+                    <h3 className="text-xl font-bold mt-4 leading-tight">Participant</h3>
+                    <p className="text-emerald-100 font-medium mt-1">Intro to Web Development</p>
+                  </div>
+                  <div className="bg-white p-2 rounded-xl shadow-inner shrink-0 opacity-50">
+                    <QrCode size={40} className="text-emerald-900" />
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border bg-emerald-50 text-emerald-700 border-emerald-200">
-                    <ShieldCheck size={11} /> Verified
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 border border-zinc-200 bg-zinc-50 text-zinc-400 rounded-lg text-[11px] font-medium cursor-not-allowed select-none">
-                    <ExternalLink size={11} /> View
+
+                <div className="relative z-10 flex items-center justify-between border-t border-white/20 pt-4 mt-auto">
+                  <div>
+                    <p className="text-xs text-emerald-300 font-medium uppercase tracking-wider">Issued</p>
+                    <p className="text-sm font-semibold">Sep 15, 2025</p>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700/50 text-white rounded-xl text-sm font-bold cursor-not-allowed">
+                    <ShieldCheck size={14} /> Verified
                   </span>
                 </div>
               </div>

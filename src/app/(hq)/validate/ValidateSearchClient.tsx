@@ -14,6 +14,7 @@ import {
 import jsQR from "jsqr";
 import * as pdfjsLib from "pdfjs-dist";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import CertificateView from "@/components/CertificateView";
 import Tesseract from "tesseract.js";
 
@@ -319,128 +320,34 @@ export default function ValidateSearchClient() {
     if (!certificate) return;
     setDownloading(true);
     try {
-      let design = {};
-      try {
-        design = JSON.parse(certificate.template.designData);
-      } catch (e) {}
+      const node = document.getElementById("certificate-print-node");
+      if (!node) throw new Error("Certificate node not found");
 
+      // Temporarily remove transform scaling to capture full resolution
+      const originalTransform = node.style.transform;
+      node.style.transform = "translate(-50%, -50%) scale(1)";
+      
+      // Wait a tick for DOM to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(node, {
+        scale: 2, // 2x resolution for better print quality
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+      });
+
+      // Restore original scale
+      node.style.transform = originalTransform;
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+
+      // Certificate is always landscape (3508x2480 or similar)
       const pdf = new jsPDF("l", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      // Background
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, 297, 210, "F");
-
-      // Decorative double border
-      const primaryBorder = [113, 113, 122]; // Zinc 500
-      pdf.setDrawColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-      pdf.setLineWidth(3);
-      pdf.rect(10, 10, 277, 190);
-      pdf.setLineWidth(0.75);
-      pdf.rect(13, 13, 271, 184);
-
-      // Institution Header
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(14);
-      pdf.setTextColor(15, 23, 42);
-      pdf.text((design as any).institutionName || "EVENT CERTIFICATE PLATFORM", 148.5, 26, { align: "center" });
-
-      pdf.setFontSize(8);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text((design as any).institutionSub || "OFFICIAL CERTIFICATION PORTAL", 148.5, 32, { align: "center" });
-
-      // Title
-      pdf.setFont("times", "bold");
-      pdf.setFontSize(26);
-      pdf.setTextColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-      pdf.text((design as any).certificateTitle || "Certificate of Completion", 148.5, 52, { align: "center" });
-
-      if ((design as any).honorText) {
-        pdf.setFont("times", "italic");
-        pdf.setFontSize(11);
-        pdf.setTextColor(71, 85, 105);
-        pdf.text((design as any).honorText, 148.5, 60, { align: "center" });
-      }
-
-      // Recipient
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text((design as any).prefixText || "It is hereby certified that", 148.5, 75, { align: "center" });
-
-      const nameLen = (certificate.recipientName || "").length;
-      const pdfNameSize = nameLen > 42 ? 17 : nameLen > 28 ? 22 : 28;
-      pdf.setFont("times", "bold");
-      pdf.setFontSize(pdfNameSize);
-      pdf.setTextColor(15, 23, 42);
-      pdf.text(certificate.recipientName || "Candidate Name", 148.5, 92, { align: "center" });
-
-      // Line under name
-      const textWidth = Math.min(pdf.getTextWidth(certificate.recipientName || "Candidate Name"), 200);
-      const halfWidth = Math.max(textWidth / 2 + 10, 45);
-      pdf.setDrawColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-      pdf.setLineWidth(0.5);
-      pdf.line(148.5 - halfWidth, 96, 148.5 + halfWidth, 96);
-
-      // Program
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(10);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text((design as any).completionText || "has satisfactorily completed the prescribed requirements for", 148.5, 108, { align: "center" });
-
-      pdf.setFont("times", "bold");
-      pdf.setFontSize(18);
-      pdf.setTextColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-      pdf.text(certificate.role || certificate.template.name, 148.5, 119, { align: "center" });
-
-      // Attestation
-      pdf.setFont("times", "italic");
-      pdf.setFontSize(9);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text("In testimony whereof, the seal of the Event and the signatures of the Organizers are hereunto affixed.", 148.5, 135, { align: "center" });
-
-      // Signatories
-      pdf.setDrawColor(51, 65, 85);
-      pdf.setLineWidth(0.5);
-      pdf.line(45, 168, 105, 168);
-      pdf.line(192, 168, 252, 168);
-
-      pdf.setFont("times", "italic");
-      pdf.setFontSize(16);
-      pdf.setTextColor(15, 23, 42);
-      pdf.text("Organizer Signature", 75, 164, { align: "center" });
-      pdf.text("Sponsor Signature", 222, 164, { align: "center" });
-
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(9);
-      pdf.text((design as any).firstSignatoryName || "Event Director", 75, 174, { align: "center" });
-      pdf.text((design as any).secondSignatoryName || "Program Chair", 222, 174, { align: "center" });
-
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(8);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text((design as any).firstSignatoryTitle || "Head Organizer", 75, 179, { align: "center" });
-      pdf.text((design as any).secondSignatoryTitle || "Co-Chair", 222, 179, { align: "center" });
-
-      // Official Seal Label
-      pdf.setFont("times", "bold");
-      pdf.setFontSize(7.5);
-      pdf.setTextColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-      pdf.text("OFFICIAL EVENT SEAL", 148.5, 172, { align: "center" });
-
-      const issueDateObj = new Date(certificate.issueDate);
-      const dateStr = !isNaN(issueDateObj.getTime())
-        ? issueDateObj.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-        : certificate.issueDate;
-
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(7);
-      pdf.setTextColor(100, 116, 139);
-      pdf.text(`Issued: ${dateStr}`, 148.5, 177, { align: "center" });
-
-      // Verification Footer
-      pdf.setFontSize(6.5);
-      pdf.setTextColor(148, 163, 184);
-      pdf.text(`Cryptographic Audit Record: ${certificate.id} • shim Registry`, 148.5, 195, { align: "center" });
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
 
       pdf.save(`Credential-${certificate.id.substring(0, 10)}.pdf`);
     } catch (e) {

@@ -20,6 +20,7 @@ model User {
   events        Event[]
   templates     Template[]
   certificates  Certificate[]
+  wallet        Wallet?
 }
 
 model Account {
@@ -118,6 +119,9 @@ model Certificate {
   isClaimed      Boolean   @default(false)
   claimedAt      DateTime?
 
+  walletId       String?
+  wallet         Wallet?   @relation(fields: [walletId], references: [id], onDelete: SetNull)
+
   auditLogs      AuditLog[]
 
   @@index([id])
@@ -134,4 +138,16 @@ model AuditLog {
 
   @@index([certificateId])
   @@index([action])
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // A wallet holds many certificates that belong to this user
+  certificates Certificate[]
+  
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }

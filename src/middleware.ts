@@ -58,8 +58,9 @@ export function middleware(req: NextRequest) {
 
   // Main Domain (HQ)
   if (!isStudio && !isWallet) {
-    // Block access to dashboard and portal from main domain
-    if (pathname.startsWith('/dashboard') || pathname.startsWith('/portal')) {
+    const isLocal = hostname.includes('localhost') || hostname.includes('127.0.0.1');
+    // Block access to dashboard and portal from main domain, UNLESS we are developing locally
+    if (!isLocal && (pathname.startsWith('/dashboard') || pathname.startsWith('/portal'))) {
       url.pathname = '/404';
       return NextResponse.rewrite(url);
     }

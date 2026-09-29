@@ -160,13 +160,13 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
         </div>
 
         {/* RIGHT COLUMN: Create Event Form */}
-        <div className="bg-white border border-zinc-200 rounded-xl shadow-sm flex flex-col h-full min-h-0 overflow-y-auto">
+        <div className="bg-white border border-zinc-200 rounded-xl shadow-sm flex flex-col h-full min-h-0 overflow-hidden">
           <div className="px-6 py-5 border-b border-zinc-100 bg-white shrink-0">
             <h3 className="text-lg font-semibold text-zinc-700">
               Create New Event
             </h3>
           </div>
-          <form onSubmit={handleCreateEvent} className="p-6 flex flex-col gap-5 flex-1 min-h-0">
+          <form onSubmit={handleCreateEvent} className="p-6 flex flex-col gap-5 flex-1 min-h-0 overflow-y-auto">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-zinc-700">Event Name</label>
               <input 

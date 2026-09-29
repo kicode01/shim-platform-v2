@@ -34,6 +34,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-draggable": "^4.7.1",
+    "react-rnd": "^10.5.3",
     "recharts": "^3.10.1",
     "tesseract.js": "^7.0.0"
   },

@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Save, ArrowLeft, Stamp, Sliders, Code2, ShieldCheck, CheckCircle2, RotateCcw, Image as ImageIcon, Move, LayoutTemplate, Loader2, Sparkles, Type, FileImage, MousePointer2, Plus, Trash2, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Database, QrCode, Undo, Redo } from "lucide-react";
+import { Rnd } from 'react-rnd';
 import CertificateView, { CertificateDesignConfig, CanvasElement, CanvasElementType } from "@/components/CertificateView";
 import { v4 as uuidv4 } from "uuid";
 import QRCode from "qrcode";
+import { QRCodeSVG } from "qrcode.react";
 import { PRESETS } from "@/lib/presets";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -219,12 +221,18 @@ export default function TemplateEditor({
     const preset = PRESETS.find(p => p.id === presetId);
     if (!preset) return;
     
+    const freshElements = (preset.design.canvasElements || []).map(el => ({
+      ...el,
+      id: uuidv4()
+    }));
+    
     const updated = { 
       ...design, 
-      canvasElements: preset.design.canvasElements, 
+      canvasElements: freshElements, 
       backgroundImageUrl: preset.design.backgroundImageUrl 
     }; 
     applyDesignUpdate(updated);
+    setSelectedElementId(null);
   };
 
   // Responsive Canvas Scale State
@@ -737,38 +745,8 @@ export default function TemplateEditor({
 }
 
 function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElementId, updateSelectedElement, scale, dummyQrCode }: any) {
-  const nodeRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState(false);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (isEditing) return; // Don't drag while editing
-    if (e.button !== 0) return; // Only left click
-    if ((e.target as HTMLElement).classList.contains('resize-handle')) return; // Ignore resize handle
-    
-    e.stopPropagation();
-    setSelectedElementId(el.id);
-
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startElX = el.x;
-    const startElY = el.y;
-    let isDragging = false;
-
-    const handlePointerMove = (moveEvent: PointerEvent) => {
-      isDragging = true;
-      const dx = (moveEvent.clientX - startX) / scale;
-      const dy = (moveEvent.clientY - startY) / scale;
-      updateSelectedElement({ x: startElX + dx, y: startElY + dy });
-    };
-
-    const handlePointerUp = () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-    };
-
-    window.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('pointerup', handlePointerUp);
-  };
+  const dragStartData = useRef({ width: 0, fontSize: 0 });
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -777,19 +755,69 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
     }
   };
 
+  const isProportional = el.type === 'qrCode' || el.type === 'image' || el.type === 'badge';
+
   return (
-    <div 
-      ref={nodeRef}
-      onPointerDown={handlePointerDown}
-      onDoubleClick={handleDoubleClick}
-      style={{ 
-        position: "absolute", 
-        left: el.x,
-        top: el.y,
-        width: el.width,
-        height: el.height,
+    <Rnd
+      size={{ width: el.width, height: el.height || 'auto' }}
+      position={{ x: el.x, y: el.y }}
+      onDragStart={() => {
+        if (!isSelected) setSelectedElementId(el.id);
+      }}
+      onDragStop={(e, d) => {
+        updateSelectedElement({ x: d.x, y: d.y });
+      }}
+      onResizeStart={() => {
+        if (!isSelected) setSelectedElementId(el.id);
+        const defaultFontSize = el.type === 'signature' ? 120 : 16;
+        dragStartData.current = { width: el.width, fontSize: el.fontSize || defaultFontSize };
+      }}
+      onResize={(e, direction, ref, delta, position) => {
+        const newWidth = parseFloat(ref.style.width);
+        const newHeight = el.height ? parseFloat(ref.style.height) : undefined;
+        
+        let updates: any = { width: newWidth, x: position.x, y: position.y };
+        if (newHeight !== undefined) updates.height = newHeight;
+        
+        const isCorner = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'].includes(direction);
+        if (isCorner && !isProportional && el.type !== 'shape') {
+          const startW = dragStartData.current.width || 1;
+          const defaultFontSize = el.type === 'signature' ? 120 : 16;
+          const startFs = dragStartData.current.fontSize || defaultFontSize;
+          const ratio = newWidth / startW;
+          updates.fontSize = Math.max(8, Math.round(startFs * ratio));
+        }
+        
+        updateSelectedElement(updates);
+      }}
+      onResizeStop={(e, direction, ref, delta, position) => {
+        // Final sync just in case
+        const newWidth = parseFloat(ref.style.width);
+        const newHeight = el.height ? parseFloat(ref.style.height) : undefined;
+        let updates: any = { width: newWidth, x: position.x, y: position.y };
+        if (newHeight !== undefined) updates.height = newHeight;
+        
+        const isCorner = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'].includes(direction);
+        if (isCorner && !isProportional && el.type !== 'shape') {
+          const startW = dragStartData.current.width || 1;
+          const defaultFontSize = el.type === 'signature' ? 120 : 16;
+          const startFs = dragStartData.current.fontSize || defaultFontSize;
+          const ratio = newWidth / startW;
+          updates.fontSize = Math.max(8, Math.round(startFs * ratio));
+        }
+        
+        updateSelectedElement(updates);
+      }}
+      scale={scale}
+      bounds="parent"
+      disableDragging={isEditing}
+      onClick={(e: any) => {
+        e.stopPropagation();
+        setSelectedElementId(el.id);
+      }}
+      style={{
         cursor: isEditing ? "text" : "move", 
-        border: isSelected ? "2px solid #3f3f46" : "1px dashed transparent", 
+        border: isSelected ? "2px solid #3b82f6" : "1px dashed transparent", 
         padding: "2px",
         fontSize: `${el.fontSize || 16}px`,
         fontFamily: el.fontFamily || "var(--font-sans, sans-serif)",
@@ -801,122 +829,129 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         lineHeight: 1,
         whiteSpace: "pre-wrap",
         zIndex: isSelected ? 50 : 10,
-        touchAction: "none",
-        backgroundColor: el.type === 'shape' ? (el.color || '#000000') : 'transparent'
+        backgroundColor: el.type === 'shape' ? (el.color || '#000000') : 'transparent',
+        display: "flex",
+        alignItems: "center"
       }}
-      className={isSelected ? "bg-blue-50/20" : "hover:border-zinc-300"}
+      className={isSelected ? "bg-blue-50/10 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" : "hover:border-zinc-300"}
+      enableResizing={isSelected && !isEditing}
+      lockAspectRatio={isProportional}
+      resizeHandleStyles={{
+        bottomRight: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", right: "-8px", bottom: "-8px" },
+        right: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", right: "-8px", top: "50%", transform: "translateY(-50%)" },
+        bottom: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", bottom: "-8px", left: "50%", transform: "translateX(-50%)" },
+        bottomLeft: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", left: "-8px", bottom: "-8px" },
+        left: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", left: "-8px", top: "50%", transform: "translateY(-50%)" },
+        topLeft: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", left: "-8px", top: "-8px" },
+        top: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", top: "-8px", left: "50%", transform: "translateX(-50%)" },
+        topRight: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", right: "-8px", top: "-8px" }
+      }}
     >
-      {el.type === 'qrCode' ? (
-        <div className="w-full h-full pointer-events-none">
-          {dummyQrCode ? (
-            <img src={dummyQrCode} alt="QR" style={{ width: "100%", height: "100%" }} />
-          ) : (
-            <div className="w-full h-full bg-zinc-100 flex items-center justify-center border-2 border-zinc-300 flex-col rounded-xl">
-              <QrCode size={120} className="text-zinc-400 mb-4" />
-            </div>
-          )}
-        </div>
-      ) : el.type === 'image' || el.type === 'badge' ? (
-        <div className="w-full h-full pointer-events-none flex items-center justify-center">
-          {el.src ? (
-            <img src={el.src} alt="" className="w-full h-full object-contain" />
-          ) : el.type === 'badge' ? (
-            <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 30 70 L 30 115 L 50 100 L 70 115 L 70 70 Z" fill="#b45309" />
-              <circle cx="50" cy="50" r="45" fill="#d97706" />
-              <circle cx="50" cy="50" r="38" fill="#f59e0b" />
-              <circle cx="50" cy="50" r="36" fill="none" stroke="#fef3c7" strokeWidth="2" strokeDasharray="4,4" />
-              <path d="M 40 50 L 47 57 L 60 40" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          ) : (
-             <div className="w-full h-full bg-zinc-50 flex items-center justify-center border-2 border-dashed border-zinc-300 text-zinc-400 rounded-xl">
-               <ImageIcon size={120} />
-             </div>
-          )}
-        </div>
-      ) : el.type === 'signature' ? (
-        <div className="w-full h-full pointer-events-none flex flex-col items-center justify-end">
-          {el.src ? (
-            <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
-          ) : (
-            <div style={{ fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1 }}>
-              {el.text?.split('|')[0] || "Signature"}
-            </div>
-          )}
-          <div style={{ width: "100%", height: "4px", backgroundColor: el.color || "#000000", marginBottom: "10px", marginTop: "10px" }} />
-          <div style={{ fontSize: `${(el.fontSize || 60) * 0.4}px`, fontFamily: "var(--font-sans, sans-serif)", color: el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "4px" }}>
-            {el.text?.split('|')[1] || "Title"}
+      <div onDoubleClick={handleDoubleClick} className="w-full h-full flex flex-col justify-center pointer-events-auto">
+        {el.type === 'qrCode' ? (
+          <div className="w-full h-full pointer-events-none">
+            {dummyQrCode ? (
+              <img src={dummyQrCode} alt="QR" style={{ width: "100%", height: "100%" }} />
+            ) : (
+              <div className="w-full h-full bg-zinc-100 flex items-center justify-center border-2 border-zinc-300 flex-col rounded-xl">
+                <QrCode size={120} className="text-zinc-400 mb-4" />
+              </div>
+            )}
           </div>
-        </div>
-      ) : el.type === 'shape' ? null : isEditing ? (
-        <textarea
-          autoFocus
-          className="w-full h-full bg-transparent border-none outline-none resize-none overflow-hidden"
-          style={{ 
-             fontSize: 'inherit', fontFamily: 'inherit', color: 'inherit', textAlign: 'inherit',
-             fontWeight: 'inherit', fontStyle: 'inherit', lineHeight: 'inherit'
-          }}
-          value={el.text || ''}
-          onChange={(e) => updateSelectedElement({ text: e.target.value })}
-          onBlur={() => setIsEditing(false)}
-          onKeyDown={(e) => { if(e.key === 'Escape') setIsEditing(false) }}
-          onPointerDown={(e) => e.stopPropagation()} // Let user click inside textarea without dragging
-        />
-      ) : (
-        <span className="pointer-events-none block w-full">{displayText}</span>
-      )}
-      
-      {/* Width resize handle (Side) */}
-      {isSelected && !isEditing && (
-        <div 
-          className="resize-handle absolute -right-2 top-1/2 -translate-y-1/2 cursor-col-resize w-4 h-4 bg-white shadow-sm border border-zinc-300 rounded-full z-50 transition-colors hover:border-blue-500"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            const startX = e.clientX;
-            const startWidth = el.width;
-            const onMouseMove = (moveEvent: PointerEvent) => {
-              const newWidth = Math.max(50, startWidth + ((moveEvent.clientX - startX) / scale));
-              updateSelectedElement({ width: newWidth });
-            };
-            const onMouseUp = () => {
-              window.removeEventListener('pointermove', onMouseMove);
-              window.removeEventListener('pointerup', onMouseUp);
-            };
-            window.addEventListener('pointermove', onMouseMove);
-            window.addEventListener('pointerup', onMouseUp);
-          }}
-        />
-      )}
+        ) : el.type === 'image' || el.type === 'badge' ? (
+          <div className="w-full h-full pointer-events-none flex items-center justify-center">
+            {el.src ? (
+              <img src={el.src} alt="" className="w-full h-full object-contain" />
+            ) : el.type === 'badge' ? (
+              <svg viewBox="0 0 120 120" className="w-full h-full drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="goldOuterBadge" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#fef08a" />
+                    <stop offset="50%" stopColor="#eab308" />
+                    <stop offset="100%" stopColor="#854d0e" />
+                  </linearGradient>
+                  <linearGradient id="goldInnerBadge" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#fef08a" />
+                    <stop offset="40%" stopColor="#eab308" />
+                    <stop offset="100%" stopColor="#a16207" />
+                  </linearGradient>
+                  
+                  {/* Animated Shine Effect */}
+                  <linearGradient id="badgeShine" x1="-100%" y1="-100%" x2="0%" y2="0%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+                    <stop offset="50%" stopColor="#ffffff" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                    <animate attributeName="x1" values="-100%; 200%" dur="3s" repeatCount="indefinite" />
+                    <animate attributeName="x2" values="0%; 300%" dur="3s" repeatCount="indefinite" />
+                    <animate attributeName="y1" values="-100%; 200%" dur="3s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="0%; 300%" dur="3s" repeatCount="indefinite" />
+                  </linearGradient>
+                </defs>
 
-      {/* Proportional resize handle (Corner) */}
-      {isSelected && !isEditing && (
-        <div 
-          className="resize-handle absolute -right-2 -bottom-2 cursor-se-resize w-4 h-4 bg-white shadow-sm border border-zinc-300 rounded-full z-50 transition-colors hover:border-blue-500"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            const startX = e.clientX;
-            const startWidth = el.width;
-            const startFontSize = el.fontSize || 16;
-            const onMouseMove = (moveEvent: PointerEvent) => {
-              const newWidth = Math.max(50, startWidth + ((moveEvent.clientX - startX) / scale));
-              if (el.type === 'qrCode' || el.type === 'image') {
-                updateSelectedElement({ width: newWidth, height: newWidth });
-              } else {
-                const ratio = newWidth / startWidth;
-                const newFontSize = Math.max(8, Math.round(startFontSize * ratio));
-                updateSelectedElement({ width: newWidth, fontSize: newFontSize });
-              }
-            };
-            const onMouseUp = () => {
-              window.removeEventListener('pointermove', onMouseMove);
-              window.removeEventListener('pointerup', onMouseUp);
-            };
-            window.addEventListener('pointermove', onMouseMove);
-            window.addEventListener('pointerup', onMouseUp);
-          }}
-        />
-      )}
-    </div>
+                {/* Sharp Rosette Base */}
+                <path d="M 60.0 10.0 L 65.7 16.4 L 72.9 11.7 L 76.8 19.3 L 85.0 16.7 L 86.8 25.1 L 95.4 24.6 L 94.9 33.2 L 103.3 35.0 L 100.7 43.2 L 108.3 47.1 L 103.6 54.3 L 110.0 60.0 L 103.6 65.7 L 108.3 72.9 L 100.7 76.8 L 103.3 85.0 L 94.9 86.8 L 95.4 95.4 L 86.8 94.9 L 85.0 103.3 L 76.8 100.7 L 72.9 108.3 L 65.7 103.6 L 60.0 110.0 L 54.3 103.6 L 47.1 108.3 L 43.2 100.7 L 35.0 103.3 L 33.2 94.9 L 24.6 95.4 L 25.1 86.8 L 16.7 85.0 L 19.3 76.8 L 11.7 72.9 L 16.4 65.7 L 10.0 60.0 L 16.4 54.3 L 11.7 47.1 L 19.3 43.2 L 16.7 35.0 L 25.1 33.2 L 24.6 24.6 L 33.2 25.1 L 35.0 16.7 L 43.2 19.3 L 47.1 11.7 L 54.3 16.4 Z" fill="url(#goldOuterBadge)" />
+                
+                {/* Animated Shine overlaying the rosette base */}
+                <path d="M 60.0 10.0 L 65.7 16.4 L 72.9 11.7 L 76.8 19.3 L 85.0 16.7 L 86.8 25.1 L 95.4 24.6 L 94.9 33.2 L 103.3 35.0 L 100.7 43.2 L 108.3 47.1 L 103.6 54.3 L 110.0 60.0 L 103.6 65.7 L 108.3 72.9 L 100.7 76.8 L 103.3 85.0 L 94.9 86.8 L 95.4 95.4 L 86.8 94.9 L 85.0 103.3 L 76.8 100.7 L 72.9 108.3 L 65.7 103.6 L 60.0 110.0 L 54.3 103.6 L 47.1 108.3 L 43.2 100.7 L 35.0 103.3 L 33.2 94.9 L 24.6 95.4 L 25.1 86.8 L 16.7 85.0 L 19.3 76.8 L 11.7 72.9 L 16.4 65.7 L 10.0 60.0 L 16.4 54.3 L 11.7 47.1 L 19.3 43.2 L 16.7 35.0 L 25.1 33.2 L 24.6 24.6 L 33.2 25.1 L 35.0 16.7 L 43.2 19.3 L 47.1 11.7 L 54.3 16.4 Z" fill="url(#badgeShine)" />
+                
+                {/* Inner Bevel / Ring */}
+                <circle cx="60" cy="60" r="41" fill="url(#goldInnerBadge)" />
+                <circle cx="60" cy="60" r="36" fill="none" stroke="#fef3c7" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8" />
+                <circle cx="60" cy="60" r="32" fill="none" stroke="#fef3c7" strokeWidth="0.75" opacity="0.5" />
+                
+                {/* SHIM Text */}
+                <text x="60" y="58" fontFamily="Inter, system-ui, sans-serif" fontSize="20" fontWeight="900" letterSpacing="-0.5px" fill="rgba(255,255,255,0.9)" textAnchor="middle" style={{ filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.15))" }}>shim</text>
+                
+                {/* CERTIFIED Text */}
+                <text x="60" y="68" fontFamily="var(--font-sans, Arial, sans-serif)" fontSize="6.5" fontWeight="900" fill="rgba(254,243,199,0.9)" textAnchor="middle" style={{ letterSpacing: "2px", filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.15))" }}>CERTIFIED</text>
+              </svg>
+            ) : el.type === 'qrCode' || el.type === 'qrcode' as any ? (
+              <QRCodeSVG 
+                value={el.text || el.src || "https://shim.org/verify/sample"} 
+                size={1000} 
+                style={{ width: "100%", height: "100%" }} 
+                bgColor="transparent" 
+                fgColor={el.color || "#000000"} 
+              />
+            ) : (
+               <div className="w-full h-full bg-zinc-50 flex items-center justify-center border-2 border-dashed border-zinc-300 text-zinc-400 rounded-xl">
+                 <ImageIcon size={120} />
+               </div>
+            )}
+          </div>
+        ) : el.type === 'signature' ? (
+          <div className="w-full h-full pointer-events-none flex flex-col items-center justify-end">
+            {el.src ? (
+              <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
+            ) : (
+              <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1 }}>
+                {el.text?.split('|')[0] || "Signature"}
+              </div>
+            )}
+            <div style={{ width: "100%", height: "4px", backgroundColor: el.color || "#000000", marginBottom: "10px", marginTop: "10px" }} />
+            <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * 0.4}px`, fontFamily: "var(--font-sans, sans-serif)", color: el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "4px" }}>
+              {el.text?.split('|')[1] || "Title"}
+            </div>
+          </div>
+        ) : el.type === 'shape' ? null : isEditing ? (
+          <textarea
+            autoFocus
+            className="w-full h-full bg-transparent border-none outline-none resize-none overflow-hidden pointer-events-auto"
+            style={{ 
+               fontSize: 'inherit', fontFamily: 'inherit', color: 'inherit', textAlign: 'inherit',
+               fontWeight: 'inherit', fontStyle: 'inherit', lineHeight: 'inherit'
+            }}
+            value={el.text || ''}
+            onChange={(e) => updateSelectedElement({ text: e.target.value })}
+            onBlur={() => setIsEditing(false)}
+            onKeyDown={(e) => { if(e.key === 'Escape') setIsEditing(false) }}
+            onPointerDown={(e) => e.stopPropagation()} 
+          />
+        ) : (
+          <span className="pointer-events-none block w-full">{displayText}</span>
+        )}
+      </div>
+    </Rnd>
   );
 }
 

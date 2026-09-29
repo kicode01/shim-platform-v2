@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import { createRoot } from "react-dom/client";
+import { flushSync } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import Papa from "papaparse";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import QRCode from "qrcode";
 import { 
   FileSpreadsheet, 
@@ -167,222 +170,59 @@ function GenerateCertificatesContent() {
   const renderCertToPdf = async (pdf: jsPDF, cert: any, design: any, isFirst: boolean) => {
     if (!isFirst) pdf.addPage();
 
-    if (design.canvasElements) {
-      if (design.backgroundImageUrl) {
-        try {
-          const imgType = design.backgroundImageUrl.includes('image/png') ? 'PNG' : 'JPEG';
-          pdf.addImage(design.backgroundImageUrl, imgType, 0, 0, 297, 210);
-        } catch (err) {
-          console.error("Failed to load custom background image", err);
-        }
-      } else {
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(0, 0, 297, 210, "F");
-      }
+    const container = document.createElement("div");
+    container.style.position = "fixed";
+    container.style.top = "-9999px";
+    container.style.left = "-9999px";
+    container.style.width = "3508px";
+    container.style.height = "2480px";
+    document.body.appendChild(container);
 
-      const pxToMmX = (px: number) => px * (297 / 3508);
-      const pxToMmY = (px: number) => px * (210 / 2480);
+    const root = createRoot(container);
+    flushSync(() => {
+      root.render(
+        <CertificateView 
+          certificateId={cert.id}
+          recipientName={cert.recipientName}
+          role={cert.role || selectedTemplate?.name}
+          eventId={cert.eventId || "Unknown Event"}
+          issueDate={cert.issueDate}
+          design={selectedTemplate?.designData}
+          status={"valid"}
+        />
+      );
+    });
 
-      for (const el of design.canvasElements) {
-        if (el.type === 'image' && el.src) {
-          try {
-            const imgType = el.src.includes('image/png') ? 'PNG' : 'JPEG';
-            pdf.addImage(el.src, imgType, pxToMmX(el.x), pxToMmY(el.y), pxToMmX(el.width), pxToMmY(el.height || 100));
-          } catch(e) {}
-          continue;
-        }
+    // Wait a short moment to ensure DOM updates, effects run (QR Code), and images render
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-        if (el.type === 'qrCode' && design.showQr !== false) {
-          try {
-            const validateUrl = `${window.location.origin}/validate/${cert.id}`;
-            const qrDataUrl = await QRCode.toDataURL(validateUrl, { margin: 0 });
-            const qrSize = pxToMmX(el.width || 100);
-            pdf.addImage(qrDataUrl, "PNG", pxToMmX(el.x), pxToMmY(el.y), qrSize, qrSize);
-          } catch (e) {}
-          continue;
-        }
-
-        if (el.type === 'dynamicText' || el.type === 'staticText') {
-          let content = el.text || "";
-          if (el.type === 'dynamicText') {
-            if (el.text === "recipientName") content = cert.recipientName || "";
-            else if (el.text === "role") content = cert.role || "";
-            else if (el.text === "eventName") content = cert.eventId || "";
-            else if (el.text === "issueDate") content = new Date(cert.issueDate || Date.now()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-          }
-
-          if (!content) continue;
-
-          // Map HTML fonts to jsPDF standard fonts
-          let pdfFont = "helvetica";
-          if (el.fontFamily?.includes("serif")) pdfFont = "times";
-          if (el.fontFamily?.includes("mono")) pdfFont = "courier";
-
-          let pdfStyle = "normal";
-          if (el.fontWeight === "bold" && el.fontStyle === "italic") pdfStyle = "bolditalic";
-          else if (el.fontWeight === "bold") pdfStyle = "bold";
-          else if (el.fontStyle === "italic") pdfStyle = "italic";
-
-          pdf.setFont(pdfFont, pdfStyle);
-          pdf.setFontSize((el.fontSize || 16) * (210 / 2480) * 3.5); // Adjusted font scale roughly matching HTML line heights
-          pdf.setTextColor(el.color || "#000000");
-          
-          let textX = pxToMmX(el.x);
-          if (el.align === 'center') textX += pxToMmX(el.width) / 2;
-          else if (el.align === 'right') textX += pxToMmX(el.width);
-
-          pdf.text(content, textX, pxToMmY(el.y) + (el.fontSize || 16) * 0.35, { align: el.align || "left", maxWidth: pxToMmX(el.width) });
-        }
-      }
-      return;
-    }
-    // Default Rendering Logic (No Custom Background)
-    pdf.setFillColor(255, 255, 255);
-    pdf.rect(0, 0, 297, 210, "F");
-
-    const primaryBorder = [79, 70, 229]; // Indigo 600 default
-
-    pdf.setDrawColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-    pdf.setLineWidth(3);
-    pdf.rect(10, 10, 277, 190);
-    pdf.setLineWidth(0.75);
-    pdf.rect(13, 13, 271, 184);
-
-    // Institution Header
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(14);
-    pdf.setTextColor(15, 23, 42);
-    pdf.text(design.institutionName || "EVENT CERTIFICATE PLATFORM", 148.5, 26, { align: "center" });
-
-    pdf.setFontSize(8);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(design.institutionSub || "OFFICIAL CERTIFICATION PORTAL", 148.5, 32, { align: "center" });
-
-    // Certificate Title
-    pdf.setFont("times", "bold");
-    pdf.setFontSize(26);
-    pdf.setTextColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-    pdf.text(design.certificateTitle || "Certificate of Completion", 148.5, 52, { align: "center" });
-
-    if (design.honorText) {
-      pdf.setFont("times", "italic");
-      pdf.setFontSize(11);
-      pdf.setTextColor(71, 85, 105);
-      pdf.text(design.honorText, 148.5, 60, { align: "center" });
-    }
-
-    // Prefix
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(design.prefixText || "This certificate is proudly presented to", 148.5, 75, { align: "center" });
-
-    // Recipient Name with dynamic scaling
-    const nameLen = (cert.recipientName || "").length;
-    const pdfNameSize = nameLen > 42 ? 17 : nameLen > 28 ? 22 : 28;
-    pdf.setFont("times", "bold");
-    pdf.setFontSize(pdfNameSize);
-    pdf.setTextColor(15, 23, 42);
-    pdf.text(cert.recipientName, 148.5, 96, { align: "center" });
-    pdf.setDrawColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-    pdf.setLineWidth(0.5);
-    pdf.line(70, 100, 227, 100);
-
-    // Completion text
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(design.completionText || "has successfully completed the requirements for", 148.5, 112, { align: "center" });
-
-    // Course Name with dynamic scaling
-    const roleLen = (cert.role || "").length;
-    const pdfCourseSize = roleLen > 45 ? 12 : 16;
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(pdfCourseSize);
-    pdf.setTextColor(15, 23, 42);
-    pdf.text(cert.role || "General Event Program", 148.5, 124, { align: "center" });
-
-    // Course Outcomes (if available)
-    if (cert.eventId) {
-      pdf.setFontSize(7.5);
-      pdf.setTextColor(71, 85, 105);
-      const lines = cert.eventId
-        .split(/\n+/)
-        .map((s: string) => s.trim())
-        .filter(Boolean)
-        .slice(0, 3);
-      lines.forEach((l: string, idx: number) => {
-        pdf.text(l.substring(0, 95), 148.5, 136 + (idx * 4.2), { align: "center" });
-      });
-    }
-
-    // Signatories Section
-    const dateStr = new Date(cert.issueDate || Date.now()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const node = container.querySelector("#certificate-print-node") || container;
     
-    // Left Signatory
-    pdf.setFont("times", "italic");
-    pdf.setFontSize(14);
-    pdf.setTextColor(15, 23, 42);
-    pdf.text(design.firstSignatoryName?.split(" ")[1] || "Organizer", 60, 172, { align: "center" });
-    pdf.setLineWidth(0.5);
-    pdf.line(35, 175, 85, 175);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(9);
-    pdf.text(design.firstSignatoryName || "Event Organizer", 60, 180, { align: "center" });
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(7);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(design.firstSignatoryTitle || "Main Host", 60, 184, { align: "center" });
+    // Temporarily remove transform scaling to capture full resolution if it exists
+    const originalTransform = (node as HTMLElement).style.transform;
+    (node as HTMLElement).style.transform = "translate(-50%, -50%) scale(1)";
 
-    // Center Seal representation
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(8);
-    pdf.setTextColor(primaryBorder[0], primaryBorder[1], primaryBorder[2]);
-    pdf.text("• OFFICIAL VERIFIED EVENT •", 148.5, 178, { align: "center" });
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(7);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(`Issued: ${dateStr}`, 148.5, 183, { align: "center" });
+    try {
+      const canvas = await html2canvas(node as HTMLElement, {
+        scale: 1, // Full 3508x2480 resolution
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+      });
 
-    // Right Signatory
-    pdf.setFont("times", "italic");
-    pdf.setFontSize(14);
-    pdf.setTextColor(15, 23, 42);
-    pdf.text(design.secondSignatoryName?.split(" ")[1] || "Sponsor", 215, 172, { align: "center" });
-    pdf.setLineWidth(0.5);
-    pdf.line(190, 175, 240, 175);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(9);
-    pdf.text(design.secondSignatoryName || "Keynote Speaker", 215, 180, { align: "center" });
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(7);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(design.secondSignatoryTitle || "Guest Speaker", 215, 184, { align: "center" });
-
-    // QR Code
-    if (design.showQr !== false) {
-      const validateUrl = `${window.location.origin}/validate/${cert.id}`;
-      const qrDataUrl = await QRCode.toDataURL(validateUrl, { margin: 1, width: 120 });
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      let qrX = 250;
-      let qrY = 155;
-      
-      if (design.qrPosition === "bottom-left") {
-        qrX = 17;
-        qrY = 155;
-      } else if (design.qrPosition === "top-right") {
-        qrX = 250;
-        qrY = 15;
-      } else if (design.qrPosition === "top-left") {
-        qrX = 17;
-        qrY = 15;
-      }
-
-      pdf.addImage(qrDataUrl, "PNG", qrX, qrY, 30, 30);
-      pdf.setFontSize(6);
-      pdf.setTextColor(148, 163, 184);
-      pdf.text(`ID: ${cert.id.substring(0, 8)}`, qrX + 15, qrY + 33, { align: "center" });
+      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+    } catch (e) {
+      console.error("html2canvas generation failed", e);
     }
+
+    (node as HTMLElement).style.transform = originalTransform;
+
+    root.unmount();
+    document.body.removeChild(container);
   };
 
   // Handle Single Issue

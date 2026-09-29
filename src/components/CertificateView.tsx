@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import QRCode from "qrcode";
+import { QRCodeSVG } from "qrcode.react";
 import { PRESETS } from "@/lib/presets";
 
 export type CanvasElementType = "dynamicText" | "staticText" | "image" | "qrCode" | "signature" | "badge" | "shape";
@@ -246,9 +247,11 @@ export default function CertificateView({
           overflow: "hidden",
         }}
       >
-        <div style={{
-          width: "3508px",
-          height: "2480px",
+        <div 
+          id="certificate-print-node"
+          style={{
+            width: "3508px",
+            height: "2480px",
           position: "absolute",
           top: "50%",
           left: "50%",
@@ -284,12 +287,47 @@ export default function CertificateView({
                   {el.src ? (
                     <img src={el.src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                   ) : el.type === "badge" ? (
-                    <svg viewBox="0 0 100 120" className="w-full h-full drop-shadow-md" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M 30 70 L 30 115 L 50 100 L 70 115 L 70 70 Z" fill="#b45309" />
-                      <circle cx="50" cy="50" r="45" fill="#d97706" />
-                      <circle cx="50" cy="50" r="38" fill="#f59e0b" />
-                      <circle cx="50" cy="50" r="36" fill="none" stroke="#fef3c7" strokeWidth="2" strokeDasharray="4,4" />
-                      <path d="M 40 50 L 47 57 L 60 40" fill="none" stroke="#ffffff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg viewBox="0 0 120 120" className="w-full h-full drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="goldOuterBadgeV" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#fef08a" />
+                          <stop offset="50%" stopColor="#eab308" />
+                          <stop offset="100%" stopColor="#854d0e" />
+                        </linearGradient>
+                        <linearGradient id="goldInnerBadgeV" x1="0%" y1="100%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#fef08a" />
+                          <stop offset="40%" stopColor="#eab308" />
+                          <stop offset="100%" stopColor="#a16207" />
+                        </linearGradient>
+                        
+                        {/* Animated Shine Effect */}
+                        <linearGradient id="badgeShineV" x1="-100%" y1="-100%" x2="0%" y2="0%">
+                          <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+                          <stop offset="50%" stopColor="#ffffff" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                          <animate attributeName="x1" values="-100%; 200%" dur="3s" repeatCount="indefinite" />
+                          <animate attributeName="x2" values="0%; 300%" dur="3s" repeatCount="indefinite" />
+                          <animate attributeName="y1" values="-100%; 200%" dur="3s" repeatCount="indefinite" />
+                          <animate attributeName="y2" values="0%; 300%" dur="3s" repeatCount="indefinite" />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Sharp Rosette Base */}
+                      <path d="M 60.0 10.0 L 65.7 16.4 L 72.9 11.7 L 76.8 19.3 L 85.0 16.7 L 86.8 25.1 L 95.4 24.6 L 94.9 33.2 L 103.3 35.0 L 100.7 43.2 L 108.3 47.1 L 103.6 54.3 L 110.0 60.0 L 103.6 65.7 L 108.3 72.9 L 100.7 76.8 L 103.3 85.0 L 94.9 86.8 L 95.4 95.4 L 86.8 94.9 L 85.0 103.3 L 76.8 100.7 L 72.9 108.3 L 65.7 103.6 L 60.0 110.0 L 54.3 103.6 L 47.1 108.3 L 43.2 100.7 L 35.0 103.3 L 33.2 94.9 L 24.6 95.4 L 25.1 86.8 L 16.7 85.0 L 19.3 76.8 L 11.7 72.9 L 16.4 65.7 L 10.0 60.0 L 16.4 54.3 L 11.7 47.1 L 19.3 43.2 L 16.7 35.0 L 25.1 33.2 L 24.6 24.6 L 33.2 25.1 L 35.0 16.7 L 43.2 19.3 L 47.1 11.7 L 54.3 16.4 Z" fill="url(#goldOuterBadgeV)" />
+                      
+                      {/* Animated Shine overlaying the rosette base */}
+                      <path d="M 60.0 10.0 L 65.7 16.4 L 72.9 11.7 L 76.8 19.3 L 85.0 16.7 L 86.8 25.1 L 95.4 24.6 L 94.9 33.2 L 103.3 35.0 L 100.7 43.2 L 108.3 47.1 L 103.6 54.3 L 110.0 60.0 L 103.6 65.7 L 108.3 72.9 L 100.7 76.8 L 103.3 85.0 L 94.9 86.8 L 95.4 95.4 L 86.8 94.9 L 85.0 103.3 L 76.8 100.7 L 72.9 108.3 L 65.7 103.6 L 60.0 110.0 L 54.3 103.6 L 47.1 108.3 L 43.2 100.7 L 35.0 103.3 L 33.2 94.9 L 24.6 95.4 L 25.1 86.8 L 16.7 85.0 L 19.3 76.8 L 11.7 72.9 L 16.4 65.7 L 10.0 60.0 L 16.4 54.3 L 11.7 47.1 L 19.3 43.2 L 16.7 35.0 L 25.1 33.2 L 24.6 24.6 L 33.2 25.1 L 35.0 16.7 L 43.2 19.3 L 47.1 11.7 L 54.3 16.4 Z" fill="url(#badgeShineV)" />
+                      
+                      {/* Inner Bevel / Ring */}
+                      <circle cx="60" cy="60" r="41" fill="url(#goldInnerBadgeV)" />
+                      <circle cx="60" cy="60" r="36" fill="none" stroke="#fef3c7" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.8" />
+                      <circle cx="60" cy="60" r="32" fill="none" stroke="#fef3c7" strokeWidth="0.75" opacity="0.5" />
+                      
+                      {/* SHIM Text */}
+                      <text x="60" y="58" fontFamily="Inter, system-ui, sans-serif" fontSize="20" fontWeight="900" letterSpacing="-0.5px" fill="rgba(255,255,255,0.9)" textAnchor="middle" style={{ filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.15))" }}>shim</text>
+                      
+                      {/* CERTIFIED Text */}
+                      <text x="60" y="68" fontFamily="var(--font-sans, Arial, sans-serif)" fontSize="6.5" fontWeight="900" fill="rgba(254,243,199,0.9)" textAnchor="middle" style={{ letterSpacing: "2px", filter: "drop-shadow(0px 1px 1px rgba(0,0,0,0.15))" }}>CERTIFIED</text>
                     </svg>
                   ) : null}
                 </div>
@@ -308,12 +346,12 @@ export default function CertificateView({
                   {el.src ? (
                     <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
                   ) : (
-                    <div style={{ fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1 }}>
+                    <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1 }}>
                       {el.text?.split('|')[0] || "Signature"}
                     </div>
                   )}
                   <div style={{ width: "100%", height: "4px", backgroundColor: el.color || "#000000", marginBottom: "10px", marginTop: "10px" }} />
-                  <div style={{ fontSize: `${(el.fontSize || 60) * 0.4}px`, fontFamily: "var(--font-sans, sans-serif)", color: el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "4px" }}>
+                  <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * 0.4}px`, fontFamily: "var(--font-sans, sans-serif)", color: el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "4px" }}>
                     {el.text?.split('|')[1] || "Title"}
                   </div>
                 </div>
@@ -360,6 +398,7 @@ export default function CertificateView({
       }}
     >
       <div
+        id="certificate-print-node"
         style={{
           width: "760px",
           height: "538px",
