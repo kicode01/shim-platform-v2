@@ -39,8 +39,10 @@ export default function CredentialsClient({
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [toast, setToast] = useState<{message: string, type: 'error' | 'success'} | null>(null);
+  const [isTabLoading, setIsTabLoading] = useState(false);
 
   const fetchCertificates = async () => {
+    setIsTabLoading(true);
     try {
       const res = await fetch(`/api/certificates?search=${encodeURIComponent(searchTerm)}&status=${statusFilter}`);
       if (res.ok) {
@@ -49,13 +51,17 @@ export default function CredentialsClient({
       }
     } catch (e) {
       console.error("Error refreshing ledger:", e);
+    } finally {
+      setTimeout(() => setIsTabLoading(false), 300); // Ensure minimum display time
     }
   };
 
   useEffect(() => {
+    // Show spinner instantly, then trigger fetch
+    setIsTabLoading(true);
     const timer = setTimeout(() => {
       fetchCertificates();
-    }, 250);
+    }, 200);
     return () => clearTimeout(timer);
   }, [searchTerm, statusFilter]);
 
@@ -195,7 +201,16 @@ export default function CredentialsClient({
               <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
                 <table className="table-modern w-full table-fixed">
                   <tbody className="divide-y divide-zinc-100">
-                {certificates.map((cert) => (
+                {isTabLoading ? (
+                  <tr>
+                    <td colSpan={5} className="py-20 text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
+                        <p className="text-zinc-500 font-medium">Loading credentials...</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : certificates.map((cert) => (
                   <tr key={cert.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
                     <td className="w-[28%] px-4 py-3 overflow-hidden">
                       <div className="font-medium text-sm text-zinc-700 mb-1 truncate" title={cert.recipientName}>{cert.recipientName}</div>
