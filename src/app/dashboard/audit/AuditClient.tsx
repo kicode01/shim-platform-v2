@@ -154,17 +154,8 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
               </div>
               <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
                 <table className="table-modern w-full table-fixed">
-                  <tbody className="divide-y divide-zinc-100">
-                    {isPending ? (
-                      <tr>
-                        <td colSpan={4} className="py-20 text-center">
-                          <div className="flex flex-col items-center justify-center">
-                            <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
-                            <p className="text-zinc-500 font-medium">Loading audit logs...</p>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : filteredLogs.map((log) => (
+                  <tbody className={`divide-y divide-zinc-100 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
+                    {filteredLogs.map((log) => (
                       <tr key={log.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
                         <td className="w-[20%] px-4 py-3 overflow-hidden">
                           <div className="text-sm text-zinc-500 truncate" title={formatDate(log.createdAt)}>

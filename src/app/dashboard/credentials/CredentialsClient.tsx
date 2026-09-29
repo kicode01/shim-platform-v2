@@ -213,17 +213,8 @@ export default function CredentialsClient({
               </div>
               <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
                 <table className="table-modern w-full table-fixed">
-                  <tbody className="divide-y divide-zinc-100">
-                {isTabLoading ? (
-                  <tr>
-                    <td colSpan={5} className="py-20 text-center">
-                      <div className="flex flex-col items-center justify-center">
-                        <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
-                        <p className="text-zinc-500 font-medium">Loading credentials...</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : certificates.map((cert) => (
+                  <tbody className={`divide-y divide-zinc-100 transition-opacity duration-200 ${isTabLoading ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
+                {certificates.map((cert) => (
                   <tr key={cert.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
                     <td className="w-[28%] px-4 py-3 overflow-hidden">
                       <div className="font-medium text-sm text-zinc-700 mb-1 truncate" title={cert.recipientName}>{cert.recipientName}</div>
