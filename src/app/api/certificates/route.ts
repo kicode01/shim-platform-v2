@@ -20,10 +20,10 @@ export async function GET(req: Request) {
 
     if (search) {
       whereClause.OR = [
-        { recipientName: { contains: search } },
-        { recipientEmail: { contains: search } },
-        { role: { contains: search } },
-        { id: { contains: search } }
+        { recipientName: { contains: search, mode: "insensitive" } },
+        { recipientEmail: { contains: search, mode: "insensitive" } },
+        { role: { contains: search, mode: "insensitive" } },
+        { id: { contains: search, mode: "insensitive" } }
       ];
     }
 
