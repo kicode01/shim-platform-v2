@@ -41,10 +41,10 @@ export default function CredentialsClient({
   const [toast, setToast] = useState<{message: string, type: 'error' | 'success'} | null>(null);
   const [isTabLoading, setIsTabLoading] = useState(false);
 
-  const fetchCertificates = async () => {
+  const fetchCertificates = async (search: string, status: string) => {
     setIsTabLoading(true);
     try {
-      const res = await fetch(`/api/certificates?search=${encodeURIComponent(searchTerm)}&status=${statusFilter}`);
+      const res = await fetch(`/api/certificates?search=${encodeURIComponent(search)}&status=${status}`);
       if (res.ok) {
         const data = await res.json();
         setCertificates(data);
@@ -52,18 +52,22 @@ export default function CredentialsClient({
     } catch (e) {
       console.error("Error refreshing ledger:", e);
     } finally {
-      setTimeout(() => setIsTabLoading(false), 300); // Ensure minimum display time
+      setIsTabLoading(false); // Remove artificial delay
     }
   };
 
+  // Run instantly when statusFilter changes
   useEffect(() => {
-    // Show spinner instantly, then trigger fetch
-    setIsTabLoading(true);
+    fetchCertificates(searchTerm, statusFilter);
+  }, [statusFilter]);
+
+  // Run with debounce when searchTerm changes
+  useEffect(() => {
     const timer = setTimeout(() => {
-      fetchCertificates();
-    }, 200);
+      fetchCertificates(searchTerm, statusFilter);
+    }, 300);
     return () => clearTimeout(timer);
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm]);
 
   const showToast = (message: string, type: 'error' | 'success' = 'error') => {
     setToast({ message, type });
@@ -82,7 +86,6 @@ export default function CredentialsClient({
 
       if (res.ok) {
         setCertificates(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
-        fetchCertificates();
       } else {
         showToast("Failed to update status", "error");
       }
@@ -104,7 +107,6 @@ export default function CredentialsClient({
       if (res.ok) {
         setCertificates(prev => prev.filter(c => c.id !== id));
         setConfirmDeleteId(null);
-        fetchCertificates();
       } else {
         const data = await res.json();
         showToast(data.message || "Failed to delete credential.", "error");

@@ -25,11 +25,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
   const [isPending, setIsPending] = useState(false);
 
   const handleFilterChange = (f: string) => {
-    setIsPending(true);
     setFilter(f);
-    setTimeout(() => {
-      setIsPending(false);
-    }, 400); // Artificial delay to show loading state
   };
 
   const filters = ["All", "Issuance", "Verification", "Claims", "Revocations"];
