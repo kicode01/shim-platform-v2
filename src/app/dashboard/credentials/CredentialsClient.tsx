@@ -134,19 +134,30 @@ export default function CredentialsClient({
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             {/* Filter */}
             <div className="flex bg-zinc-100 rounded-lg p-1 w-full sm:w-auto">
-              {["all", "valid", "revoked"].map((filter) => (
-                <button 
-                  key={filter}
-                  className={`px-4 py-1.5 text-sm font-medium capitalize rounded-md transition-colors ${
-                    statusFilter === filter 
-                      ? "bg-white text-zinc-700 shadow-sm" 
-                      : "text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50"
-                  }`}
-                  onClick={() => setStatusFilter(filter)}
-                >
-                  {filter}
-                </button>
-              ))}
+              {["all", "valid", "revoked"].map((filter) => {
+                const isActive = statusFilter === filter;
+                return (
+                  <button 
+                    key={filter}
+                    className={`relative px-4 py-1.5 text-sm font-medium capitalize rounded-md transition-all duration-200 z-10 ${
+                      isActive 
+                        ? "text-zinc-800" 
+                        : "text-zinc-500 hover:text-zinc-800"
+                    }`}
+                    onClick={() => setStatusFilter(filter)}
+                  >
+                    {isActive && (
+                      <motion.div 
+                        layoutId="credentials-filter-pill" 
+                        className="absolute inset-0 bg-white shadow-sm rounded-md"
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                        style={{ zIndex: -1 }}
+                      />
+                    )}
+                    {filter}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Search */}
