@@ -23,9 +23,17 @@ export default function Sidebar() {
     { href: "/dashboard/audit", label: "Audit Trail", icon: History },
   ];
 
+  const isTemplateStudio = /^\/dashboard\/templates\/[^/]+$/.test(pathname);
+  const isEventStudio = /^\/dashboard\/events\/[^/]+$/.test(pathname);
+  const isStudioMode = isTemplateStudio || isEventStudio;
+
   return (
-    <aside className="w-[72px] lg:w-[220px] flex-shrink-0 border-r border-zinc-200 bg-white/50 backdrop-blur-md flex flex-col h-full sticky top-16 overflow-y-auto z-40 transition-all duration-300">
-      <div className="p-4 py-8 flex-1">
+    <aside 
+      className={`flex-shrink-0 border-zinc-200 bg-white/50 backdrop-blur-md flex flex-col h-full sticky top-16 z-40 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${
+        isStudioMode ? 'w-0 border-r-0 opacity-0' : 'w-[72px] lg:w-[220px] border-r opacity-100'
+      }`}
+    >
+      <div className="p-4 py-8 flex-1 min-w-[72px] lg:min-w-[220px]">
         <nav className="space-y-1 flex flex-col">
           {navItems.map((item) => {
             const Icon = item.icon;

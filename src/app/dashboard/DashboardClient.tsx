@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import Link from "next/link";
+import { Select } from "@/components/ui/Select";
 import { 
   Award, 
   ShieldCheck, 
@@ -148,17 +149,18 @@ export default function DashboardClient({
         
         <div className="flex items-center gap-3">
           <div className="relative">
-            <select 
+            <Select
               value={timeframe}
-              onChange={(e) => setTimeframe(e.target.value)}
-              className="appearance-none bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 px-3 py-2 pr-8 rounded-md font-medium text-sm transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 cursor-pointer h-9"
-            >
-              <option value="30d">Last 30 days</option>
-              <option value="7d">Last 7 days</option>
-              <option value="12m">Last 12 months</option>
-              <option value="all">All time</option>
-            </select>
-            <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+              onChange={setTimeframe}
+              options={[
+                { value: "30d", label: "Last 30 days" },
+                { value: "7d", label: "Last 7 days" },
+                { value: "12m", label: "Last 12 months" },
+                { value: "all", label: "All time" }
+              ]}
+              className="w-[140px]"
+              dropdownClassName="min-w-[140px]"
+            />
           </div>
           
           <div className="w-px h-6 bg-zinc-200 mx-1"></div>

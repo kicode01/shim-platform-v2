@@ -55,12 +55,12 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`sticky top-0 z-50 no-print px-4 sm:px-6 transition-colors duration-500 flex items-center h-16 ${
+      <header className={`sticky top-0 z-50 no-print transition-colors duration-500 flex items-center h-16 ${
         isLandingMode
           ? 'bg-[#0a0a0a] border-b border-zinc-700' 
           : 'bg-white border-b border-zinc-200'
       }`}>
-        <div className="max-w-7xl mx-auto w-full h-full flex justify-between items-center">
+        <div className={`${isDashboardMode || isPortalMode ? 'w-full px-4 sm:px-6' : 'max-w-7xl mx-auto w-full px-4 sm:px-6'} h-full flex justify-between items-center`}>
           
           {/* Left area begins - Logo */}
           <div className="w-auto lg:w-[200px] shrink-0 h-full flex items-center">

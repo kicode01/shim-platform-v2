@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Select } from "@/components/ui/Select";
 import { Plus, Calendar, Loader2, QrCode, Users } from "lucide-react";
 
 interface EventItem {
@@ -211,16 +212,22 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
             
             <div className="flex flex-col gap-1.5 pb-2">
               <label className="text-sm font-medium text-zinc-700">Automated Kiosk Template (Optional)</label>
-              <select
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm"
-                value={defaultTemplateId}
-                onChange={e => setDefaultTemplateId(e.target.value)}
-              >
-                <option value="">None (Deferred Batch Issue)</option>
-                {templates.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <Select
+                  value={defaultTemplateId}
+                  onChange={setDefaultTemplateId}
+                  options={[
+                    { value: "", label: "None (Deferred Batch Issue)" },
+                    ...templates.map(t => ({
+                      value: t.id,
+                      label: t.name
+                    }))
+                  ]}
+                  placeholder="None (Deferred Batch Issue)"
+                  className="w-full"
+                  dropdownClassName="w-full"
+                />
+              </div>
               <p className="text-xs text-zinc-500">
                 If selected, attendees get this certificate instantly when they scan in at the Kiosk.
               </p>

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { flushSync } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Select } from "@/components/ui/Select";
 import Papa from "papaparse";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -68,8 +69,10 @@ function GenerateCertificatesContent() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
 
   useEffect(() => {
+    setIsLoadingTemplates(true);
     fetch("/api/templates")
       .then(res => res.json())
       .then(data => {
@@ -86,7 +89,8 @@ function GenerateCertificatesContent() {
           }
         }
       })
-      .catch(err => console.error("Error fetching templates:", err));
+      .catch(err => console.error("Error fetching templates:", err))
+      .finally(() => setIsLoadingTemplates(false));
   }, [preselectedTemplateId]);
 
   useEffect(() => {
@@ -332,24 +336,22 @@ function GenerateCertificatesContent() {
           Active Template Profile
         </label>
         <div className="relative">
-          <LayoutTemplate size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
-          <select
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700 focus:border-transparent cursor-pointer shadow-sm transition-shadow appearance-none"
-            value={selectedTemplate?.id || ""}
-            onChange={(e) => {
-              const t = templates.find(item => item.id === e.target.value);
-              if (t) setSelectedTemplate(t);
-            }}
-          >
-            {templates.map(t => (
-              <option key={t.id} value={t.id}>
-                {t.name} ({t._count?.certificates || 0} Issued)
-              </option>
-            ))}
-          </select>
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-          </div>
+            <Select
+              value={selectedTemplate?.id || ""}
+              onChange={(value) => {
+                const t = templates.find(item => item.id === value);
+                if (t) setSelectedTemplate(t);
+              }}
+              options={templates.map(t => ({
+                value: t.id,
+                label: `${t.name} (${t._count?.certificates || 0} Issued)`,
+                icon: <LayoutTemplate size={18} className="text-zinc-400" />
+              }))}
+              placeholder="Select a Template"
+              className="w-full"
+              dropdownClassName="w-full"
+              isLoading={isLoadingTemplates}
+            />
         </div>
       </div>
 
@@ -399,14 +401,21 @@ function GenerateCertificatesContent() {
 
         <div className="w-full relative flex-1 min-h-0 flex flex-col justify-center overflow-hidden p-2 lg:p-4">
           <div className="w-full h-full relative mx-auto max-w-5xl">
-            <CertificateView 
-              certificateId="PENDING-ISSUE"
-              recipientName={previewName}
-              role={previewRole}
-              eventId={previewEvent}
-              design={parsedPreviewDesign}
-              status="valid"
-            />
+            {isLoadingTemplates ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-50/50 backdrop-blur-sm rounded-lg border border-zinc-100 z-10 animate-in fade-in">
+                <Loader2 size={32} className="animate-spin text-zinc-400 mb-3" />
+                <p className="text-sm font-medium text-zinc-500">Loading template...</p>
+              </div>
+            ) : (
+              <CertificateView 
+                certificateId="PENDING-ISSUE"
+                recipientName={previewName}
+                role={previewRole}
+                eventId={previewEvent}
+                design={parsedPreviewDesign}
+                status="valid"
+              />
+            )}
           </div>
         </div>
 
@@ -491,8 +500,8 @@ function GenerateCertificatesContent() {
               <div className="flex flex-col gap-8 h-full min-h-0 pr-4">
                 {templateSelectorBlock}
 
-                <div className="bg-white border border-zinc-200 rounded-xl p-8 flex-1 overflow-y-auto min-h-0 flex flex-col shadow-sm">
-                  <div className="mb-6 border-b border-zinc-100 pb-5 shrink-0 flex justify-between items-start">
+                <div className="bg-white border border-zinc-200 rounded-xl flex-1 flex flex-col shadow-sm overflow-hidden min-h-0">
+                  <div className="border-b border-zinc-100 shrink-0 flex justify-between items-start px-8 py-6">
                     <div>
                       <h3 className="text-xl font-semibold text-zinc-700">Recipient Details</h3>
                       <p className="text-sm font-medium text-zinc-500 mt-1">
@@ -514,7 +523,8 @@ function GenerateCertificatesContent() {
                     </button>
                   </div>
 
-                  {singleSuccess && (
+                  <div className="px-8 pb-8 pt-6 flex flex-col flex-1 overflow-y-auto custom-scrollbar min-h-0">
+                    {singleSuccess && (
                     <div className="mb-8 p-5 bg-emerald-50 border border-emerald-100 rounded-lg flex flex-col gap-3">
                       <div className="flex items-center gap-2 font-semibold text-emerald-800">
                         <CheckCircle size={20} />
@@ -580,19 +590,20 @@ function GenerateCertificatesContent() {
                     <div>
                       <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Select Event</label>
                       <div className="relative">
-                        <select 
-                          className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700 focus:border-transparent shadow-sm appearance-none cursor-pointer"
+                        <Select
                           value={singleEventId}
-                          onChange={e => setSingleEventId(e.target.value)}
-                        >
-                          <option value="">-- Choose an Event --</option>
-                          {events.map(ev => (
-                            <option key={ev.id} value={ev.id}>{ev.name}</option>
-                          ))}
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                          <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
-                        </div>
+                          onChange={setSingleEventId}
+                          options={[
+                            { value: "", label: "-- Choose an Event --" },
+                            ...events.map(ev => ({
+                              value: ev.id,
+                              label: ev.name
+                            }))
+                          ]}
+                          placeholder="-- Choose an Event --"
+                          className="w-full"
+                          dropdownClassName="w-full"
+                        />
                       </div>
                     </div>
 
@@ -616,6 +627,7 @@ function GenerateCertificatesContent() {
                       </button>
                     </div>
                   </form>
+                  </div>
                 </div>
               </div>
 
@@ -632,8 +644,8 @@ function GenerateCertificatesContent() {
                 {templateSelectorBlock}
                 
                 {bulkStep === 1 && (
-                <div className="bg-white border border-zinc-200 rounded-xl p-8 max-w-4xl mx-auto w-full flex-1 overflow-y-auto min-h-0 flex flex-col shadow-sm">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-zinc-100 pb-5 shrink-0">
+                <div className="bg-white border border-zinc-200 rounded-xl max-w-4xl mx-auto w-full flex-1 flex flex-col shadow-sm overflow-hidden min-h-0">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-zinc-100 shrink-0 px-8 py-6">
                     <div>
                       <h3 className="text-xl font-semibold text-zinc-700">Upload CSV Roster</h3>
                       <p className="text-sm font-medium text-zinc-500 mt-1">
@@ -649,68 +661,71 @@ function GenerateCertificatesContent() {
                     </button>
                   </div>
 
-                  <div className="mb-6 shrink-0">
-                    <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Select Default Event (Optional)</label>
-                    <p className="text-xs text-zinc-500 mb-2">If your CSV doesn't specify an event for a row, this event will be used.</p>
-                    <div className="relative">
-                      <select 
-                        className="w-full pl-4 pr-10 py-2.5 bg-white border border-zinc-300 rounded-md text-sm font-medium text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700 focus:border-transparent shadow-sm appearance-none cursor-pointer"
-                        value={bulkEventId}
-                        onChange={e => setBulkEventId(e.target.value)}
-                      >
-                        <option value="">-- No Default Event --</option>
-                        {events.map(ev => (
-                          <option key={ev.id} value={ev.id}>{ev.name}</option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                  <div className="px-8 pb-8 pt-6 flex flex-col flex-1 overflow-y-auto custom-scrollbar min-h-0">
+                    <div className="mb-6 shrink-0">
+                      <label className="text-sm font-medium text-zinc-700 mb-1.5 block">Select Default Event (Optional)</label>
+                      <p className="text-xs text-zinc-500 mb-2">If your CSV doesn't specify an event for a row, this event will be used.</p>
+                      <div className="relative">
+                        <Select
+                          value={bulkEventId}
+                          onChange={setBulkEventId}
+                          options={[
+                            { value: "", label: "-- No Default Event --" },
+                            ...events.map(ev => ({
+                              value: ev.id,
+                              label: ev.name
+                            }))
+                          ]}
+                          placeholder="-- No Default Event --"
+                          className="w-full"
+                          dropdownClassName="w-full"
+                        />
                       </div>
                     </div>
-                  </div>
 
-                  <div 
-                    className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer flex flex-col items-center justify-center relative mb-8 hover:bg-zinc-50 ${isDragging ? "border-zinc-700 bg-zinc-50" : "border-zinc-300 bg-white hover:border-zinc-400"}`}
-                    onClick={() => document.getElementById("csv-file-input")?.click()}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                  >
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-5 transition-colors ${isDragging ? "bg-zinc-700 text-white shadow-md" : "bg-zinc-100 text-zinc-500 shadow-sm"}`}>
-                      <Upload size={24} />
-                    </div>
-                    <h4 className="text-lg font-semibold text-zinc-700 mb-2">
-                      {isDragging ? "Drop CSV Here" : "Click or Drag CSV to upload"}
-                    </h4>
-                    <p className="text-sm font-medium text-zinc-500 max-w-sm mx-auto leading-relaxed">
-                      Required: <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5">name</code> <br/>
-                      Optional: <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5 mt-1 inline-block">email</code>, <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5 mt-1 inline-block">role</code>
-                    </p>
-                    {uploadError && (
-                      <div className="mt-6 text-sm font-medium text-red-700 bg-red-50 border border-red-200 px-4 py-2 rounded-md">
-                        {uploadError}
+                    <div 
+                      className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer flex flex-col items-center justify-center relative mb-8 hover:bg-zinc-50 ${isDragging ? "border-zinc-700 bg-zinc-50" : "border-zinc-300 bg-white hover:border-zinc-400"}`}
+                      onClick={() => document.getElementById("csv-file-input")?.click()}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                    >
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-5 transition-colors ${isDragging ? "bg-zinc-700 text-white shadow-md" : "bg-zinc-100 text-zinc-500 shadow-sm"}`}>
+                        <Upload size={24} />
                       </div>
-                    )}
-                    <input 
-                      id="csv-file-input" 
-                      type="file" 
-                      accept=".csv" 
-                      onChange={handleFileUpload} 
-                      className="hidden" 
-                    />
-                  </div>
+                      <h4 className="text-lg font-semibold text-zinc-700 mb-2">
+                        {isDragging ? "Drop CSV Here" : "Click or Drag CSV to upload"}
+                      </h4>
+                      <p className="text-sm font-medium text-zinc-500 max-w-sm mx-auto leading-relaxed">
+                        Required: <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5">name</code> <br/>
+                        Optional: <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5 mt-1 inline-block">email</code>, <code className="bg-zinc-100 text-zinc-700 px-1.5 py-0.5 rounded font-mono mx-0.5 mt-1 inline-block">role</code>
+                      </p>
+                      {uploadError && (
+                        <div className="mt-6 text-sm font-medium text-red-700 bg-red-50 border border-red-200 px-4 py-2 rounded-md">
+                          {uploadError}
+                        </div>
+                      )}
+                      <input 
+                        id="csv-file-input" 
+                        type="file" 
+                        accept=".csv" 
+                        onChange={handleFileUpload} 
+                        className="hidden" 
+                      />
+                    </div>
 
-                  <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg shrink-0">
-                    <div className="text-sm font-medium text-zinc-700 leading-relaxed">
-                      <strong className="mr-1">Pro Tip:</strong> Download the sample CSV and upload it immediately to test the batch generation pipeline without writing any real data.
+                    <div className="p-4 bg-zinc-50 border border-zinc-200 rounded-lg shrink-0">
+                      <div className="text-sm font-medium text-zinc-700 leading-relaxed">
+                        <strong className="mr-1">Pro Tip:</strong> Download the sample CSV and upload it immediately to test the batch generation pipeline without writing any real data.
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
 
               {bulkStep === 2 && (
-                <div className="bg-white border border-zinc-200 rounded-xl p-8 max-w-5xl mx-auto w-full flex-1 overflow-y-auto min-h-0 shadow-sm">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 pb-5 border-b border-zinc-100">
+                <div className="bg-white border border-zinc-200 rounded-xl max-w-5xl mx-auto w-full flex-1 flex flex-col shadow-sm overflow-hidden min-h-0">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-zinc-100 shrink-0 px-8 py-6">
                     <div>
                       <h3 className="text-xl font-semibold text-zinc-700 flex items-center gap-2">
                         Validation: {csvData.length} Records
@@ -729,42 +744,44 @@ function GenerateCertificatesContent() {
                     </button>
                   </div>
 
-                  <div className="border border-zinc-200 rounded-lg overflow-hidden mb-8 max-h-[400px] overflow-y-auto shadow-sm">
-                    <table className="w-full text-left border-collapse">
-                      <thead className="bg-zinc-50 sticky top-0 z-10 border-b border-zinc-200">
-                        <tr className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                          <th className="px-6 py-3">#</th>
-                          <th className="px-6 py-3">Name</th>
-                          <th className="px-6 py-3">Email</th>
-                          <th className="px-6 py-3">Role</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-zinc-200 bg-white">
-                        {csvData.map((row: any, i: number) => (
-                          <tr 
-                            key={i} 
-                            onClick={() => setPreviewIndex(i)}
-                            className={`transition-colors cursor-pointer ${previewIndex === i ? 'bg-zinc-100' : 'hover:bg-zinc-50'}`}
-                          >
-                            <td className="px-6 py-3 text-sm font-medium text-zinc-500">{i + 1}</td>
-                            <td className="px-6 py-3 text-sm font-semibold text-zinc-700">{row.name}</td>
-                            <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.email || "—"}</td>
-                            <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.role || selectedTemplate?.name || "Default"}</td>
+                  <div className="px-8 pb-8 pt-6 flex flex-col flex-1 overflow-y-auto custom-scrollbar min-h-0">
+                    <div className="border border-zinc-200 rounded-lg overflow-hidden mb-8 max-h-[400px] overflow-y-auto shadow-sm">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-zinc-50 sticky top-0 z-10 border-b border-zinc-200">
+                          <tr className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                            <th className="px-6 py-3">#</th>
+                            <th className="px-6 py-3">Name</th>
+                            <th className="px-6 py-3">Email</th>
+                            <th className="px-6 py-3">Role</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-200 bg-white">
+                          {csvData.map((row: any, i: number) => (
+                            <tr 
+                              key={i} 
+                              onClick={() => setPreviewIndex(i)}
+                              className={`transition-colors cursor-pointer ${previewIndex === i ? 'bg-zinc-100' : 'hover:bg-zinc-50'}`}
+                            >
+                              <td className="px-6 py-3 text-sm font-medium text-zinc-500">{i + 1}</td>
+                              <td className="px-6 py-3 text-sm font-semibold text-zinc-700">{row.name}</td>
+                              <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.email || "—"}</td>
+                              <td className="px-6 py-3 text-sm font-medium text-zinc-600">{row.role || selectedTemplate?.name || "Default"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  <div className="flex justify-end">
-                    <button 
-                      onClick={handleBulkIssue} 
-                      className="bg-zinc-700 hover:bg-zinc-700 text-white py-3 px-8 rounded-md text-sm font-medium flex items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
-                      disabled={bulkIssuing}
-                    >
-                      {bulkIssuing ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
-                      <span>{bulkIssuing ? `Processing ${csvData.length} Records...` : `Generate ${csvData.length} Credentials`}</span>
-                    </button>
+                    <div className="flex justify-end">
+                      <button 
+                        onClick={handleBulkIssue} 
+                        className="bg-zinc-700 hover:bg-zinc-700 text-white py-3 px-8 rounded-md text-sm font-medium flex items-center gap-2 transition-colors shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                        disabled={bulkIssuing}
+                      >
+                        {bulkIssuing ? <Loader2 size={18} className="animate-spin" /> : <FileText size={18} />}
+                        <span>{bulkIssuing ? `Processing ${csvData.length} Records...` : `Generate ${csvData.length} Credentials`}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

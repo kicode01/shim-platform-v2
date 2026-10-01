@@ -237,7 +237,27 @@ export default function CertificateView({
   const IssuedDegree = rawDegree;
 
   if (parsedDesign.canvasElements) {
-    return (
+    
+  // Dynamic Typography Engine: extract used Google Fonts
+  const usedFonts = useMemo(() => {
+    const fonts = new Set<string>();
+    if (parsedDesign?.canvasElements) {
+      parsedDesign.canvasElements.forEach(el => {
+        if (el.fontFamily && !el.fontFamily.startsWith('var(') && el.fontFamily !== 'Arial' && el.fontFamily !== 'sans-serif') {
+          fonts.add(el.fontFamily);
+        }
+      });
+    }
+    return Array.from(fonts);
+  }, [parsedDesign?.canvasElements]);
+
+  const googleFontsUrl = usedFonts.length > 0 
+    ? `https://fonts.googleapis.com/css2?${usedFonts.map(f => `family=${f.replace(/ /g, '+')}:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700`).join('&')}&display=swap`
+    : null;
+
+  return (
+    <>
+      {googleFontsUrl && <link href={googleFontsUrl} rel="stylesheet" />}
       <div 
         ref={containerRef}
         style={{
@@ -280,7 +300,6 @@ export default function CertificateView({
                 </div>
               );
             }
-
             if (el.type === "image" || el.type === "badge") {
               return (
                 <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: el.width, height: el.height }}>
@@ -345,12 +364,12 @@ export default function CertificateView({
                 <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: el.width, height: el.height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
                   {el.src ? (
                     <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
-                  ) : (
+                      ) : el.signatureText ? (
                     <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1 }}>
-                      {el.text?.split('|')[0] || "Signature"}
+                      {el.signatureText}
                     </div>
-                  )}
-                  <div style={{ width: "100%", height: "4px", backgroundColor: el.color || "#000000", marginBottom: "10px", marginTop: "10px" }} />
+                  ) : null}
+                  <div style={{ width: "100%", borderTop: `1px solid ${el.color || "#000000"}`, flexShrink: 0, marginBottom: "10px", marginTop: "10px" }} />
                   <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * 0.4}px`, fontFamily: "var(--font-sans, sans-serif)", color: el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "4px" }}>
                     {el.text?.split('|')[1] || "Title"}
                   </div>
@@ -366,6 +385,7 @@ export default function CertificateView({
                   left: el.x, 
                   top: el.y, 
                   width: el.width,
+                  height: el.height,
                   fontSize: `${el.fontSize || 16}px`,
                   fontFamily: el.fontFamily || "var(--font-sans, sans-serif)",
                   color: el.color || "#000000",
@@ -384,6 +404,7 @@ export default function CertificateView({
           })}
         </div>
       </div>
+      </>
     );
   }
 
@@ -612,3 +633,4 @@ export default function CertificateView({
   );
 }
 
+\n      </>

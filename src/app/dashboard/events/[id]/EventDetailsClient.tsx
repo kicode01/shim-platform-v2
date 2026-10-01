@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { Select } from "@/components/ui/Select";
 import { ArrowLeft, Download, CheckCircle2, CircleDashed, Users, Calendar, Search, X, Settings2, Save, Loader2, LayoutTemplate, Trash2, ShieldAlert, QrCode } from "lucide-react";
 
 interface AttendeeItem {
@@ -371,17 +372,17 @@ export default function EventDetailsClient({
               <label className="block text-sm font-medium text-zinc-700 mb-1">Automated Kiosk Template</label>
               <p className="text-xs text-zinc-500 mb-2">Select a template to instantly issue certificates upon check-in.</p>
               <div className="relative">
-                <LayoutTemplate size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-                <select 
-                  className="input-field py-2 pl-9"
+                <Select
                   value={event.defaultTemplateId || ""}
-                  onChange={(e) => setEvent({ ...event, defaultTemplateId: e.target.value || null })}
-                >
-                  <option value="">No Automated Issuance</option>
-                  {templates.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
+                  onChange={(value) => setEvent({ ...event, defaultTemplateId: value || null })}
+                  options={[
+                    { value: "", label: "No Automated Issuance" },
+                    ...templates.map(t => ({ value: t.id, label: t.name }))
+                  ]}
+                  placeholder="No Automated Issuance"
+                  className="w-full"
+                  dropdownClassName="w-full"
+                />
               </div>
             </div>
             <button 

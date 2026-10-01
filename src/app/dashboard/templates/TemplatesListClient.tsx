@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Plus, Stamp, Edit3, Trash2, FileSpreadsheet, Maximize2, X, Sparkles, Loader2 } from "lucide-react";
 import CertificateView, { CertificateDesignConfig } from "@/components/CertificateView";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TemplateItem {
   id: string;
@@ -179,48 +180,58 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
       )}
 
       {/* Specimen Inspector Modal */}
-      {inspectingTemplate && (
-        <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 lg:p-10 animate-in fade-in duration-300"
-          onClick={() => setInspectingTemplate(null)}
-        >
-          <div 
-            className="w-full max-w-4xl bg-white border border-zinc-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300"
-            onClick={e => e.stopPropagation()}
+      <AnimatePresence>
+        {inspectingTemplate && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 lg:p-10"
+            onClick={() => setInspectingTemplate(null)}
           >
-            {/* Modal Header */}
-            <div className="flex justify-between items-start px-6 py-5 border-b border-zinc-100 bg-white shrink-0">
-              <div>
-                <h2 className="text-xl font-semibold text-zinc-700 mb-1">
-                  {inspectingTemplate.name}
-                </h2>
-                <p className="text-sm text-zinc-500">
-                  Previewing custom certificate template
-                </p>
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="w-full max-w-4xl bg-white border border-zinc-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex justify-between items-start px-6 py-5 border-b border-zinc-100 bg-white shrink-0">
+                <div>
+                  <h2 className="text-xl font-semibold text-zinc-700 mb-1">
+                    {inspectingTemplate.name}
+                  </h2>
+                  <p className="text-sm text-zinc-500">
+                    Previewing custom certificate template
+                  </p>
+                </div>
+  
+                <button 
+                  onClick={() => setInspectingTemplate(null)}
+                  className="p-2 rounded-full text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
-
-              <button 
-                onClick={() => setInspectingTemplate(null)}
-                className="p-2 rounded-full text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* High-Resolution Certificate Render */}
-            <div className="p-6 md:p-10 bg-zinc-50 flex-1 overflow-y-auto flex items-center justify-center">
-              <div className="w-full max-w-3xl mx-auto aspect-[1.414/1] bg-white rounded shadow-md overflow-hidden relative ring-1 ring-zinc-200 shrink-0">
-                <CertificateView 
-                  certificateId={`PREVIEW-${inspectingTemplate.id.slice(0, 8).toUpperCase()}`}
-                  recipientName="Jane Doe"
-                  role={inspectingTemplate.name}
-                  design={inspectingTemplate.designData}
-                />
+  
+              {/* High-Resolution Certificate Render */}
+              <div className="p-6 md:p-10 bg-zinc-50 flex-1 overflow-y-auto flex items-center justify-center">
+                <div className="w-full max-w-3xl mx-auto aspect-[1.414/1] bg-white rounded shadow-md overflow-hidden relative ring-1 ring-zinc-200 shrink-0">
+                  <CertificateView 
+                    certificateId={`PREVIEW-${inspectingTemplate.id.slice(0, 8).toUpperCase()}`}
+                    recipientName="Jane Doe"
+                    role={inspectingTemplate.name}
+                    design={inspectingTemplate.designData}
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
