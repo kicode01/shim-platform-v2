@@ -669,7 +669,7 @@ export default function TemplateEditor({
       ...el,
       x: el.x * scaleX,
       y: el.y * scaleY,
-      width: el.width * scaleX,
+      width: el.width !== undefined ? el.width * scaleX : undefined,
       ...(el.height ? { height: el.height * scaleF } : {}),
       ...(el.fontSize ? { fontSize: el.fontSize * scaleX } : {})
     }));
@@ -787,9 +787,9 @@ export default function TemplateEditor({
     const newEl: CanvasElement = {
       id: uuidv4(),
       type,
-      x: 830,
+      x: type.includes("Text") || type === 'signature' ? 1500 : 830,
       y: 1000,
-      width: (type === 'qrCode' || type === 'image' || type === 'badge') ? 368 : type === 'signature' ? 920 : 1840,
+      width: (type === 'qrCode' || type === 'image' || type === 'badge') ? 368 : type === 'signature' ? 920 : undefined,
       height: (type === 'qrCode' || type === 'image' || type === 'badge') ? 368 : type === 'shape' ? 20 : type === 'signature' ? 260 : undefined,
       text: type.includes("Text") || type === 'signature' ? defaultText : undefined,
       fontSize: 120,
@@ -1733,7 +1733,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
   return (
     <Rnd
       id={`rnd-${el.id}`}
-      size={{ width: el.width, height: el.height || 'auto' }}
+      size={{ width: el.width || 'auto', height: el.height || 'auto' }}
       position={{ x: el.x, y: el.y }}
       onDragStart={() => {
         if (!isSelected) setSelectedElementId(el.id);
