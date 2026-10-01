@@ -1723,7 +1723,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (el.type === 'staticText') {
+    if (el.type === 'staticText' || el.type === 'dynamicText' || el.type === 'signature') {
       setIsEditing(true);
     }
   };
@@ -1810,7 +1810,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         fontWeight: el.fontWeight || "normal",
         fontStyle: el.fontStyle || "normal",
         letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : "normal",
-        lineHeight: 1,
+        lineHeight: 1.2,
         whiteSpace: "pre-wrap",
         zIndex: isSelected ? 50 : 10,
         backgroundColor: el.type === 'shape' ? (el.color || '#000000') : 'transparent',
@@ -1832,7 +1832,22 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
       }}
     >
       <div onDoubleClick={handleDoubleClick} className="w-full h-full flex flex-col justify-center pointer-events-auto">
-        {el.type === 'qrCode' ? (
+        {isEditing ? (
+          <textarea
+            autoFocus
+            className="w-full h-full bg-transparent border-none outline-none resize-none overflow-hidden pointer-events-auto"
+            style={{
+              fontSize: el.type === 'signature' ? '16px' : 'inherit',
+              fontFamily: 'inherit', color: 'inherit', textAlign: 'inherit',
+              fontWeight: 'inherit', fontStyle: 'inherit', lineHeight: 'inherit'
+            }}
+            value={el.text || ''}
+            onChange={(e) => updateSelectedElement({ text: e.target.value })}
+            onBlur={() => setIsEditing(false)}
+            onKeyDown={(e) => { if (e.key === 'Escape') setIsEditing(false) }}
+            onPointerDown={(e) => e.stopPropagation()}
+          />
+        ) : el.type === 'qrCode' ? (
           <div className="w-full h-full pointer-events-none">
             {dummyQrCode ? (
               <img src={dummyQrCode} alt="QR" style={{ width: "100%", height: "100%" }} />
@@ -1908,7 +1923,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
             {el.src ? (
               <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
             ) : (
-              <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1 }}>
+              <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1.2 }}>
                 {el.text?.split('|')[0] || "Signature"}
               </div>
             )}
@@ -1917,21 +1932,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
               {el.text?.split('|')[1] || "Title"}
             </div>
           </div>
-        ) : el.type === 'shape' ? null : isEditing ? (
-          <textarea
-            autoFocus
-            className="w-full h-full bg-transparent border-none outline-none resize-none overflow-hidden pointer-events-auto"
-            style={{
-              fontSize: 'inherit', fontFamily: 'inherit', color: 'inherit', textAlign: 'inherit',
-              fontWeight: 'inherit', fontStyle: 'inherit', lineHeight: 'inherit'
-            }}
-            value={el.text || ''}
-            onChange={(e) => updateSelectedElement({ text: e.target.value })}
-            onBlur={() => setIsEditing(false)}
-            onKeyDown={(e) => { if (e.key === 'Escape') setIsEditing(false) }}
-            onPointerDown={(e) => e.stopPropagation()}
-          />
-        ) : (
+        ) : el.type === 'shape' ? null : (
           <span className="pointer-events-none block w-full">{displayText}</span>
         )}
       </div>

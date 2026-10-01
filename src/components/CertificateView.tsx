@@ -365,7 +365,7 @@ export default function CertificateView({
                   {el.src ? (
                     <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
                       ) : el.signatureText ? (
-                    <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1 }}>
+                    <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1.2 }}>
                       {el.signatureText}
                     </div>
                   ) : null}
@@ -393,7 +393,7 @@ export default function CertificateView({
                   fontWeight: el.fontWeight || "normal",
                   fontStyle: el.fontStyle || "normal",
                   letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : "normal",
-                  lineHeight: 1,
+                  lineHeight: 1.2,
                   whiteSpace: "pre-wrap",
                   opacity: 1
                 }}
