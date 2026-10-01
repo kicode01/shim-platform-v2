@@ -1732,6 +1732,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
 
   return (
     <Rnd
+      id={`rnd-${el.id}`}
       size={{ width: el.width, height: el.height || 'auto' }}
       position={{ x: el.x, y: el.y }}
       onDragStart={() => {
@@ -1751,17 +1752,16 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         setActiveGuides({ vertical: null, horizontal: null });
         updateElement(el.id, { x: finalX, y: finalY });
       }}
-      onResizeStart={() => {
+      onResizeStart={(e, dir, ref) => {
         if (!isSelected) setSelectedElementId(el.id);
         const defaultFontSize = el.type === 'signature' ? 120 : 16;
-        dragStartData.current = { width: el.width, fontSize: el.fontSize || defaultFontSize };
+        dragStartData.current = { width: ref.offsetWidth, fontSize: el.fontSize || defaultFontSize };
       }}
       onResize={(e, direction, ref, delta, position) => {
         const newWidth = parseFloat(ref.style.width);
         const newHeight = el.height ? parseFloat(ref.style.height) : undefined;
 
-        let updates: any = { width: newWidth, x: position.x, y: position.y };
-        if (newHeight !== undefined) updates.height = newHeight;
+        let updates: any = { x: position.x, y: position.y };
 
         const isCorner = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'].includes(direction);
         if (isCorner && !isProportional && el.type !== 'shape') {
@@ -1771,6 +1771,9 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
           const ratio = newWidth / startW;
           updates.fontSize = Math.max(8, Math.round(startFs * ratio));
         }
+
+        updates.width = (el.type === 'signature' && !el.src) ? ref.offsetWidth : newWidth;
+        if (newHeight !== undefined) updates.height = (el.type === 'signature' && !el.src) ? ref.offsetHeight : newHeight;
 
         updateSelectedElement(updates);
       }}
@@ -1778,8 +1781,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         // Final sync just in case
         const newWidth = parseFloat(ref.style.width);
         const newHeight = el.height ? parseFloat(ref.style.height) : undefined;
-        let updates: any = { width: newWidth, x: position.x, y: position.y };
-        if (newHeight !== undefined) updates.height = newHeight;
+        let updates: any = { x: position.x, y: position.y };
 
         const isCorner = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight'].includes(direction);
         if (isCorner && !isProportional && el.type !== 'shape') {
@@ -1789,6 +1791,9 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
           const ratio = newWidth / startW;
           updates.fontSize = Math.max(8, Math.round(startFs * ratio));
         }
+
+        updates.width = (el.type === 'signature' && !el.src) ? ref.offsetWidth : newWidth;
+        if (newHeight !== undefined) updates.height = (el.type === 'signature' && !el.src) ? ref.offsetHeight : newHeight;
 
         updateSelectedElement(updates);
       }}
@@ -1817,8 +1822,14 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         display: "flex",
         alignItems: "center"
       }}
-      className={isSelected ? "bg-blue-50/10 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" : "hover:border-zinc-300"}
-      enableResizing={isSelected && !isEditing}
+      className={`${isSelected ? "bg-blue-50/10 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" : "hover:border-zinc-300"} ${el.type === 'signature' && !el.src ? '!w-max !h-max' : ''}`}
+      enableResizing={
+        isSelected && !isEditing 
+          ? (el.type === 'signature' && !el.src 
+              ? { top: false, bottom: false, left: false, right: false, topRight: true, topLeft: true, bottomRight: true, bottomLeft: true } 
+              : true)
+          : false
+      }
       lockAspectRatio={isProportional}
       resizeHandleStyles={{
         bottomRight: { width: "16px", height: "16px", background: "white", border: "2px solid #3b82f6", borderRadius: "50%", right: "-8px", bottom: "-8px" },
@@ -1844,7 +1855,17 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
             }}
             value={el.text || ''}
             onChange={(e) => updateSelectedElement({ text: e.target.value })}
-            onBlur={() => setIsEditing(false)}
+            onBlur={() => {
+              setIsEditing(false);
+              if (el.type === 'signature' && !el.src) {
+                setTimeout(() => {
+                  const node = document.getElementById(`rnd-${el.id}`);
+                  if (node) {
+                    updateSelectedElement({ width: node.offsetWidth, height: node.offsetHeight });
+                  }
+                }, 50);
+              }
+            }}
             onKeyDown={(e) => { if (e.key === 'Escape') setIsEditing(false) }}
             onPointerDown={(e) => e.stopPropagation()}
           />

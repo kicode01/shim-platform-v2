@@ -1,0 +1,52 @@
+[
+      {
+            "id": "corp-01",
+            "name": "Swiss International Style",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwb2x5Z29uIHBvaW50cz0iODQxLDc5MyAxMTIyLDc5MyAxMTIyLDIwMCIgZmlsbD0iIzBBMTkyRiIvPgogIDxwb2x5Z29uIHBvaW50cz0iOTAwLDc5MyAxMTIyLDc5MyAxMTIyLDQwMCIgZmlsbD0iI0Q0QUYzNyIvPgogIDxwb2x5Z29uIHBvaW50cz0iOTUwLDc5MyAxMTIyLDc5MyAxMTIyLDUwMCIgZmlsbD0iIzBBMTkyRiIvPgo8L3N2Zz4="
+      },
+      {
+            "id": "corp-02",
+            "name": "Asymmetrical Corporate Edge",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCwwIDIwMCwwIDM1MCw3OTMgMCw3OTMiIGZpbGw9IiMzMzMzMzMiLz4KICA8cG9seWdvbiBwb2ludHM9IjAsMCAxMDAsMCAyNTAsNzkzIDAsNzkzIiBmaWxsPSIjMDY1RjQ2Ii8+Cjwvc3ZnPg=="
+      },
+      {
+            "id": "corp-03",
+            "name": "Minimalist Perimeter Frame",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjEwNjIiIGhlaWdodD0iNzMzIiBmaWxsPSJub25lIiBzdHJva2U9IiMxMTExMTEiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxyZWN0IHg9IjMwIiB5PSIyNjQiIHdpZHRoPSIxMiIgaGVpZ2h0PSIyNjQiIGZpbGw9IiNENEFGMzciLz4KPC9zdmc+"
+      },
+      {
+            "id": "corp-04",
+            "name": "Corporate Color Blocking",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCw3OTMgMCw0MDAgMTEyMiw3MDAgMTEyMiw3OTMiIGZpbGw9IiM2NDc0OEIiLz4KICA8cG9seWdvbiBwb2ludHM9IjAsNzkzIDAsNTUwIDExMjIsNzkzIiBmaWxsPSIjOTkxQjFCIi8+Cjwvc3ZnPg=="
+      },
+      {
+            "id": "corp-05",
+            "name": "Architectural Grid",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwYXR0ZXJuIGlkPSJhcmNoR3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgIDxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiNFNUU0RTIiIHN0cm9rZS13aWR0aD0iMC41Ii8+CiAgPC9wYXR0ZXJuPgogIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjYXJjaEdyaWQpIi8+CiAgPHJlY3QgeD0iNTAiIHk9IjUwIiB3aWR0aD0iMTAyMiIgaGVpZ2h0PSI2OTMiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0IwQzRERSIgc3Ryb2tlLXdpZHRoPSIxIi8+CiAgPGNpcmNsZSBjeD0iNTAiIGN5PSI1MCIgcj0iMyIgZmlsbD0iI0IwQzRERSIvPgogIDxjaXJjbGUgY3g9IjEwNzIiIGN5PSI1MCIgcj0iMyIgZmlsbD0iI0IwQzRERSIvPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNzQzIiByPSIzIiBmaWxsPSIjQjBDNERFIi8+CiAgPGNpcmNsZSBjeD0iMTA3MiIgY3k9Ijc0MyIgcj0iMyIgZmlsbD0iI0IwQzRERSIvPgo8L3N2Zz4="
+      },
+      {
+            "id": "corp-06",
+            "name": "Subtle Monoline Pinstripe",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjEwNDIiIGhlaWdodD0iNzEzIiBmaWxsPSJub25lIiBzdHJva2U9IiNDQzc3MjIiIHN0cm9rZS13aWR0aD0iMSIvPgogIDxyZWN0IHg9IjQ1IiB5PSI0NSIgd2lkdGg9IjEwMzIiIGhlaWdodD0iNzAzIiBmaWxsPSJub25lIiBzdHJva2U9IiNDQzc3MjIiIHN0cm9rZS13aWR0aD0iMC4yNSIvPgo8L3N2Zz4="
+      },
+      {
+            "id": "corp-07",
+            "name": "Tech-Corporate Crossover",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwb2x5Z29uIHBvaW50cz0iNTAwLDAgMTEyMiwwIDExMjIsNTAwIiBmaWxsPSIjMDAwMDgwIi8+CiAgPHBvbHlnb24gcG9pbnRzPSI3MDAsMCAxMTIyLDAgMTEyMiwzMDAiIGZpbGw9IiMwMDdGRkYiLz4KICA8cG9seWdvbiBwb2ludHM9IjkwMCwwIDExMjIsMCAxMTIyLDE1MCIgZmlsbD0iIzAwRkZGRiIvPgo8L3N2Zz4="
+      },
+      {
+            "id": "corp-08",
+            "name": "Bauhaus Inspired Business",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxyZWN0IHg9IjAiIHk9IjcwMCIgd2lkdGg9IjExMjIiIGhlaWdodD0iOTMiIGZpbGw9IiMzNjQ1NEYiLz4KICA8cmVjdCB4PSIyMDAiIHk9IjUwMCIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIyOTMiIGZpbGw9IiMxOTE5NzAiLz4KICA8Y2lyY2xlIGN4PSI0NTAiIGN5PSI3MDAiIHI9IjEyMCIgZmlsbD0iI0ZGREI1OCIvPgo8L3N2Zz4="
+      },
+      {
+            "id": "corp-09",
+            "name": "Diagonal Split Bleed",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCw2MzQgMTEyMiw2MzQgMTEyMiw3OTMgMCw3OTMiIGZpbGw9IiM0QjAwODIiLz4KICA8bGluZSB4MT0iMCIgeTE9IjYyNiIgeDI9IjExMjIiIHkyPSI2MjYiIHN0cm9rZT0iI0MwQzBDMCIgc3Ryb2tlLXdpZHRoPSI0Ii8+Cjwvc3ZnPg=="
+      },
+      {
+            "id": "corp-10",
+            "name": "The Executive Ribbon",
+            "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPgogIDxwb2x5Z29uIHBvaW50cz0iNTAsMCAxNTAsMCAxNTAsNzkzIDUwLDc5MyIgZmlsbD0iIzAwMDA4MCIvPgogIDxwb2x5Z29uIHBvaW50cz0iNTAsMTUwIDE1MCwyMDAgMTUwLDI1MCA1MCwyMDAiIGZpbGw9IiMwMDdCQTciLz4KICA8cG9seWdvbiBwb2ludHM9IjUwLDYwMCAxNTAsNTUwIDE1MCw1MDAgNTAsNTUwIiBmaWxsPSIjMDA3QkE3Ii8+Cjwvc3ZnPg=="
+      }
+]

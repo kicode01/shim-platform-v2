@@ -1,0 +1,101 @@
+const PRESET_CATEGORIES = [
+  {
+    "name": "Corporate & Professional",
+    "orientation": "landscape",
+    "items": [
+      {
+        "id": "corp-navy",
+        "name": "Classic Navy Geometric",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxwb2x5Z29uIHBvaW50cz0iMCwwIDIwMCwwIDAsMjAwIiBmaWxsPSIjMGYxNzJhIi8+PHBvbHlnb24gcG9pbnRzPSIwLDAgMTUwLDAgMCwxNTAiIGZpbGw9IiNkNGFmMzciLz48cG9seWdvbiBwb2ludHM9IjExMjIsNzkzIDkyMiw3OTMgMTEyMiw1OTMiIGZpbGw9IiMwZjE3MmEiLz48cG9seWdvbiBwb2ludHM9IjExMjIsNzkzIDk3Miw3OTMgMTEyMiw2NDMiIGZpbGw9IiNkNGFmMzciLz48L3N2Zz4="
+      },
+      {
+        "id": "corp-silver",
+        "name": "Minimalist Silver & Grey",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2Y4ZmFmYyIvPjxyZWN0IHg9IjIwIiB5PSIyMCIgd2lkdGg9IjEwODIiIGhlaWdodD0iNzUzIiBmaWxsPSJub25lIiBzdHJva2U9IiM5NGEzYjgiIHN0cm9rZS13aWR0aD0iNCIvPjxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjEwNjIiIGhlaWdodD0iNzMzIiBmaWxsPSJub25lIiBzdHJva2U9IiNjYmQ1ZTEiIHN0cm9rZS13aWR0aD0iMiIvPjwvc3ZnPg=="
+      },
+      {
+        "id": "corp-emerald",
+        "name": "Emerald Corporate",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjEwNDIiIGhlaWdodD0iNzEzIiBmaWxsPSJub25lIiBzdHJva2U9IiMwNjVmNDYiIHN0cm9rZS13aWR0aD0iOCIvPjxyZWN0IHg9IjUwIiB5PSI1MCIgd2lkdGg9IjEwMjIiIGhlaWdodD0iNjkzIiBmaWxsPSJub25lIiBzdHJva2U9IiNkNGFmMzciIHN0cm9rZS13aWR0aD0iMiIvPjxwYXRoIGQ9Ik0wIDAgTDE1MCAwIEwwIDE1MCBaIiBmaWxsPSIjMDY1ZjQ2Ii8+PHBhdGggZD0iTTExMjIgNzkzIEw5NzIgNzkzIEwxMTIyIDY0MyBaIiBmaWxsPSIjMDY1ZjQ2Ii8+PC9zdmc+"
+      },
+      {
+        "id": "corp-crimson",
+        "name": "Crimson & Slate",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMTIyIiBoZWlnaHQ9IjE1IiBmaWxsPSIjOTkxYjFiIi8+PHJlY3QgeD0iMCIgeT0iNzc4IiB3aWR0aD0iMTEyMiIgaGVpZ2h0PSIxNSIgZmlsbD0iIzk5MWIxYiIvPjxyZWN0IHg9IjAiIHk9IjE1IiB3aWR0aD0iMTEyMiIgaGVpZ2h0PSI1IiBmaWxsPSIjNDc1NTY5Ii8+PHJlY3QgeD0iMCIgeT0iNzczIiB3aWR0aD0iMTEyMiIgaGVpZ2h0PSI1IiBmaWxsPSIjNDc1NTY5Ii8+PC9zdmc+"
+      },
+      {
+        "id": "corp-purple",
+        "name": "Royal Purple & Gold",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjEwNjIiIGhlaWdodD0iNzMzIiBmaWxsPSJub25lIiBzdHJva2U9IiM1YjIxYjYiIHN0cm9rZS13aWR0aD0iNiIvPjxyZWN0IHg9IjQyIiB5PSI0MiIgd2lkdGg9IjEwMzgiIGhlaWdodD0iNzA5IiBmaWxsPSJub25lIiBzdHJva2U9IiNkNGFmMzciIHN0cm9rZS13aWR0aD0iMyIvPjwvc3ZnPg=="
+      },
+      {
+        "id": "corp-charcoal",
+        "name": "Modern Charcoal Sideband",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2YxZjVmOSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iNzkzIiBmaWxsPSIjMWUyOTNiIi8+PHBhdGggZD0iTTIwMCAwIEwyNTAgMCBMMjUwIDc5MyBMMjAwIDc5MyBaIiBmaWxsPSIjMzM0MTU1Ii8+PC9zdmc+"
+      }
+    ]
+  },
+  {
+    "name": "Academic & Education",
+    "orientation": "landscape",
+    "items": [
+      {
+        "id": "acad-vic",
+        "name": "Victorian Filigree",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZlZjljMyIvPjxyZWN0IHg9IjQwIiB5PSI0MCIgd2lkdGg9IjEwNDIiIGhlaWdodD0iNzEzIiBmaWxsPSJub25lIiBzdHJva2U9IiNiNDUzMDkiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWRhc2hhcnJheT0iMTAgNSIvPjxyZWN0IHg9IjUwIiB5PSI1MCIgd2lkdGg9IjEwMjIiIGhlaWdodD0iNjkzIiBmaWxsPSJub25lIiBzdHJva2U9IiNiNDUzMDkiIHN0cm9rZS13aWR0aD0iNCIvPjxjaXJjbGUgY3g9Ijk1MCIgY3k9IjY1MCIgcj0iNjAiIGZpbGw9IiNmNTllMGIiLz48Y2lyY2xlIGN4PSI5NTAiIGN5PSI2NTAiIHI9IjUwIiBmaWxsPSJub25lIiBzdHJva2U9IiM3ODM1MGYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWRhc2hhcnJheT0iNCA0Ii8+PC9zdmc+"
+      },
+      {
+        "id": "acad-oxford",
+        "name": "Oxford Blue Classic",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjEwNjIiIGhlaWdodD0iNzMzIiBmaWxsPSJub25lIiBzdHJva2U9IiMxZTNhOGEiIHN0cm9rZS13aWR0aD0iMTIiLz48cmVjdCB4PSI0NSIgeT0iNDUiIHdpZHRoPSIxMDMyIiBoZWlnaHQ9IjcwMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMWUzYThhIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4="
+      },
+      {
+        "id": "acad-ivy",
+        "name": "Ivy League Green",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjEwNjIiIGhlaWdodD0iNzMzIiBmaWxsPSJub25lIiBzdHJva2U9IiMxNDUzMmQiIHN0cm9rZS13aWR0aD0iMTIiLz48cmVjdCB4PSI0NSIgeT0iNDUiIHdpZHRoPSIxMDMyIiBoZWlnaHQ9IjcwMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRhZjM3IiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4="
+      },
+      {
+        "id": "acad-burgundy",
+        "name": "Burgundy & Gold Traditional",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxyZWN0IHg9IjMwIiB5PSIzMCIgd2lkdGg9IjEwNjIiIGhlaWdodD0iNzMzIiBmaWxsPSJub25lIiBzdHJva2U9IiM3ZjFkMWQiIHN0cm9rZS13aWR0aD0iMTIiLz48cmVjdCB4PSI0NSIgeT0iNDUiIHdpZHRoPSIxMDMyIiBoZWlnaHQ9IjcwMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDRhZjM3IiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4="
+      }
+    ]
+  },
+  {
+    "name": "Tech & IT",
+    "orientation": "landscape",
+    "items": [
+      {
+        "id": "tech-cyber",
+        "name": "Cyberpunk Grid",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzAyMDYxNyIvPjxwYXR0ZXJuIGlkPSJncmlkIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxwYXRoIGQ9Ik0gNDAgMCBMIDAgMCAwIDQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iMC41Ii8+PC9wYXR0ZXJuPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48cmVjdCB4PSI0MCIgeT0iNDAiIHdpZHRoPSIxMDQyIiBoZWlnaHQ9IjcxMyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDk0NmVmIiBzdHJva2Utd2lkdGg9IjQiLz48L3N2Zz4="
+      },
+      {
+        "id": "tech-code",
+        "name": "Code Editor Dark",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iIzFlMWUxZSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxMTIyIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMmQyZDJkIi8+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iNiIgZmlsbD0iI2ZmNWY1NiIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMjAiIHI9IjYiIGZpbGw9IiNmZmJkMmUiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjIwIiByPSI2IiBmaWxsPSIjMjdjOTNmIi8+PC9zdmc+"
+      },
+      {
+        "id": "tech-circuit",
+        "name": "Circuit Board",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxwYXRoIGQ9Ik0wIDEwMCBMMTAwIDEwMCBMMTUwIDE1MCBMMzAwIDE1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMjJjNTVlIiBzdHJva2Utd2lkdGg9IjMiLz48Y2lyY2xlIGN4PSIzMDAiIGN5PSIxNTAiIHI9IjUiIGZpbGw9IiMyMmM1NWUiLz48cGF0aCBkPSJNMTEyMiA2OTMgTDEwMjIgNjkzIEw5NzIgNjQzIEw4MjIgNjQzIiBmaWxsPSJub25lIiBzdHJva2U9IiMyMmM1NWUiIHN0cm9rZS13aWR0aD0iMyIvPjxjaXJjbGUgY3g9IjgyMiIgY3k9IjY0MyIgcj0iNSIgZmlsbD0iIzIyYzU1ZSIvPjwvc3ZnPg=="
+      }
+    ]
+  },
+  {
+    "name": "Creative & Arts",
+    "orientation": "landscape",
+    "items": [
+      {
+        "id": "crea-bauhaus",
+        "name": "Bauhaus Geometric",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxjaXJjbGUgY3g9IjE1MCIgY3k9IjE1MCIgcj0iMTAwIiBmaWxsPSIjZWY0NDQ0Ii8+PHJlY3QgeD0iODUwIiB5PSIxMDAiIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjZWFiMzA4Ii8+PHBvbHlnb24gcG9pbnRzPSIxMDAsNjAwIDIwMCw3NTAgNTAsNzUwIiBmaWxsPSIjM2I4MmY2Ii8+PC9zdmc+"
+      },
+      {
+        "id": "crea-wave",
+        "name": "Abstract Wave",
+        "url": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTIyIDc5MyI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZmZmZiIvPjxwYXRoIGQ9Ik0wIDIwMCBRIDI4MCA0MDAgNTYxIDIwMCBUIDExMjIgMjAwIEwgMTEyMiAwIEwgMCAwIFoiIGZpbGw9IiM4YjVjZjYiLz48cGF0aCBkPSJNMCAyMjAgUSAyODAgNDIwIDU2MSAyMjAgVCAxMTIyIDIyMCBMIDExMjIgMCBMIDAgMCBaIiBmaWxsPSIjYTc4YmZhIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4="
+      }
+    ]
+  }
+];

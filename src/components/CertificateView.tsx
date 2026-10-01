@@ -361,7 +361,7 @@ export default function CertificateView({
 
             if (el.type === "signature") {
               return (
-                <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: el.width, height: el.height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: (el.type === 'signature' && !el.src) ? 'max-content' : el.width, height: (el.type === 'signature' && !el.src) ? 'max-content' : el.height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
                   {el.src ? (
                     <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
                       ) : el.signatureText ? (
