@@ -7,6 +7,434 @@ import { PRESETS } from "@/lib/presets";
 
 export type CanvasElementType = "dynamicText" | "staticText" | "image" | "qrCode" | "signature" | "badge" | "shape";
 
+const FONT_SUPPORTED_WEIGHTS: Record<string, string[]> = {
+  "Playfair Display": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Cinzel": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Cormorant Garamond": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Merriweather": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Lora": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "PT Serif": [
+    "400",
+    "700"
+  ],
+  "Noto Serif": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Libre Baskerville": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "EB Garamond": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Bodoni Moda": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Prata": [
+    "400"
+  ],
+  "Castoro": [
+    "400"
+  ],
+  "DM Serif Display": [
+    "400"
+  ],
+  "Fraunces": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Cardo": [
+    "400",
+    "700"
+  ],
+  "Inter": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Roboto": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Open Sans": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Montserrat": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Lato": [
+    "100",
+    "300",
+    "400",
+    "700",
+    "900"
+  ],
+  "Poppins": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Oswald": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Raleway": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Outfit": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Space Grotesk": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Work Sans": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Rubik": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Manrope": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "DM Sans": [
+    "100",
+    "1000",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Syne": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Bebas Neue": [
+    "400"
+  ],
+  "Anton": [
+    "400"
+  ],
+  "Lobster": [
+    "400"
+  ],
+  "Abril Fatface": [
+    "400"
+  ],
+  "Righteous": [
+    "400"
+  ],
+  "Alfa Slab One": [
+    "400"
+  ],
+  "Unica One": [
+    "400"
+  ],
+  "Fjalla One": [
+    "400"
+  ],
+  "Titan One": [
+    "400"
+  ],
+  "Syncopate": [
+    "400",
+    "700"
+  ],
+  "Bowlby One": [
+    "400"
+  ],
+  "Oleo Script": [
+    "400",
+    "700"
+  ],
+  "Russo One": [
+    "400"
+  ],
+  "Yeseva One": [
+    "400"
+  ],
+  "Rampart One": [
+    "400"
+  ],
+  "Great Vibes": [
+    "400"
+  ],
+  "Dancing Script": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Pacifico": [
+    "400"
+  ],
+  "Caveat": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Satisfy": [
+    "400"
+  ],
+  "Sacramento": [
+    "400"
+  ],
+  "Alex Brush": [
+    "400"
+  ],
+  "Parisienne": [
+    "400"
+  ],
+  "Monsieur La Doulaise": [
+    "400"
+  ],
+  "Herr Von Muellerhoff": [
+    "400"
+  ],
+  "Pinyon Script": [
+    "400"
+  ],
+  "Tangerine": [
+    "400",
+    "700"
+  ],
+  "Clicker Script": [
+    "400"
+  ],
+  "Allura": [
+    "400"
+  ],
+  "Rochester": [
+    "400"
+  ],
+  "Fira Code": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Space Mono": [
+    "400",
+    "700"
+  ],
+  "JetBrains Mono": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Inconsolata": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Source Code Pro": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "IBM Plex Mono": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Ubuntu Mono": [
+    "400",
+    "700"
+  ],
+  "PT Mono": [
+    "400"
+  ],
+  "Anonymous Pro": [
+    "400",
+    "700"
+  ],
+  "Share Tech Mono": [
+    "400"
+  ],
+  "VT323": [
+    "400"
+  ],
+  "Courier Prime": [
+    "400",
+    "700"
+  ],
+  "Cutive Mono": [
+    "400"
+  ],
+  "Overpass Mono": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Oxygen Mono": [
+    "400"
+  ]
+};
+
 export interface CanvasElement {
   id: string;
   type: CanvasElementType;
@@ -22,11 +450,25 @@ export interface CanvasElement {
   fontWeight?: "normal" | "bold" | string;
   fontStyle?: "normal" | "italic";
   letterSpacing?: number; // Added for advanced typography tracking
+  lineSpacing?: number; // Added for line height control
+  textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
   src?: string; // For images
+  signatoryName?: string;
+  signatoryTitle?: string;
+  hideLine?: boolean;
+  lineThickness?: number;
+  linePadding?: number;
+  lineColor?: string;
+  titleFontSize?: number;
+  titleFontFamily?: string;
+  titleColor?: string;
+  titleLetterSpacing?: number;
+  locked?: boolean;
 }
 
 export interface CertificateDesignConfig {
   theme?: "pup" | "gold" | "emerald" | "crimson" | "indigo" | "modern";
+  orientation?: "portrait" | "landscape";
   titleFont?: "diploma" | "serif" | "sans"; 
   bodyFont?: "sans" | "serif";
   borderStyle?: "pinstripe" | "double" | "solid" | "none";
@@ -251,8 +693,11 @@ export default function CertificateView({
     return Array.from(fonts);
   }, [parsedDesign?.canvasElements]);
 
-  const googleFontsUrl = usedFonts.length > 0 
-    ? `https://fonts.googleapis.com/css2?${usedFonts.map(f => `family=${f.replace(/ /g, '+')}:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700`).join('&')}&display=swap`
+  const googleFontsUrl = usedFonts.length > 0
+    ? `https://fonts.googleapis.com/css2?${usedFonts.map(f => {
+        const weights = FONT_SUPPORTED_WEIGHTS[f] || ["400"];
+        return `family=${f.replace(/ /g, '+')}:wght@${weights.join(';')}`;
+      }).join('&')}&display=swap`
     : null;
 
   return (
@@ -304,7 +749,20 @@ export default function CertificateView({
               return (
                 <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: el.width, height: el.height }}>
                   {el.src ? (
-                    <img src={el.src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                      <img src={el.src} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1)) drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }} />
+                      <div className="animate-badge-shine" style={{
+                        position: "absolute",
+                        top: 0, left: 0, right: 0, bottom: 0,
+                        background: "linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 60%, transparent 80%)",
+                        backgroundSize: "200% 100%",
+                        WebkitMaskImage: `url(${el.src})`,
+                        WebkitMaskSize: "contain",
+                        WebkitMaskPosition: "center",
+                        WebkitMaskRepeat: "no-repeat",
+                        pointerEvents: "none"
+                      }} />
+                    </div>
                   ) : el.type === "badge" ? (
                     <svg viewBox="0 0 120 120" className="w-full h-full drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
                       <defs>
@@ -360,22 +818,24 @@ export default function CertificateView({
             }
 
             if (el.type === "signature") {
-              return (
-                <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: (el.type === 'signature' && !el.src) ? 'max-content' : el.width, height: (el.type === 'signature' && !el.src) ? 'max-content' : el.height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
-                  {el.src ? (
-                    <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
-                      ) : el.signatureText ? (
-                    <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1.2 }}>
-                      {el.signatureText}
+                return (
+                  <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: el.width, height: el.height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
+                    {el.src ? (
+                      <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: `${el.linePadding ?? 10}px` }} />
+                    ) : (
+                      <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", paddingTop: "0.3em", paddingBottom: "0.1em", fontStyle: "italic", lineHeight: "normal" }}>
+                        {el.signatoryName ?? (el.text?.split('|')[0] || "Signature")}
+                      </div>
+                    )}
+                    {!el.hideLine && (
+                      <div style={{ width: "100%", borderTop: `${el.lineThickness ?? 4}px solid ${el.lineColor || el.color || "#000000"}`, flexShrink: 0, marginBottom: `${el.linePadding ?? 10}px`, marginTop: `${el.linePadding ?? 10}px` }} />
+                    )}
+                    <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 120) * (el.titleFontSize ?? 0.4)}px`, fontFamily: el.titleFontFamily || "var(--font-sans, sans-serif)", color: el.titleColor || el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: `${el.titleLetterSpacing ?? 4}px` }}>
+                      {el.signatoryTitle ?? (el.text?.split('|')[1] || "Title")}
                     </div>
-                  ) : null}
-                  <div style={{ width: "100%", borderTop: `1px solid ${el.color || "#000000"}`, flexShrink: 0, marginBottom: "10px", marginTop: "10px" }} />
-                  <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * 0.4}px`, fontFamily: "var(--font-sans, sans-serif)", color: el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "4px" }}>
-                    {el.text?.split('|')[1] || "Title"}
                   </div>
-                </div>
-              );
-            }
+                );
+              }
 
             return (
               <div 
@@ -393,6 +853,7 @@ export default function CertificateView({
                   fontWeight: el.fontWeight || "normal",
                   fontStyle: el.fontStyle || "normal",
                   letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : "normal",
+                  textTransform: el.textTransform as any || "none",
                   lineHeight: 1.2,
                   whiteSpace: "pre-wrap",
                   opacity: 1

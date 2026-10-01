@@ -12,7 +12,7 @@ import {
   Download, Calendar, User, Sparkles, Award, History, Scan
 } from "lucide-react";
 import jsQR from "jsqr";
-import * as pdfjsLib from "pdfjs-dist";
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf.mjs";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import CertificateView from "@/components/CertificateView";
@@ -20,7 +20,7 @@ import Tesseract from "tesseract.js";
 
 // Initialize pdfjs worker
 if (typeof window !== "undefined") {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/legacy/build/pdf.worker.min.mjs`;
 }
 
 interface RecentCheck {

@@ -3,12 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Layers, Save, ArrowLeft, Stamp, Sliders, Code2, ShieldCheck, CheckCircle2, RotateCcw, Image as ImageIcon, Move, LayoutTemplate, Loader2, Sparkles, Type, FileImage, MousePointer2, Minus, Plus, Trash2, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Database, QrCode, Undo, Redo, Hand, X, ArrowUp, ArrowDown } from "lucide-react";
+import { Layers, Save, ArrowLeft, Stamp, Sliders, Code2, ShieldCheck, CheckCircle2, RotateCcw, Image as ImageIcon, Move, LayoutTemplate, Loader2, Sparkles, Type, FileImage, MousePointer2, Minus, Plus, Trash2, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Database, QrCode, Undo, Redo, Hand, X, ArrowUp, ArrowDown, ChevronDown, Lock, Unlock } from "lucide-react";
 import { Rnd } from 'react-rnd';
 import CertificateView, { CertificateDesignConfig, CanvasElement, CanvasElementType } from "@/components/CertificateView";
 import { v4 as uuidv4 } from "uuid";
 import QRCode from "qrcode";
 import { QRCodeSVG } from "qrcode.react";
+import { Select } from "@/components/ui/Select";
 import { PRESETS } from "@/lib/presets";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -23,6 +24,527 @@ interface TemplateEditorProps {
 
 
 
+
+const PRESET_COLORS = [
+  "#000000", "#1e293b", "#1e3a8a", "#b45309",
+  "#dc2626", "#166534", "#78716c", "#ffffff"
+];
+
+function ColorSelector({ value, onChange }: { value: string, onChange: (val: string) => void }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-1.5 flex-wrap">
+        {PRESET_COLORS.map(c => (
+          <button 
+            key={c}
+            onClick={() => onChange(c)}
+            className={`w-6 h-6 rounded-md border shadow-sm transition-transform hover:scale-110 ${value === c ? 'ring-2 ring-indigo-500 ring-offset-1' : 'border-zinc-200'}`}
+            style={{ backgroundColor: c }}
+            title={c}
+          />
+        ))}
+      </div>
+      <div className="flex items-center gap-2">
+        <input type="color" className="w-8 h-8 p-0 border border-zinc-200 rounded overflow-hidden cursor-pointer bg-white shrink-0" value={value} onChange={(e) => onChange(e.target.value)} />
+        <span className="text-xs text-zinc-500 font-mono uppercase">{value}</span>
+      </div>
+    </div>
+  );
+}
+
+function FontSizeSelector({ value, onChange }: { value: number, onChange: (val: number) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const presets = [12, 14, 16, 18, 24, 32, 36, 48, 60, 72, 96, 120];
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Convert internal pixels to standard points (1 pt Γëê 4.166 px at 300 DPI)
+  const pxToPt = (px: number) => Math.round(px / 4.166667);
+  const ptToPx = (pt: number) => Math.round(pt * 4.166667);
+
+  const displayValue = value ? pxToPt(value) : '';
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div className="input-field p-0 flex items-center overflow-hidden focus-within:border-zinc-400 focus-within:shadow-[0_0_0_2px_rgba(24,24,27,0.1)]">
+        <input 
+          type="text"
+          inputMode="numeric"
+          className="w-full py-2 pl-3 text-sm outline-none bg-transparent text-zinc-900" 
+          value={displayValue} 
+          onChange={(e) => {
+            const pt = Number(e.target.value.replace(/[^0-9]/g, ''));
+            if (pt > 0) onChange(ptToPx(pt));
+          }} 
+        />
+        <button 
+          onClick={() => setIsOpen(!isOpen)} 
+          className="pr-3 pl-2 py-2 text-zinc-800 outline-none flex items-center justify-center cursor-default"
+        >
+          <ChevronDown size={14} strokeWidth={2.5} />
+        </button>
+      </div>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-10 w-full mt-1 bg-white border border-zinc-200 rounded-md shadow-lg max-h-48 overflow-y-auto py-1"
+          >
+            {presets.map(p => (
+              <button
+                key={p}
+                className={`w-full text-left px-3 py-1 text-sm hover:bg-[#0078d4] hover:text-white transition-colors ${displayValue === p ? 'bg-[#0078d4] text-white' : 'text-zinc-900'}`}
+                onClick={() => { onChange(ptToPx(p)); setIsOpen(false); }}
+              >
+                {p}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+const FONT_SUPPORTED_WEIGHTS: Record<string, string[]> = {
+  "Playfair Display": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Cinzel": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Cormorant Garamond": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Merriweather": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Lora": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "PT Serif": [
+    "400",
+    "700"
+  ],
+  "Noto Serif": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Libre Baskerville": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "EB Garamond": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Bodoni Moda": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Prata": [
+    "400"
+  ],
+  "Castoro": [
+    "400"
+  ],
+  "DM Serif Display": [
+    "400"
+  ],
+  "Fraunces": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Cardo": [
+    "400",
+    "700"
+  ],
+  "Inter": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Roboto": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Open Sans": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Montserrat": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Lato": [
+    "100",
+    "300",
+    "400",
+    "700",
+    "900"
+  ],
+  "Poppins": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Oswald": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Raleway": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Outfit": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Space Grotesk": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Work Sans": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Rubik": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Manrope": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "DM Sans": [
+    "100",
+    "1000",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Syne": [
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Bebas Neue": [
+    "400"
+  ],
+  "Anton": [
+    "400"
+  ],
+  "Lobster": [
+    "400"
+  ],
+  "Abril Fatface": [
+    "400"
+  ],
+  "Righteous": [
+    "400"
+  ],
+  "Alfa Slab One": [
+    "400"
+  ],
+  "Unica One": [
+    "400"
+  ],
+  "Fjalla One": [
+    "400"
+  ],
+  "Titan One": [
+    "400"
+  ],
+  "Syncopate": [
+    "400",
+    "700"
+  ],
+  "Bowlby One": [
+    "400"
+  ],
+  "Oleo Script": [
+    "400",
+    "700"
+  ],
+  "Russo One": [
+    "400"
+  ],
+  "Yeseva One": [
+    "400"
+  ],
+  "Rampart One": [
+    "400"
+  ],
+  "Great Vibes": [
+    "400"
+  ],
+  "Dancing Script": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Pacifico": [
+    "400"
+  ],
+  "Caveat": [
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Satisfy": [
+    "400"
+  ],
+  "Sacramento": [
+    "400"
+  ],
+  "Alex Brush": [
+    "400"
+  ],
+  "Parisienne": [
+    "400"
+  ],
+  "Monsieur La Doulaise": [
+    "400"
+  ],
+  "Herr Von Muellerhoff": [
+    "400"
+  ],
+  "Pinyon Script": [
+    "400"
+  ],
+  "Tangerine": [
+    "400",
+    "700"
+  ],
+  "Clicker Script": [
+    "400"
+  ],
+  "Allura": [
+    "400"
+  ],
+  "Rochester": [
+    "400"
+  ],
+  "Fira Code": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Space Mono": [
+    "400",
+    "700"
+  ],
+  "JetBrains Mono": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800"
+  ],
+  "Inconsolata": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "Source Code Pro": [
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900"
+  ],
+  "IBM Plex Mono": [
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Ubuntu Mono": [
+    "400",
+    "700"
+  ],
+  "PT Mono": [
+    "400"
+  ],
+  "Anonymous Pro": [
+    "400",
+    "700"
+  ],
+  "Share Tech Mono": [
+    "400"
+  ],
+  "VT323": [
+    "400"
+  ],
+  "Courier Prime": [
+    "400",
+    "700"
+  ],
+  "Cutive Mono": [
+    "400"
+  ],
+  "Overpass Mono": [
+    "300",
+    "400",
+    "500",
+    "600",
+    "700"
+  ],
+  "Oxygen Mono": [
+    "400"
+  ]
+};
 
 const GOOGLE_FONTS = [
   { group: "Serif & Luxury", fonts: ["Playfair Display", "Cinzel", "Cormorant Garamond", "Merriweather", "Lora", "PT Serif", "Noto Serif", "Libre Baskerville", "EB Garamond", "Bodoni Moda", "Prata", "Castoro", "DM Serif Display", "Fraunces", "Cardo"] },
@@ -495,6 +1017,8 @@ export default function TemplateEditor({
   isEdit = false,
 }: TemplateEditorProps) {
   const router = useRouter();
+  const [activeSigTab, setActiveSigTab] = useState<'name' | 'line' | 'title'>('name');
+  const [activePropTab, setActivePropTab] = useState<'content' | 'style' | 'layout'>('content');
 
   const defaultDesign: CertificateDesignConfig = {
     canvasElements: []
@@ -555,7 +1079,10 @@ export default function TemplateEditor({
   }, [design?.canvasElements]);
 
   const googleFontsUrl = usedFonts.length > 0
-    ? `https://fonts.googleapis.com/css2?${usedFonts.map(f => `family=${f.replace(/ /g, '+')}:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700`).join('&')}&display=swap`
+    ? `https://fonts.googleapis.com/css2?${usedFonts.map(f => {
+        const weights = FONT_SUPPORTED_WEIGHTS[f] || ["400"];
+        return `family=${f.replace(/ /g, '+')}:wght@${weights.join(';')}`;
+      }).join('&')}&display=swap`
     : null;
 
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -669,7 +1196,7 @@ export default function TemplateEditor({
       ...el,
       x: el.x * scaleX,
       y: el.y * scaleY,
-      width: el.width !== undefined ? el.width * scaleX : undefined,
+      width: el.width * scaleX,
       ...(el.height ? { height: el.height * scaleF } : {}),
       ...(el.fontSize ? { fontSize: el.fontSize * scaleX } : {})
     }));
@@ -789,8 +1316,8 @@ export default function TemplateEditor({
       type,
       x: type.includes("Text") || type === 'signature' ? 1500 : 830,
       y: 1000,
-      width: (type === 'qrCode' || type === 'image' || type === 'badge') ? 368 : type === 'signature' ? 920 : undefined,
-      height: (type === 'qrCode' || type === 'image' || type === 'badge') ? 368 : type === 'shape' ? 20 : type === 'signature' ? 260 : undefined,
+      width: (type === 'qrCode' || type === 'image' || type === 'badge') ? 368 : type === 'shape' ? 3000 : undefined,
+      height: (type === 'qrCode' || type === 'image' || type === 'badge') ? 368 : type === 'shape' ? 6 : undefined,
       text: type.includes("Text") || type === 'signature' ? defaultText : undefined,
       fontSize: 120,
       fontFamily: "var(--font-sans, sans-serif)",
@@ -938,6 +1465,7 @@ export default function TemplateEditor({
   return (
     <div className="flex-1 flex flex-col w-full px-4 sm:px-6 py-6 min-h-0 overflow-hidden">
 
+      {googleFontsUrl && <link href={googleFontsUrl} rel="stylesheet" />}
       {/* Header */}
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 mb-6 shrink-0">
         <div>
@@ -1251,196 +1779,528 @@ export default function TemplateEditor({
 
 
 
+                  
                   {/* Element Properties */}
                   {selectedElement ? (
-                    <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-5 space-y-4">
-                      <div className="flex items-center justify-between border-b border-zinc-200 pb-3">
-                        <h4 className="text-sm font-semibold text-zinc-700 flex items-center gap-2">
-                          <MousePointer2 size={16} className="text-zinc-500" /> Element Properties
-                        </h4>
-                        <button onClick={deleteSelectedElement} className="text-red-500 hover:text-red-700 transition-colors p-1" title="Delete Element">
+                    <div className="bg-white border border-zinc-200 shadow-sm rounded-xl overflow-hidden flex flex-col">
+                      {/* Header */}
+                      <div className="bg-zinc-50 border-b border-zinc-200 p-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                            {selectedElement.type.includes("Text") ? <Type size={14} /> : selectedElement.type === "signature" ? <Stamp size={14} /> : selectedElement.type === "shape" ? <Minus size={14} /> : selectedElement.type === "qrCode" ? <QrCode size={14} /> : <ImageIcon size={14} />}
+                          </div>
+                          <h4 className="text-sm font-semibold text-zinc-800 capitalize">{selectedElement.type.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                        </div>
+                        <button onClick={deleteSelectedElement} className="text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-colors p-1.5 rounded-lg" title="Delete Element">
                           <Trash2 size={16} />
                         </button>
                       </div>
 
-                      {selectedElement.type.includes("Text") && (
-                        <>
-                          {selectedElement.type === "dynamicText" ? (
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Dynamic Field Mapping</label>
-                              <select
-                                className="input-field py-2 text-sm"
-                                value={selectedElement.text}
-                                onChange={(e) => updateSelectedElement({ text: e.target.value })}
-                              >
-                                <option value="recipientName">Recipient Name</option>
-                                <option value="role">Role / Title / Degree</option>
-                                <option value="eventName">Event Description</option>
-                                <option value="issueDate">Issue Date</option>
-                                <option value="certificateId">Certificate ID / Serial No.</option>
-                              </select>
-                            </div>
-                          ) : (
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Text Content</label>
-                              <textarea
-                                className="input-field py-2 text-sm"
-                                value={selectedElement.text}
-                                onChange={(e) => updateSelectedElement({ text: e.target.value })}
-                                rows={2}
-                              />
-                            </div>
-                          )}
+                      {/* Global Tabs Navigation */}
+                      <div className="flex bg-zinc-50 border-b border-zinc-200 px-3 pt-3 gap-4">
+                        <button onClick={() => setActivePropTab('content')} className={`pb-2 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-colors ${activePropTab === 'content' ? 'border-indigo-500 text-indigo-700' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}>Content</button>
+                        <button onClick={() => setActivePropTab('style')} className={`pb-2 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-colors ${activePropTab === 'style' ? 'border-indigo-500 text-indigo-700' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}>Style</button>
+                        <button onClick={() => setActivePropTab('layout')} className={`pb-2 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-colors ${activePropTab === 'layout' ? 'border-indigo-500 text-indigo-700' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}>Layout</button>
+                      </div>
 
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Font Size (px)</label>
-                              <input type="number" className="input-field py-2 text-sm" value={selectedElement.fontSize || 16} onChange={(e) => updateSelectedElement({ fontSize: Number(e.target.value) })} />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Color</label>
-                              <input type="color" className="w-full h-[38px] p-1 border border-zinc-200 rounded-lg cursor-pointer bg-white" value={selectedElement.color || "#000000"} onChange={(e) => updateSelectedElement({ color: e.target.value })} />
-                            </div>
-                          </div>
+                      <div className="p-4 space-y-5 overflow-y-auto" style={{ maxHeight: "calc(100vh - 250px)" }}>
+                        
+                        {/* ----------------- CONTENT TAB ----------------- */}
+                        {activePropTab === 'content' && (
+                          <div className="space-y-4">
+                            {selectedElement.type.includes("Text") && (
+                              <>
+                                {selectedElement.type === "dynamicText" ? (
+                                  <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Dynamic Field Mapping</label>
+                                    <Select
+                                      value={selectedElement.text || ""}
+                                      onChange={(val) => updateSelectedElement({ text: val })}
+                                      options={[
+                                        { value: "recipientName", label: "Recipient Name" },
+                                        { value: "role", label: "Role / Title / Degree" },
+                                        { value: "eventName", label: "Event Description" },
+                                        { value: "issueDate", label: "Issue Date" },
+                                        { value: "certificateId", label: "Certificate ID / Serial No." },
+                                      ]}
+                                    />
+                                  </div>
+                                ) : (
+                                  <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Text Content</label>
+                                    <textarea
+                                      className="input-field py-2 text-sm"
+                                      value={selectedElement.text}
+                                      onChange={(e) => updateSelectedElement({ text: e.target.value })}
+                                      rows={3}
+                                    />
+                                  </div>
+                                )}
+                              </>
+                            )}
 
-                          <div className="grid grid-cols-2 gap-3 mt-1">
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Font Family</label>
-                              <select className="input-field py-2 text-sm" value={selectedElement.fontFamily || "Inter"} onChange={(e) => updateSelectedElement({ fontFamily: e.target.value })}>
-                                <optgroup label="System Basics">
-                                  <option value="Arial">Arial (System)</option>
-                                  <option value="var(--font-inter, sans-serif)">Inter (Built-in)</option>
-                                </optgroup>
-                                {GOOGLE_FONTS.map(group => (
-                                  <optgroup key={group.group} label={group.group}>
-                                    {group.fonts.map(font => (
-                                      <option key={font} value={font}>{font}</option>
-                                    ))}
-                                  </optgroup>
-                                ))}
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Letter Spacing (px)</label>
-                              <input type="number" className="input-field py-2 text-sm" value={selectedElement.letterSpacing || 0} onChange={(e) => updateSelectedElement({ letterSpacing: Number(e.target.value) })} />
-                            </div>
-                          </div>
+                            {selectedElement.type === "signature" && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Signatory Name</label>
+                                  <input
+                                    type="text"
+                                    placeholder="John Doe"
+                                    className="input-field py-2 text-sm w-full"
+                                    value={selectedElement.signatoryName ?? (selectedElement.text?.split('|')[0] || "")}
+                                    onChange={(e) => updateSelectedElement({ signatoryName: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Signatory Title</label>
+                                  <input
+                                    type="text"
+                                    placeholder="CEO & Founder"
+                                    className="input-field py-2 text-sm w-full"
+                                    value={selectedElement.signatoryTitle ?? (selectedElement.text?.split('|')[1] || "")}
+                                    onChange={(e) => updateSelectedElement({ signatoryTitle: e.target.value })}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Graphic Override</label>
+                                  <label className="btn-secondary w-full justify-center cursor-pointer text-xs py-2 border-dashed">
+                                    <ImageIcon size={14} className="mr-1.5 text-zinc-500" /> Upload Image instead
+                                    <input type="file" accept="image/png, image/jpeg, image/svg+xml" onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => updateSelectedElement({ src: event.target?.result as string });
+                                      reader.readAsDataURL(file);
+                                    }} className="hidden" />
+                                  </label>
+                                  {selectedElement.src && (
+                                    <button onClick={() => updateSelectedElement({ src: undefined })} className="text-[10px] font-medium text-red-500 w-full text-center hover:text-red-700 transition-colors mt-2">Remove Graphic</button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
 
-                          <div className="flex gap-2">
-                            <div className="flex border border-zinc-200 rounded-lg bg-white overflow-hidden shadow-sm">
-                              <button className={`p-2 transition-colors ${selectedElement.align === 'left' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'left' })}><AlignLeft size={16} /></button>
-                              <div className="w-px bg-zinc-200"></div>
-                              <button className={`p-2 transition-colors ${selectedElement.align === 'center' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'center' })}><AlignCenter size={16} /></button>
-                              <div className="w-px bg-zinc-200"></div>
-                              <button className={`p-2 transition-colors ${selectedElement.align === 'right' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ align: 'right' })}><AlignRight size={16} /></button>
-                            </div>
-                            <div className="flex border border-zinc-200 rounded-lg bg-white overflow-hidden shadow-sm">
-                              <button className={`p-2 transition-colors ${selectedElement.fontWeight === 'bold' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ fontWeight: selectedElement.fontWeight === 'bold' ? 'normal' : 'bold' })}><Bold size={16} /></button>
-                              <div className="w-px bg-zinc-200"></div>
-                              <button className={`p-2 transition-colors ${selectedElement.fontStyle === 'italic' ? 'bg-zinc-100 text-zinc-700' : 'text-zinc-500 hover:bg-zinc-50'}`} onClick={() => updateSelectedElement({ fontStyle: selectedElement.fontStyle === 'italic' ? 'normal' : 'italic' })}><Italic size={16} /></button>
-                            </div>
-                          </div>
-                        </>
-                      )}
+                            {(selectedElement.type === "image" || selectedElement.type === "badge") && (
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">{selectedElement.type === "badge" ? "Custom Seal Graphic" : "Image Asset"}</label>
+                                <label className="btn-secondary w-full justify-center cursor-pointer text-sm py-3 border-dashed bg-zinc-50 hover:bg-zinc-100">
+                                  <ImageIcon size={16} className="mr-2 text-zinc-500" /> Upload File
+                                  <input type="file" accept="image/png, image/jpeg, image/svg+xml" onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const reader = new FileReader();
+                                    reader.onload = (event) => updateSelectedElement({ src: event.target?.result as string });
+                                    reader.readAsDataURL(file);
+                                  }} className="hidden" />
+                                </label>
+                                {selectedElement.src && (
+                                  <button onClick={() => updateSelectedElement({ src: undefined })} className="text-[10px] font-medium text-red-500 w-full text-center hover:text-red-700 transition-colors mt-2">Remove File</button>
+                                )}
+                              </div>
+                            )}
 
-                      {selectedElement.type === "signature" && (
-                        <>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Signatory Name</label>
-                              <input
-                                type="text"
-                                className="input-field py-2 text-sm"
-                                value={selectedElement.text?.split('|')[0] || ""}
-                                onChange={(e) => updateSelectedElement({ text: `${e.target.value}|${selectedElement.text?.split('|')[1] || ""}` })}
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Signatory Title</label>
-                              <input
-                                type="text"
-                                className="input-field py-2 text-sm"
-                                value={selectedElement.text?.split('|')[1] || ""}
-                                onChange={(e) => updateSelectedElement({ text: `${selectedElement.text?.split('|')[0] || ""}|${e.target.value}` })}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Scale</label>
-                              <input type="number" className="input-field py-2 text-sm" value={selectedElement.fontSize || 60} onChange={(e) => updateSelectedElement({ fontSize: Number(e.target.value) })} />
-                            </div>
-                            <div>
-                              <label className="block text-xs font-medium text-zinc-600 mb-1">Ink Color</label>
-                              <input type="color" className="w-full h-[38px] p-1 border border-zinc-200 rounded-lg cursor-pointer bg-white" value={selectedElement.color || "#000000"} onChange={(e) => updateSelectedElement({ color: e.target.value })} />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label className="btn-secondary w-full justify-center cursor-pointer text-sm py-2">
-                              <ImageIcon size={16} className="mr-2 text-zinc-500" /> Upload Signature Image
-                              <input type="file" accept="image/png, image/jpeg, image/svg+xml" onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                const reader = new FileReader();
-                                reader.onload = (event) => updateSelectedElement({ src: event.target?.result as string });
-                                reader.readAsDataURL(file);
-                              }} className="hidden" />
-                            </label>
-                            {selectedElement.src && (
-                              <button onClick={() => updateSelectedElement({ src: undefined })} className="text-xs font-medium text-red-500 w-full text-center hover:text-red-700 transition-colors mt-2">Remove Image</button>
+                            {selectedElement.type === "shape" && (
+                              <div className="text-xs text-zinc-500 italic">No content properties for shapes. Use the Style tab to change colors.</div>
                             )}
                           </div>
-                        </>
-                      )}
+                        )}
 
-                      {(selectedElement.type === "image" || selectedElement.type === "badge") && (
-                        <div>
-                          <label className="btn-secondary w-full justify-center cursor-pointer text-sm py-2">
-                            <ImageIcon size={16} className="mr-2 text-zinc-500" /> {selectedElement.type === "badge" ? "Upload Custom Seal" : "Upload Graphic"}
-                            <input type="file" accept="image/png, image/jpeg, image/svg+xml" onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              const reader = new FileReader();
-                              reader.onload = (event) => updateSelectedElement({ src: event.target?.result as string });
-                              reader.readAsDataURL(file);
-                            }} className="hidden" />
-                          </label>
-                          {selectedElement.src && (
-                            <button onClick={() => updateSelectedElement({ src: undefined })} className="text-xs font-medium text-red-500 w-full text-center hover:text-red-700 transition-colors mt-2">Remove Graphic</button>
-                          )}
-                        </div>
-                      )}
+                        {/* ----------------- STYLE TAB ----------------- */}
+                        {activePropTab === 'style' && (
+                          <div className="space-y-6">
+                            {/* Typography Group (For Text & Signature) */}
+                            {selectedElement.type.includes("Text") && (
+                              <div className="space-y-4">
+                                <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Typography</h5>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="col-span-2">
+                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Font Family</label>
+                                    <Select
+                                      value={selectedElement.fontFamily || (selectedElement.type === 'signature' ? "var(--font-script, cursive)" : "var(--font-sans, sans-serif)")}
+                                      onChange={(val) => updateSelectedElement({ fontFamily: val })}
+                                      options={
+                                        selectedElement.type === 'signature' 
+                                        ? [
+                                            { value: "var(--font-script, cursive)", label: "Cursive (Default)" },
+                                            { value: "Great Vibes", label: "Great Vibes" },
+                                            { value: "Dancing Script", label: "Dancing Script" },
+                                            { value: "Pacifico", label: "Pacifico" },
+                                            { value: "Caveat", label: "Caveat" },
+                                            { value: "Inter", label: "Inter (Sans)" },
+                                            { value: "Playfair Display", label: "Playfair (Serif)" }
+                                          ]
+                                        : [
+                                            { value: "system-group", label: "System Basics", isGroupLabel: true },
+                                            { value: "Arial", label: "Arial (System)" },
+                                            { value: "var(--font-sans, sans-serif)", label: "System Default" },
+                                            ...GOOGLE_FONTS.flatMap(group => [
+                                              { value: `group-${group.group}`, label: group.group, isGroupLabel: true },
+                                              ...group.fonts.map(font => ({ value: font, label: font }))
+                                            ])
+                                          ]
+                                      }
+                                    />
+                                  </div>
 
-                      {selectedElement.type === "shape" && (
-                        <div>
-                          <label className="block text-xs font-medium text-zinc-600 mb-1">Color</label>
-                          <input type="color" className="w-full h-[38px] p-1 border border-zinc-200 rounded-lg cursor-pointer bg-white" value={selectedElement.color || "#000000"} onChange={(e) => updateSelectedElement({ color: e.target.value })} />
-                        </div>
-                      )}
+                                  {!selectedElement.type.includes("signature") && (
+                                    <div>
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Font Weight</label>
+                                      <Select
+                                        value={selectedElement.fontWeight || "normal"}
+                                        onChange={(val) => updateSelectedElement({ fontWeight: val })}
+                                        options={(FONT_SUPPORTED_WEIGHTS[
+                                          selectedElement.fontFamily === 'var(--font-sans, sans-serif)' ? 'Arial' :
+                                          selectedElement.fontFamily === 'var(--font-script, cursive)' ? 'Great Vibes' :
+                                          selectedElement.fontFamily === 'Arial' ? 'Arial' :
+                                          selectedElement.fontFamily || 'Inter'
+                                        ] || ["400", "700"]).map(w => {
+                                          let val = w;
+                                          if (w === "400") val = "normal";
+                                          if (w === "700") val = "bold";
+                                          const labels: any = {
+                                            "100": "Thin", "200": "Extra Light", "300": "Light", "400": "Regular",
+                                            "500": "Medium", "600": "Semi Bold", "700": "Bold", "800": "Extra Bold", "900": "Black"
+                                          };
+                                          return { value: val, label: `${labels[w]} (${w})` };
+                                        })}
+                                      />
+                                    </div>
+                                  )}
 
-                      <div className="grid grid-cols-2 gap-3 pt-3 border-t border-zinc-200">
-                        <div>
-                          <label className="block text-xs font-medium text-zinc-600 mb-1">X Position</label>
-                          <input type="number" className="input-field py-2 text-sm" value={selectedElement.x} onChange={(e) => updateSelectedElement({ x: Number(e.target.value) })} />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-zinc-600 mb-1">Y Position</label>
-                          <input type="number" className="input-field py-2 text-sm" value={selectedElement.y} onChange={(e) => updateSelectedElement({ y: Number(e.target.value) })} />
-                        </div>
-                        <div className="col-span-2">
-                          <label className="block text-xs font-medium text-zinc-600 mb-1">Width</label>
-                          <input type="number" className="input-field py-2 text-sm" value={selectedElement.width} onChange={(e) => updateSelectedElement({ width: Number(e.target.value) })} />
-                        </div>
+                                  <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">{selectedElement.type === 'signature' ? 'Master Size' : 'Size (pt)'}</label>
+                                    <FontSizeSelector value={selectedElement.fontSize || 16} onChange={(val) => updateSelectedElement({ fontSize: val })} />
+                                  </div>
+                                </div>
+
+                                
+                                                        {/* Text Tools (Alignment & Style) */}
+                                {!selectedElement.type.includes("signature") && (
+                                  <div className="flex gap-2">
+                                    <div className="flex border border-zinc-200 rounded-lg bg-zinc-50 overflow-hidden shadow-sm h-8">
+                                      <button title="Align Left" className={`px-2.5 transition-colors ${selectedElement.align === 'left' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'left' })}><AlignLeft size={14} /></button>
+                                      <div className="w-px bg-zinc-200"></div>
+                                      <button title="Align Center" className={`px-2.5 transition-colors ${selectedElement.align === 'center' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'center' })}><AlignCenter size={14} /></button>
+                                      <div className="w-px bg-zinc-200"></div>
+                                      <button title="Align Right" className={`px-2.5 transition-colors ${selectedElement.align === 'right' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'right' })}><AlignRight size={14} /></button>
+                                    </div>
+                                    <div className="flex border border-zinc-200 rounded-lg bg-zinc-50 overflow-hidden shadow-sm h-8">
+                                      <button title="Italic" className={`px-2.5 transition-colors ${selectedElement.fontStyle === 'italic' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ fontStyle: selectedElement.fontStyle === 'italic' ? 'normal' : 'italic' })}><Italic size={14} /></button>
+                                    </div>
+                                    <div className="flex-1">
+                                      <Select
+                                        value={selectedElement.textTransform || "none"}
+                                        onChange={(val) => updateSelectedElement({ textTransform: val as any })}
+                                        options={[
+                                          { value: "none", label: "Aa" },
+                                          { value: "uppercase", label: "AA" },
+                                          { value: "lowercase", label: "aa" },
+                                          { value: "capitalize", label: "Aa Bb" },
+                                        ]}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Signature Styling Options */}
+                            {selectedElement.type === "signature" && (
+                              <div className="space-y-6">
+                                {/* Signature Typography */}
+                                <div className="space-y-4">
+                                  <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Signature Font</h5>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="col-span-2">
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Font Family</label>
+                                      <Select
+                                        value={selectedElement.fontFamily || "var(--font-script, cursive)"}
+                                        onChange={(val) => updateSelectedElement({ fontFamily: val })}
+                                        options={[
+                                          { value: "var(--font-script, cursive)", label: "Cursive (Default)" },
+                                          { value: "Great Vibes", label: "Great Vibes" },
+                                          { value: "Dancing Script", label: "Dancing Script" },
+                                          { value: "Pacifico", label: "Pacifico" },
+                                          { value: "Caveat", label: "Caveat" },
+                                          { value: "Inter", label: "Inter (Sans)" },
+                                          { value: "Playfair Display", label: "Playfair (Serif)" }
+                                        ]}
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Size (pt)</label>
+                                      <FontSizeSelector value={selectedElement.fontSize || 16} onChange={(val) => updateSelectedElement({ fontSize: val })} />
+                                    </div>
+                                    <div>
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Ink Color</label>
+                                      <ColorSelector value={selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ color: val })} />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Divider Line */}
+                                <div className="space-y-4">
+                                  <div className="flex items-center justify-between border-b border-zinc-200 pb-1">
+                                    <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800">Divider Line</h5>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] font-medium text-zinc-500 uppercase">Hide</span>
+                                      <button 
+                                        onClick={() => updateSelectedElement({ hideLine: !selectedElement.hideLine })}
+                                        className={`w-7 h-4 rounded-full transition-colors relative ${selectedElement.hideLine ? 'bg-indigo-500' : 'bg-zinc-200'}`}
+                                      >
+                                        <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${selectedElement.hideLine ? 'left-[14px]' : 'left-[2px]'}`} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  {!selectedElement.hideLine && (
+                                    <>
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="col-span-2">
+                                          <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
+                                            <span>Thickness</span>
+                                            <span className="text-zinc-900">{selectedElement.lineThickness || 4}px</span>
+                                          </label>
+                                          <input 
+                                            type="range" 
+                                            min="1" max="10" 
+                                            value={selectedElement.lineThickness || 4} 
+                                            onChange={(e) => updateSelectedElement({ lineThickness: parseInt(e.target.value) })}
+                                            className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Padding</label>
+                                          <input
+                                            type="number"
+                                            value={selectedElement.linePadding ?? 10}
+                                            onChange={(e) => updateSelectedElement({ linePadding: parseInt(e.target.value) || 0 })}
+                                            className="input-field py-1 text-sm w-full"
+                                          />
+                                        </div>
+                                        <div>
+                                          <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Line Color</label>
+                                          <ColorSelector value={selectedElement.lineColor || selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ lineColor: val })} />
+                                        </div>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+
+                                {/* Title Styling */}
+                                <div className="space-y-4">
+                                  <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Title Font</h5>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div className="col-span-2">
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Title Font Family</label>
+                                      <Select
+                                        value={selectedElement.titleFontFamily || "var(--font-sans, sans-serif)"}
+                                        onChange={(val) => updateSelectedElement({ titleFontFamily: val })}
+                                        options={[
+                                          { value: "var(--font-sans, sans-serif)", label: "System Sans (Default)" },
+                                          { value: "Arial", label: "Arial" },
+                                          { value: "Inter", label: "Inter" },
+                                          { value: "Playfair Display", label: "Playfair Display" }
+                                        ]}
+                                      />
+                                    </div>
+                                    <div className="col-span-2">
+                                      <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
+                                        <span>Scale Multiplier</span>
+                                        <span className="text-zinc-900">{selectedElement.titleFontSize || 0.4}x</span>
+                                      </label>
+                                      <input 
+                                        type="range" 
+                                        min="0.2" max="1" step="0.05"
+                                        value={selectedElement.titleFontSize || 0.4} 
+                                        onChange={(e) => updateSelectedElement({ titleFontSize: parseFloat(e.target.value) })}
+                                        className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
+                                      />
+                                    </div>
+                                    <div className="col-span-2">
+                                      <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
+                                        <span>Letter Spacing</span>
+                                        <span className="text-zinc-900">{selectedElement.titleLetterSpacing ?? 4}px</span>
+                                      </label>
+                                      <input 
+                                        type="range" 
+                                        min="0" max="20" step="1"
+                                        value={selectedElement.titleLetterSpacing ?? 4} 
+                                        onChange={(e) => updateSelectedElement({ titleLetterSpacing: parseInt(e.target.value) })}
+                                        className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
+                                      />
+                                    </div>
+                                    <div className="col-span-2">
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Title Color</label>
+                                      <ColorSelector value={selectedElement.titleColor || selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ titleColor: val })} />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+{/* Color Group */}
+                            <div className="space-y-4">
+                              <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Colors</h5>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Primary Fill</label>
+                                <ColorSelector value={selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ color: val })} />
+                              </div>
+                            </div>
+
+                            {/* Spacing & Details */}
+                            {selectedElement.type.includes("Text") && (
+                              <div className="space-y-4">
+                                <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Spacing</h5>
+                                
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Letter spacing</label>
+                                  <div className="flex items-center gap-3">
+                                    <input type="range" min="-10" max="50" step="1" className="flex-1 h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-zinc-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-sm" value={selectedElement.letterSpacing || 0} onChange={(e) => updateSelectedElement({ letterSpacing: Number(e.target.value) })} />
+                                    <input type="number" className="input-field h-8 w-14 text-center text-xs font-mono" value={selectedElement.letterSpacing || 0} onChange={(e) => updateSelectedElement({ letterSpacing: Number(e.target.value) })} />
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Line spacing</label>
+                                  <div className="flex items-center gap-3">
+                                    <input type="range" min="0.5" max="3" step="0.1" className="flex-1 h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-zinc-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-sm" value={selectedElement.lineSpacing || 1.2} onChange={(e) => updateSelectedElement({ lineSpacing: Number(e.target.value) })} />
+                                    <input type="number" min="0.5" max="3" step="0.1" className="input-field h-8 w-14 text-center text-xs font-mono" value={selectedElement.lineSpacing || 1.2} onChange={(e) => updateSelectedElement({ lineSpacing: Number(e.target.value) })} />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {selectedElement.type === "signature" && (
+                              <>
+                                <div className="space-y-4">
+                                  <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Divider Line</h5>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Thickness (px)</label>
+                                      <input type="number" min="0" max="20" className="input-field h-8 w-full text-xs font-mono" value={selectedElement.lineThickness ?? 4} onChange={(e) => updateSelectedElement({ lineThickness: Number(e.target.value) })} />
+                                    </div>
+                                    <div className="col-span-2">
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Gap / Padding</label>
+                                      <div className="flex items-center gap-3">
+                                        <input type="range" min="0" max="50" className="flex-1 h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-zinc-300 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-sm" value={selectedElement.linePadding ?? 10} onChange={(e) => updateSelectedElement({ linePadding: Number(e.target.value) })} />
+                                        <input type="number" min="0" max="50" className="input-field h-8 w-14 text-center text-xs font-mono" value={selectedElement.linePadding ?? 10} onChange={(e) => updateSelectedElement({ linePadding: Number(e.target.value) })} />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                  <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Title Typography</h5>
+                                  <div>
+                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Title Font</label>
+                                    <Select
+                                      value={selectedElement.titleFontFamily || "var(--font-sans, sans-serif)"}
+                                      onChange={(val) => updateSelectedElement({ titleFontFamily: val })}
+                                      options={[
+                                        { value: "var(--font-sans, sans-serif)", label: "Sans (Default)" },
+                                        { value: "var(--font-serif, serif)", label: "Serif (Default)" },
+                                        { value: "Inter", label: "Inter" },
+                                        { value: "Roboto", label: "Roboto" },
+                                        { value: "Playfair Display", label: "Playfair Display" },
+                                      ]}
+                                    />
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Scale multiplier</label>
+                                      <input type="number" step="0.1" className="input-field h-8 w-full text-xs font-mono" value={selectedElement.titleFontSize ?? 0.4} onChange={(e) => updateSelectedElement({ titleFontSize: Number(e.target.value) })} />
+                                    </div>
+                                    <div>
+                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Tracking (px)</label>
+                                      <input type="number" step="1" className="input-field h-8 w-full text-xs font-mono" value={selectedElement.titleLetterSpacing ?? 4} onChange={(e) => updateSelectedElement({ titleLetterSpacing: Number(e.target.value) })} />
+                                    </div>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+
+                          </div>
+                        )}
+
+                        {/* ----------------- LAYOUT TAB ----------------- */}
+                        {activePropTab === 'layout' && (
+                          <div className="space-y-6">
+                            <div className="space-y-4">
+                              <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Positioning</h5>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">X Axis</label>
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">X</span>
+                                    <input type="number" className="input-field h-9 pl-7 pr-2 w-full text-sm font-mono" value={selectedElement.x ?? ""} onChange={(e) => updateSelectedElement({ x: Number(e.target.value) })} />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Y Axis</label>
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">Y</span>
+                                    <input type="number" className="input-field h-9 pl-7 pr-2 w-full text-sm font-mono" value={selectedElement.y ?? ""} onChange={(e) => updateSelectedElement({ y: Number(e.target.value) })} />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Dimensions</h5>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Width</label>
+                                  <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">W</span>
+                                      <input 
+                                        type="number" 
+                                        className="input-field h-9 pl-7 pr-2 w-full text-sm font-mono" 
+                                        placeholder="Auto" 
+                                        value={selectedElement.width || ""} 
+                                        onChange={(e) => updateSelectedElement({ width: e.target.value === '' ? undefined : Number(e.target.value) })} 
+                                      />
+                                    </div>
+                                    <button 
+                                      onClick={() => updateSelectedElement({ width: undefined })}
+                                      className={`px-4 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors ${!selectedElement.width ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-zinc-50 text-zinc-600 border border-zinc-200 hover:bg-zinc-100'}`}
+                                    >
+                                      Auto
+                                    </button>
+                                  </div>
+                                </div>
+                                
+                                {!(selectedElement.type.includes("Text") || selectedElement.type === "signature") && (
+                                  <div className="col-span-2">
+                                    <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Height</label>
+                                    <div className="relative flex-1">
+                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-bold">H</span>
+                                      <input 
+                                        type="number" 
+                                        className="input-field h-9 pl-7 pr-2 w-full text-sm font-mono" 
+                                        placeholder="Auto" 
+                                        value={selectedElement.height || ""} 
+                                        onChange={(e) => updateSelectedElement({ height: e.target.value === '' ? undefined : Number(e.target.value) })} 
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center p-10 border border-dashed border-zinc-300 rounded-xl bg-zinc-50 text-zinc-400">
-                      <MousePointer2 size={32} className="mx-auto mb-3 opacity-50" />
-                      <p className="text-sm font-medium">Select an element on the canvas to edit its properties.</p>
+                    <div className="text-center p-12 border border-dashed border-zinc-300 rounded-xl bg-zinc-50 text-zinc-400 flex flex-col items-center justify-center h-[300px]">
+                      <MousePointer2 size={32} className="mb-4 opacity-50" />
+                      <p className="text-sm font-medium text-zinc-600">No element selected</p>
+                      <p className="text-xs mt-1 text-zinc-400 max-w-[200px]">Click an element on the canvas to configure its properties here.</p>
                     </div>
                   )}
+
 
                 </motion.div>
               ) : (
@@ -1636,7 +2496,7 @@ export default function TemplateEditor({
                         [...(design.canvasElements || [])].reverse().map((el, reversedIdx) => {
                           const idx = design.canvasElements!.length - 1 - reversedIdx;
                           const isSelected = selectedElementId === el.id;
-                          let label = el.type;
+                          let label: string = el.type;
                           if (label === 'staticText') label = el.text ? `"${el.text.substring(0, 15)}..."` : 'Text';
                           else if (label === 'dynamicText') label = `Data: ${el.text}`;
                           else if (label === 'badge') label = 'Badge';
@@ -1652,26 +2512,35 @@ export default function TemplateEditor({
                               onDragOver={handleLayerDragOver}
                               onDrop={(e) => handleLayerDrop(e, el.id)}
                               onDragEnd={() => setDraggedLayerId(null)}
-                              className={`flex items-center justify-between p-2 rounded-lg text-xs cursor-grab active:cursor-grabbing transition-colors ${isSelected ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50' : 'bg-transparent hover:bg-zinc-100 text-zinc-600 border border-transparent'} ${draggedLayerId === el.id ? 'opacity-40 border-dashed border-zinc-400' : ''}`}
+                              className={`group flex items-center justify-between p-2 rounded-lg text-xs cursor-grab active:cursor-grabbing transition-colors ${isSelected ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50' : 'bg-transparent hover:bg-zinc-100 text-zinc-600 border border-transparent'} ${draggedLayerId === el.id ? 'opacity-40 border-dashed border-zinc-400' : ''}`}
                               onClick={() => setSelectedElementId(el.id)}
                             >
                               <div className="flex items-center gap-2 truncate">
                                 <div className={`w-4 h-4 flex items-center justify-center rounded text-[9px] font-mono ${isSelected ? 'bg-indigo-200/50 text-indigo-600' : 'bg-zinc-200/50 text-zinc-400'}`}>
                                   {idx + 1}
                                 </div>
-                                <span className="truncate font-medium">{label}</span>
+                                <span className={`truncate font-medium ${el.locked ? 'text-zinc-400' : ''}`}>{label}</span>
                               </div>
 
-                              {isSelected && (
-                                <div className="flex items-center shrink-0">
-                                  <button onClick={(e) => { e.stopPropagation(); moveLayerUp(); }} disabled={idx === design.canvasElements!.length - 1} className="p-1 hover:bg-indigo-200/50 rounded text-indigo-600 disabled:opacity-30 transition-colors" title="Bring Forward">
-                                    <ArrowUp size={12} />
-                                  </button>
-                                  <button onClick={(e) => { e.stopPropagation(); moveLayerDown(); }} disabled={idx === 0} className="p-1 hover:bg-indigo-200/50 rounded text-indigo-600 disabled:opacity-30 transition-colors" title="Send Backward">
-                                    <ArrowDown size={12} />
-                                  </button>
-                                </div>
-                              )}
+                              <div className="flex items-center shrink-0 gap-1">
+                                <button onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  updateElement(el.id, { locked: !el.locked }); 
+                                  if (!el.locked && selectedElementId === el.id) setSelectedElementId(null);
+                                }} className={`p-1 rounded transition-colors ${el.locked ? 'text-amber-500 hover:bg-amber-100' : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-200/50 opacity-0 group-hover:opacity-100'}`} title={el.locked ? "Unlock layer" : "Lock layer"}>
+                                  {el.locked ? <Lock size={12} /> : <Unlock size={12} />}
+                                </button>
+                                {isSelected && (
+                                  <>
+                                    <button onClick={(e) => { e.stopPropagation(); moveLayerUp(); }} disabled={idx === design.canvasElements!.length - 1} className="p-1 hover:bg-indigo-200/50 rounded text-indigo-600 disabled:opacity-30 transition-colors" title="Bring Forward">
+                                      <ArrowUp size={12} />
+                                    </button>
+                                    <button onClick={(e) => { e.stopPropagation(); moveLayerDown(); }} disabled={idx === 0} className="p-1 hover:bg-indigo-200/50 rounded text-indigo-600 disabled:opacity-30 transition-colors" title="Send Backward">
+                                      <ArrowDown size={12} />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           );
                         })
@@ -1733,9 +2602,13 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
   return (
     <Rnd
       id={`rnd-${el.id}`}
-      size={{ width: el.width || 'auto', height: el.height || 'auto' }}
+      size={{ 
+        width: (el.type === 'signature' && !el.src) ? 'auto' : (el.width || 'auto'), 
+        height: (el.type === 'signature' && !el.src) ? 'auto' : (el.height || 'auto') 
+      }}
       position={{ x: el.x, y: el.y }}
       onDragStart={() => {
+        if (el.locked) return;
         if (!isSelected) setSelectedElementId(el.id);
       }}
       onDragStop={(e, data) => {
@@ -1799,13 +2672,15 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
       }}
       scale={scale}
       bounds="parent"
-      disableDragging={isEditing || isPanMode}
+      disableDragging={isEditing || isPanMode || el.locked}
       onClick={(e: any) => {
         e.stopPropagation();
+        if (el.locked) return;
         setSelectedElementId(el.id);
       }}
       style={{
-        cursor: isEditing ? "text" : "move",
+        pointerEvents: el.locked ? "none" : "auto",
+        cursor: el.locked ? "default" : isEditing ? "text" : "move",
         border: isSelected ? "2px solid #3b82f6" : "1px dashed transparent",
         padding: "2px",
         fontSize: `${el.fontSize || 16}px`,
@@ -1815,20 +2690,23 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         fontWeight: el.fontWeight || "normal",
         fontStyle: el.fontStyle || "normal",
         letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : "normal",
-        lineHeight: 1.2,
+        textTransform: el.textTransform as any || "none",
+        lineHeight: el.lineSpacing || 1.2,
         whiteSpace: "pre-wrap",
         zIndex: isSelected ? 50 : 10,
         backgroundColor: el.type === 'shape' ? (el.color || '#000000') : 'transparent',
         display: "flex",
         alignItems: "center"
       }}
-      className={`${isSelected ? "bg-blue-50/10 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" : "hover:border-zinc-300"} ${el.type === 'signature' && !el.src ? '!w-max !h-max' : ''}`}
+      className={`${isSelected ? "bg-blue-50/10 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]" : "hover:border-zinc-300"}`}
       enableResizing={
-        isSelected && !isEditing 
-          ? (el.type === 'signature' && !el.src 
-              ? { top: false, bottom: false, left: false, right: false, topRight: true, topLeft: true, bottomRight: true, bottomLeft: true } 
-              : true)
-          : false
+        el.locked 
+          ? false 
+          : isSelected && !isEditing 
+            ? (el.type === 'signature' && !el.src 
+                ? false 
+                : true)
+            : false
       }
       lockAspectRatio={isProportional}
       resizeHandleStyles={{
@@ -1882,7 +2760,20 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         ) : el.type === 'image' || el.type === 'badge' ? (
           <div className="w-full h-full pointer-events-none flex items-center justify-center">
             {el.src ? (
-              <img src={el.src} alt="" className="w-full h-full object-contain" />
+              <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                <img src={el.src} alt="" className="w-full h-full object-contain" style={{ filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1)) drop-shadow(0 10px 15px rgba(0,0,0,0.1))" }} />
+                <div className="animate-badge-shine" style={{
+                  position: "absolute",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  background: "linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.4) 60%, transparent 80%)",
+                  backgroundSize: "200% 100%",
+                  WebkitMaskImage: `url(${el.src})`,
+                  WebkitMaskSize: "contain",
+                  WebkitMaskPosition: "center",
+                  WebkitMaskRepeat: "no-repeat",
+                  pointerEvents: "none"
+                }} />
+              </div>
             ) : el.type === 'badge' ? (
               <svg viewBox="0 0 120 120" className="w-full h-full drop-shadow-xl" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -1943,15 +2834,17 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         ) : el.type === 'signature' ? (
           <div className="w-full h-full pointer-events-none flex flex-col items-center justify-end">
             {el.src ? (
-              <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: "10px" }} />
+              <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: `${el.linePadding ?? 10}px` }} />
             ) : (
-              <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", marginBottom: "0px", fontStyle: "italic", lineHeight: 1.2 }}>
-                {el.text?.split('|')[0] || "Signature"}
+              <div style={{ whiteSpace: "nowrap", fontFamily: el.fontFamily || "var(--font-script, cursive)", fontSize: `${(el.fontSize || 120) * 1.5}px`, color: el.color || "#000000", paddingTop: "0.3em", paddingBottom: "0.1em", fontStyle: "italic", lineHeight: "normal" }}>
+                {el.signatoryName ?? (el.text?.split('|')[0] || "Signature")}
               </div>
             )}
-            <div style={{ width: "100%", height: "4px", backgroundColor: el.color || "#000000", marginBottom: "10px", marginTop: "10px" }} />
-            <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * 0.4}px`, fontFamily: "var(--font-sans, sans-serif)", color: el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "4px" }}>
-              {el.text?.split('|')[1] || "Title"}
+            {!el.hideLine && (
+              <div style={{ width: "100%", borderTop: `${el.lineThickness ?? 4}px solid ${el.lineColor || el.color || "#000000"}`, flexShrink: 0, marginBottom: `${el.linePadding ?? 10}px`, marginTop: `${el.linePadding ?? 10}px` }} />
+            )}
+            <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * (el.titleFontSize ?? 0.4)}px`, fontFamily: el.titleFontFamily || "var(--font-sans, sans-serif)", color: el.titleColor || el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: `${el.titleLetterSpacing ?? 4}px` }}>
+              {el.signatoryTitle ?? (el.text?.split('|')[1] || "Title")}
             </div>
           </div>
         ) : el.type === 'shape' ? null : (

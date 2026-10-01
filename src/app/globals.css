@@ -482,3 +482,12 @@ textarea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }.custom-scrollba
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; border: none; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+@keyframes badge-shine {
+  from { background-position: 200% center; }
+  to { background-position: -200% center; }
+}
+
+.animate-badge-shine {
+  animation: badge-shine 3s infinite linear;
+}
