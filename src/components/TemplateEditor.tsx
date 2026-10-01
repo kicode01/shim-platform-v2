@@ -1835,9 +1835,10 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
         {isEditing ? (
           <textarea
             autoFocus
-            className="w-full h-full bg-transparent border-none outline-none resize-none overflow-hidden pointer-events-auto"
+            className="w-full bg-transparent border-none outline-none resize-none overflow-hidden pointer-events-auto"
+            rows={el.text ? el.text.split('\n').length || 1 : 1}
             style={{
-              fontSize: el.type === 'signature' ? '16px' : 'inherit',
+              fontSize: el.type === 'signature' ? `${Math.max(16, (el.fontSize || 120) * 0.4)}px` : 'inherit',
               fontFamily: 'inherit', color: 'inherit', textAlign: 'inherit',
               fontWeight: 'inherit', fontStyle: 'inherit', lineHeight: 'inherit'
             }}
