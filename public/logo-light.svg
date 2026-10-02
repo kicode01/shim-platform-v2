@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Perfect 1:1 isometric S (White bg version) -->
+  <!-- Middle Face -->
+  <polygon points="32,96 160,96 224,160 96,160" fill="#888888" />
+  <!-- Top Face -->
+  <polygon points="96,32 224,32 160,96 32,96" fill="#000000" />
+  <!-- Bottom Face -->
+  <polygon points="96,160 224,160 160,224 32,224" fill="#000000" />
+</svg>

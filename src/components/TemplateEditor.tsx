@@ -1499,42 +1499,48 @@ export default function TemplateEditor({
           <Link href="/dashboard/templates" className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-700 transition-colors mb-4">
             <ArrowLeft size={16} /> Back to Templates
           </Link>
-          <div className="flex flex-col gap-1.5 w-full max-w-lg">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-zinc-100 rounded-lg text-zinc-600 shrink-0">
-                <LayoutTemplate size={24} />
-              </div>
-              <input
-                type="text"
-                className={`text-2xl font-bold text-zinc-800 bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-zinc-900 focus:outline-none transition-colors px-1 py-0.5 w-full ${error ? 'border-red-500 placeholder-red-300 text-red-600' : ''}`}
+          <div className="flex items-start gap-3 w-full max-w-2xl">
+            <div className="p-2 bg-zinc-100 rounded-lg text-zinc-600 shrink-0 mt-1.5">
+              <LayoutTemplate size={24} />
+            </div>
+            <div className="flex flex-col w-full flex-1 gap-1">
+              <textarea
+                className={`text-2xl font-bold text-zinc-800 bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-zinc-900 focus:outline-none transition-colors px-1 py-0.5 w-full resize-none overflow-hidden leading-tight ${error ? 'border-red-500 placeholder-red-300 text-red-600' : ''}`}
                 value={name}
                 onChange={e => {
                   setName(e.target.value);
                   if (error) setError('');
                   if (!design.certificateTitle || design.certificateTitle === "Certificate of Completion")
                     updateDesignField("certificateTitle", e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${e.target.scrollHeight}px`;
                 }}
+                rows={1}
                 placeholder="Name your template..."
                 required
               />
+              <textarea
+                className="text-zinc-500 text-sm font-medium bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-zinc-900 focus:outline-none transition-colors px-1 py-0.5 w-full resize-none overflow-hidden leading-relaxed"
+                value={description}
+                onChange={e => {
+                  setDescription(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                rows={1}
+                placeholder="Add an optional description..."
+              />
             </div>
-            <input
-              type="text"
-              className="text-zinc-500 text-sm font-medium bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-zinc-900 focus:outline-none transition-colors px-1 py-0.5 w-full ml-12"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Add an optional description..."
-            />
           </div>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
 
-          <div className="flex items-center shadow-sm rounded-lg overflow-hidden border border-zinc-200 shrink-0">
+          <div className="flex items-center rounded-xl overflow-hidden border border-zinc-200 shrink-0 h-[38px]">
             <button
               onClick={handleUndo}
               disabled={historyIndex <= 0}
-              className="bg-white hover:bg-zinc-50 text-zinc-700 px-3 py-2 border-r border-zinc-200 flex items-center justify-center disabled:opacity-50 transition-colors"
+              className="bg-white hover:bg-zinc-50 text-zinc-700 w-10 h-full border-r border-zinc-200 flex items-center justify-center disabled:opacity-50 transition-colors"
               title="Undo"
             >
               <Undo size={16} />
@@ -1542,7 +1548,7 @@ export default function TemplateEditor({
             <button
               onClick={handleRedo}
               disabled={historyIndex >= history.length - 1}
-              className="bg-white hover:bg-zinc-50 text-zinc-700 px-3 py-2 flex items-center justify-center disabled:opacity-50 transition-colors"
+              className="bg-white hover:bg-zinc-50 text-zinc-700 w-10 h-full flex items-center justify-center disabled:opacity-50 transition-colors"
               title="Redo"
             >
               <Redo size={16} />
@@ -1551,51 +1557,35 @@ export default function TemplateEditor({
 
 
 
-          <div className="relative flex items-center h-[38px] w-auto">
+          <button
+            title="Reset to Default"
+            onClick={() => {
+              if (!showResetConfirm) {
+                setShowResetConfirm(true);
+              } else {
+                applyDesignUpdate(defaultDesign);
+                setShowResetConfirm(false);
+              }
+            }}
+            onMouseLeave={() => setShowResetConfirm(false)}
+            className={`flex items-center justify-center h-[38px] text-sm font-medium rounded-xl transition-all duration-200 overflow-hidden border shrink-0 ${
+              showResetConfirm 
+                ? "w-[90px] bg-[#dc2626] border-red-700 text-white hover:bg-red-700" 
+                : "w-[38px] bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+            }`}
+          >
             <AnimatePresence mode="wait">
               {showResetConfirm ? (
-                <motion.div
-                  key="confirm"
-                  initial={{ opacity: 0, scale: 0.95, width: 0 }}
-                  animate={{ opacity: 1, scale: 1, width: "auto" }}
-                  exit={{ opacity: 0, scale: 0.95, width: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex items-center border border-red-200 rounded-lg overflow-hidden bg-white shrink-0 shadow-sm h-[38px] origin-right whitespace-nowrap"
-                >
-                  <span className="text-sm font-medium text-red-600 bg-red-50/50 px-3 flex items-center h-full border-r border-red-100 whitespace-nowrap">
-                    Reset All?
-                  </span>
-                  <button
-                    onClick={() => {
-                      applyDesignUpdate(defaultDesign);
-                      setShowResetConfirm(false);
-                    }}
-                    className="px-4 hover:bg-red-50 text-red-600 transition-colors h-full flex items-center justify-center text-sm font-semibold border-r border-red-100 whitespace-nowrap"
-                  >
-                    Yes
-                  </button>
-                  <button
-                    onClick={() => setShowResetConfirm(false)}
-                    className="px-4 hover:bg-zinc-50 text-zinc-600 transition-colors h-full flex items-center justify-center text-sm font-medium whitespace-nowrap"
-                  >
-                    Cancel
-                  </button>
-                </motion.div>
+                <motion.span key="confirm" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }} className="text-xs tracking-wide uppercase font-semibold">
+                  Confirm
+                </motion.span>
               ) : (
-                <motion.button
-                  key="reset"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  onClick={() => setShowResetConfirm(true)}
-                  className="btn-secondary font-medium h-[38px] whitespace-nowrap"
-                >
-                  <RotateCcw size={16} /> <span className="hidden sm:inline">Reset</span>
-                </motion.button>
+                <motion.div key="reset" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }} className="flex items-center">
+                  <RotateCcw size={16} />
+                </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </button>
           <button onClick={handleSave} className="btn-primary font-medium min-w-[160px] justify-center" disabled={saving}>
             {saving ? <><Loader2 size={16} className="animate-spin mr-2" /> Saving...</> : savedSuccess ? <><CheckCircle2 size={16} className="mr-2" /> Saved</> : <><Save size={16} className="mr-2" /> {isEdit ? "Update Template" : "Create Template"}</>}
           </button>
@@ -2807,13 +2797,15 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
           />
         ) : el.type === 'qrCode' ? (
           <div className="w-full h-full pointer-events-none">
-            {dummyQrCode ? (
-              <img src={dummyQrCode} alt="QR" style={{ width: "100%", height: "100%" }} />
-            ) : (
-              <div className="w-full h-full bg-zinc-100 flex items-center justify-center border-2 border-zinc-300 flex-col rounded-xl">
-                <QrCode size={120} className="text-zinc-400 mb-4" />
-              </div>
-            )}
+            <QRCodeSVG 
+              value="https://shim-platform.com/verify/PREVIEW" 
+              fgColor={el.color || "#000000"} 
+              bgColor="#fcfbf7" 
+              width="100%" 
+              height="100%" 
+              level="M"
+              marginSize={1}
+            />
           </div>
         ) : el.type === 'image' || el.type === 'badge' ? (
           <div className="w-full h-full pointer-events-none flex items-center justify-center">

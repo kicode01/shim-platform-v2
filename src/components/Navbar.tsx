@@ -70,18 +70,29 @@ export default function Navbar() {
                 (pathname === "/dashboard" || pathname === "/" || pathname === "/portal" || isValidateMode) ? 'cursor-default pointer-events-none' : ''
               }`}
             >
-              <div className="flex items-baseline relative">
-                <motion.span 
+              <div className="flex items-center gap-2.5">
+                <motion.img 
+                  src={isLandingMode ? "/logo-dark.svg" : "/logo-light.svg"}
+                  alt="shim logo"
                   animate={{ 
-                    fontSize: isLandingMode ? "36px" : "24px",
-                    color: isLandingMode ? "#ffffff" : "#18181b"
+                    height: isLandingMode ? 36 : 24,
+                    width: isLandingMode ? 36 : 24
                   }}
                   transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                  className="font-black tracking-[-0.08em] lowercase leading-none" 
-                  style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
-                >
-                  shim
-                </motion.span>
+                  className="shrink-0 object-contain"
+                />
+                <div className="flex items-baseline relative">
+                  <motion.span 
+                    animate={{ 
+                      fontSize: isLandingMode ? "36px" : "24px",
+                      color: isLandingMode ? "#ffffff" : "#18181b"
+                    }}
+                    transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                    className="font-black tracking-[-0.08em] lowercase leading-none" 
+                    style={{ fontFamily: 'var(--font-inter), system-ui, sans-serif' }}
+                  >
+                    shim
+                  </motion.span>
                 
                 <AnimatePresence mode="wait">
                   {isLandingMode && (
@@ -136,6 +147,7 @@ export default function Navbar() {
                     </motion.span>
                   )}
                 </AnimatePresence>
+                </div>
               </div>
             </Link>
           </div>
@@ -190,27 +202,27 @@ export default function Navbar() {
                   {/* Verify button — organizer only */}
                   <Link
                     href="/validate"
-                    className="flex items-center justify-center gap-1.5 border rounded-md px-3 py-1.5 transition-colors group shadow-sm bg-white border-zinc-200 hover:bg-zinc-50"
+                    className="flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-xl bg-zinc-900 text-white hover:bg-zinc-800 transition-all active:scale-[0.98]"
                   >
-                    <span className="text-sm font-medium transition-colors whitespace-nowrap text-zinc-700 group-hover:text-zinc-700">
+                    <span className="text-xs font-bold tracking-wide uppercase">
                       Verify
                     </span>
                   </Link>
 
-                  <div className="w-px h-5 bg-zinc-200"></div>
+                  <div className="w-px h-5 bg-zinc-200 mx-2"></div>
 
                   {/* User chip */}
-                  <div className="flex items-stretch border h-9 rounded-md shrink-0 shadow-sm overflow-hidden border-zinc-200 bg-white">
-                    <div className="hidden md:flex px-3 py-1 flex-col justify-center border-r max-w-[10rem] xl:max-w-[14rem] border-zinc-200 bg-zinc-50">
-                      <span className="text-xs font-medium leading-none truncate text-zinc-700">
+                  <div className="flex items-center gap-2.5 p-1 pr-3 rounded-2xl hover:bg-zinc-100/80 transition-colors cursor-default group">
+                    <div className="w-8 h-8 flex items-center justify-center font-bold text-xs shrink-0 rounded-xl bg-zinc-800 text-white">
+                      {session?.user?.name?.charAt(0).toUpperCase() || <UserCheck size={14} />}
+                    </div>
+                    <div className="hidden md:flex flex-col justify-center max-w-[10rem] xl:max-w-[14rem]">
+                      <span className="text-xs font-semibold leading-none truncate text-zinc-800 mb-[3px]">
                         {session?.user?.name || "User"}
                       </span>
-                      <span className="text-[10px] leading-none truncate mt-0.5 text-zinc-500">
+                      <span className="text-[10px] leading-none truncate text-zinc-500">
                         {session?.user?.email || "..."}
                       </span>
-                    </div>
-                    <div className="w-9 h-full flex items-center justify-center font-medium text-sm shrink-0 bg-zinc-100 text-zinc-700">
-                      {session?.user?.name?.charAt(0).toUpperCase() || <UserCheck size={16} />}
                     </div>
                   </div>
 
@@ -229,10 +241,10 @@ export default function Navbar() {
                         window.location.href = isLocal ? "/logout" : "https://shim-hq.vercel.app/logout";
                       }
                     }}
-                    className={`shrink-0 flex items-center justify-center border transition-all rounded-md overflow-hidden ${
+                    className={`shrink-0 flex items-center justify-center transition-all overflow-hidden ${
                       confirmLogout 
-                        ? "w-[80px] h-9 border-red-600 bg-red-600 text-white hover:bg-red-700 shadow-sm" 
-                        : "w-9 h-9 border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 shadow-sm"
+                        ? "w-[80px] h-8 rounded-xl bg-red-600 text-white font-semibold text-xs tracking-wide" 
+                        : "w-8 h-8 rounded-xl text-zinc-400 hover:text-red-600 hover:bg-red-50"
                     }`}
                     title="Sign Out"
                   >

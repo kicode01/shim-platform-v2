@@ -61,7 +61,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
           </p>
         </div>
 
-        <Link href="/dashboard/templates/new" className="flex items-center gap-2 bg-zinc-700 text-white hover:bg-zinc-700 px-4 py-2 rounded-md font-medium text-sm transition-colors shadow-sm">
+        <Link href="/dashboard/templates/new" className="btn-primary">
           <Plus size={16} />
           <span>New Template</span>
         </Link>
@@ -77,7 +77,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
           <p className="text-zinc-500 font-medium max-w-md mx-auto mb-8 text-sm">
             Create your first event credential design using our visual builder.
           </p>
-          <Link href="/dashboard/templates/new" className="flex items-center gap-2 bg-zinc-700 text-white hover:bg-zinc-700 px-6 py-3 rounded-md font-medium text-sm transition-colors shadow-sm">
+          <Link href="/dashboard/templates/new" className="btn-primary px-6 py-3">
             <Plus size={16} />
             <span>Create First Template</span>
           </Link>

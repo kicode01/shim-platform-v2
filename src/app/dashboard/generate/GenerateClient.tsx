@@ -356,11 +356,11 @@ function GenerateCertificatesContent() {
       </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
-        <Link href="/dashboard/templates/new" className="flex-1 flex justify-center items-center gap-2 px-4 py-2 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-md text-sm font-medium transition-colors shadow-sm">
+        <Link href="/dashboard/templates/new" className="flex-1 btn-secondary">
           <Plus size={16} /> New Template
         </Link>
         {selectedTemplate && (
-          <Link href={`/dashboard/templates/${selectedTemplate.id}`} className="flex-1 flex justify-center items-center gap-2 px-4 py-2 border border-transparent bg-zinc-700 hover:bg-zinc-700 text-white rounded-md text-sm font-medium transition-colors shadow-sm">
+          <Link href={`/dashboard/templates/${selectedTemplate.id}`} className="flex-1 btn-primary">
             Customize
           </Link>
         )}

@@ -135,7 +135,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
                             <div className="flex justify-end gap-2">
                               <Link 
                                 href={`/dashboard/events/${evt.id}`}
-                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-md transition-colors"
+                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-xl transition-colors"
                                 title="View Attendees"
                               >
                                 <Users size={18} />
@@ -143,7 +143,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
                               <Link 
                                 href={`/kiosk/${evt.id}`}
                                 target="_blank"
-                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-md transition-colors"
+                                className="inline-flex items-center justify-center p-2 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-xl transition-colors"
                                 title="Launch Kiosk"
                               >
                                 <QrCode size={18} />
@@ -162,17 +162,26 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
 
         {/* RIGHT COLUMN: Create Event Form */}
         <div className="bg-white border border-zinc-200 rounded-xl shadow-sm flex flex-col h-full min-h-0 overflow-hidden">
-          <div className="px-6 py-5 border-b border-zinc-100 bg-white shrink-0">
+          <div className="px-6 py-4 border-b border-zinc-100 bg-white shrink-0 flex justify-between items-center">
             <h3 className="text-lg font-semibold text-zinc-700">
               Create New Event
             </h3>
+            <button 
+              type="submit" 
+              form="create-event-form"
+              title="Create Event"
+              className="bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl w-9 h-9 transition-colors flex justify-center items-center shrink-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed" 
+              disabled={isCreating || !newEventName}
+            >
+              {isCreating ? <Loader2 className="animate-spin" size={18} /> : <Plus size={20} strokeWidth={2.5} />}
+            </button>
           </div>
-          <form onSubmit={handleCreateEvent} className="p-6 flex flex-col gap-5 flex-1 min-h-0 overflow-y-auto">
+          <form id="create-event-form" onSubmit={handleCreateEvent} className="p-6 flex flex-col gap-5 flex-1 min-h-0 overflow-y-auto">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-zinc-700">Event Name</label>
               <input 
                 type="text" 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
+                className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
                 value={newEventName} 
                 onChange={e => setNewEventName(e.target.value)} 
                 required 
@@ -183,7 +192,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
               <label className="text-sm font-medium text-zinc-700">Event Date</label>
               <input 
                 type="date" 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
+                className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
                 value={newEventDate} 
                 onChange={e => setNewEventDate(e.target.value)} 
               />
@@ -191,7 +200,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-zinc-700">Description (Optional)</label>
               <textarea 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm resize-none overflow-y-scroll min-h-[80px]" 
+                className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm resize-none overflow-y-scroll min-h-[80px]" 
                 style={{ scrollbarColor: '#cbd5e1 transparent', scrollbarWidth: 'thin' }}
                 value={newEventDesc} 
                 onChange={e => setNewEventDesc(e.target.value)} 
@@ -203,7 +212,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
               <label className="text-sm font-medium text-zinc-700">Default Role</label>
               <input 
                 type="text" 
-                className="w-full bg-white border border-zinc-200 rounded-md px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
+                className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm" 
                 value={defaultRole} 
                 onChange={e => setDefaultRole(e.target.value)} 
                 placeholder="e.g. Participant" 
@@ -233,14 +242,6 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
               </p>
             </div>
 
-            <button 
-              type="submit" 
-              className="w-full bg-zinc-700 hover:bg-zinc-700 text-white rounded-md px-4 py-2.5 text-sm font-medium transition-colors flex justify-center items-center gap-2 mt-auto shrink-0 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed" 
-              disabled={isCreating || !newEventName}
-            >
-              {isCreating ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />}
-              <span>Create Event</span>
-            </button>
           </form>
         </div>
 

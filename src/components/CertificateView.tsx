@@ -8,23 +8,17 @@ import { PRESETS } from "@/lib/presets";
 export type CanvasElementType = "dynamicText" | "staticText" | "image" | "qrCode" | "signature" | "badge" | "shape";
 
 const QrCodeElement = ({ url, color, width, height }: { url: string, color: string, width: number | string, height: number | string }) => {
-  const [dataUrl, setDataUrl] = useState<string>("");
-
-  useEffect(() => {
-    QRCode.toDataURL(url, {
-      width: 160,
-      margin: 1,
-      color: {
-        dark: color,
-        light: "#fcfbf7"
-      }
-    })
-      .then(setDataUrl)
-      .catch(console.error);
-  }, [url, color]);
-
-  if (!dataUrl) return null;
-  return <img src={dataUrl} alt="QR" style={{ width, height }} />;
+  return (
+    <QRCodeSVG 
+      value={url} 
+      fgColor={color || "#000000"} 
+      bgColor="#fcfbf7" 
+      width={width} 
+      height={height} 
+      level="M"
+      marginSize={1}
+    />
+  );
 };
 const FONT_SUPPORTED_WEIGHTS: Record<string, string[]> = {
   "Playfair Display": [
@@ -544,6 +538,11 @@ export default function CertificateView({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState<number>(0);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const parsedDesign = useMemo(() => {
     let def: CertificateDesignConfig = PRESETS.find(p => p.id === "creative")?.design || {
@@ -645,7 +644,7 @@ export default function CertificateView({
     return {}; // Let the CSS handle the rich ivory pattern
   };
 
-  const validateUrl = typeof window !== "undefined" ? `${window.location.origin}/validate?id=${certificateId}` : `https://example.com/validate?id=${certificateId}`;
+  const validateUrl = isMounted ? `${window.location.origin}/validate?id=${certificateId}` : `https://example.com/validate?id=${certificateId}`;
 
   // Keep for backwards compatibility with legacy layout
   const qrColor = useMemo(() => {

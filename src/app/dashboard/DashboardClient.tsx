@@ -19,7 +19,8 @@ import {
   XOctagon,
   TrendingUp,
   TrendingDown,
-  ChevronDown
+  ChevronDown,
+  Users
 } from "lucide-react";
 
 interface EventItem {
@@ -165,12 +166,12 @@ export default function DashboardClient({
           
           <div className="w-px h-6 bg-zinc-200 mx-1"></div>
 
-          <Link href="/dashboard/templates" className="flex items-center gap-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 hover:text-zinc-700 px-3 py-2 rounded-md font-medium text-sm transition-colors shadow-sm h-9">
-            <Stamp size={16} />
+          <Link href="/dashboard/templates" className="flex items-center gap-2 bg-white text-zinc-700 hover:text-zinc-900 px-4 py-2 rounded-xl font-medium text-sm transition-all shadow-sm border border-zinc-200 hover:bg-zinc-50 h-9">
+            <Stamp size={15} strokeWidth={2.5} />
             <span className="hidden sm:inline">Templates</span>
           </Link>
-          <Link href="/dashboard/generate" className="flex items-center gap-2 bg-zinc-700 text-white hover:bg-zinc-700 px-3 py-2 rounded-md font-medium text-sm transition-colors shadow-sm h-9">
-            <Plus size={16} />
+          <Link href="/dashboard/generate" className="flex items-center gap-2 bg-zinc-900 text-white hover:bg-zinc-800 px-4 py-2 rounded-xl font-medium text-sm transition-all shadow-sm active:scale-[0.98] h-9">
+            <Plus size={16} strokeWidth={2.5} />
             <span>Issue Credential</span>
           </Link>
         </div>
@@ -180,15 +181,15 @@ export default function DashboardClient({
       <div className="bg-zinc-200 border border-zinc-200 rounded-xl shadow-sm mb-6 shrink-0 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[1px] overflow-hidden">
         {[
           { label: "Total Issued", value: currentStats.totalCertificates, Icon: Files, iconColor: "text-zinc-900", trend: trends.total, trendLabel: getTrendLabel(), isPositive: !trends.total.startsWith("-") },
-          { label: "Valid & Active", value: currentStats.validCertificates, Icon: ShieldCheck, iconColor: "text-emerald-500", trend: trends.valid, trendLabel: getTrendLabel(), isPositive: !trends.valid.startsWith("-") },
-          { label: "Verifications", value: currentStats.totalVerifications, Icon: BadgeCheck, iconColor: "text-blue-500", trend: trends.verifs, trendLabel: getTrendLabel(), isPositive: !trends.verifs.startsWith("-") },
-          { label: "Revoked", value: currentStats.revokedCertificates, Icon: XOctagon, iconColor: "text-red-500", trend: trends.revoked.startsWith("-") ? trends.revoked : `+${trends.revoked}`, trendLabel: getTrendLabel(), isPositive: trends.revoked.startsWith("-") || trends.revoked === "0" },
-          { label: "Total Claimed", value: currentStats.totalClaimed, Icon: Award, iconColor: "text-purple-500", trend: trends.claimed, trendLabel: getTrendLabel(), isPositive: !trends.claimed.startsWith("-") },
-          { label: "Validation Rate", value: `${currentStats.validationRate}%`, Icon: Activity, iconColor: "text-orange-500", trend: trends.rate, trendLabel: getTrendLabel(), isPositive: !trends.rate.startsWith("-") },
+          { label: "Valid & Active", value: currentStats.validCertificates, Icon: ShieldCheck, iconColor: "text-zinc-900", trend: trends.valid, trendLabel: getTrendLabel(), isPositive: !trends.valid.startsWith("-") },
+          { label: "Verifications", value: currentStats.totalVerifications, Icon: BadgeCheck, iconColor: "text-zinc-900", trend: trends.verifs, trendLabel: getTrendLabel(), isPositive: !trends.verifs.startsWith("-") },
+          { label: "Revoked", value: currentStats.revokedCertificates, Icon: XOctagon, iconColor: "text-zinc-900", trend: trends.revoked.startsWith("-") ? trends.revoked : `+${trends.revoked}`, trendLabel: getTrendLabel(), isPositive: trends.revoked.startsWith("-") || trends.revoked === "0" },
+          { label: "Total Claimed", value: currentStats.totalClaimed, Icon: Award, iconColor: "text-zinc-900", trend: trends.claimed, trendLabel: getTrendLabel(), isPositive: !trends.claimed.startsWith("-") },
+          { label: "Validation Rate", value: `${currentStats.validationRate}%`, Icon: Activity, iconColor: "text-zinc-900", trend: trends.rate, trendLabel: getTrendLabel(), isPositive: !trends.rate.startsWith("-") },
         ].map((stat, idx) => {
           const Icon = stat.Icon;
           return (
-          <div key={idx} className="relative p-5 bg-white flex flex-col justify-center hover:bg-zinc-50/80 transition-colors overflow-hidden group">
+          <div key={idx} className="relative p-5 bg-white flex flex-col justify-start hover:bg-zinc-50/80 transition-colors overflow-hidden group">
             {/* Background Watermark Icon */}
             <div className={`absolute -right-2 -bottom-3 opacity-[0.06] group-hover:opacity-[0.09] transition-opacity ${stat.iconColor} pointer-events-none`}>
               <Icon size={76} strokeWidth={2} />
@@ -225,12 +226,12 @@ export default function DashboardClient({
               <p className="text-sm font-medium text-zinc-500 mt-1">Monthly generation volume</p>
             </div>
             
-            <div className="flex items-center justify-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full shrink-0">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="4" y="10" width="16" height="12" rx="2" />
-                <path d="M7 10V6a5 5 0 0 1 10 0v4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold tracking-widest uppercase text-zinc-500 bg-zinc-100 border border-zinc-200/80 px-3 py-1.5 rounded-md shadow-[inset_0_1px_3px_rgba(0,0,0,0.08),0_1px_0_rgba(255,255,255,1)] shrink-0 select-none cursor-default">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
+                <rect x="5" y="11" width="14" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
-              Ledger Synced
+              LEDGER SYNCED
             </div>
           </div>
           
@@ -240,24 +241,25 @@ export default function DashboardClient({
                 <ResponsiveContainer width="100%" height="100%" className="absolute inset-0">
                   <AreaChart data={initialStats.chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                     <defs>
-                      <pattern id="minimalistPattern" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                        <line x1="0" y1="0" x2="0" y2="4" stroke="#a1a1aa" strokeWidth="1" />
-                      </pattern>
+                      <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#18181b" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="#18181b" stopOpacity={0}/>
+                      </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
-                    <XAxis dataKey="name" axisLine={{stroke: '#e4e4e7', strokeWidth: 1}} tickLine={false} tick={{ fontSize: 12, fill: "#71717a" }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#71717a" }} />
+                    <XAxis dataKey="name" axisLine={{stroke: '#f4f4f5', strokeWidth: 1}} tickLine={false} tick={{ fontSize: 12, fill: "#a1a1aa", fontWeight: 500 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#a1a1aa", fontWeight: 500 }} />
                     <Tooltip 
                       contentStyle={{ 
                         fontSize: "13px", 
                         borderRadius: "8px", 
                         border: "1px solid #e4e4e7",
                         fontWeight: "500",
-                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                        boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05)",
                         color: "#18181b"
                       }} 
                     />
-                    <Area type="monotone" dataKey="issued" stroke="#18181b" strokeWidth={2} fillOpacity={0.2} fill="url(#minimalistPattern)" />
+                    <Area type="monotone" dataKey="issued" stroke="#18181b" strokeWidth={2} fillOpacity={1} fill="url(#chartGradient)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -300,21 +302,22 @@ export default function DashboardClient({
                     href={`/dashboard/events/${event.id}`}
                     className="flex flex-col p-4 bg-white hover:bg-zinc-50 transition-colors group"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-zinc-700 text-sm group-hover:text-black transition-colors leading-tight line-clamp-1">{event.name}</h4>
-                      <div className="text-[10px] font-medium text-zinc-400 whitespace-nowrap ml-2">
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className="font-semibold text-zinc-800 text-sm group-hover:text-black transition-colors leading-tight line-clamp-1">{event.name}</h4>
+                      <div className="text-[11px] font-medium text-zinc-400 whitespace-nowrap ml-2 mt-0.5">
                         {event.date ? new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "TBA"}
                       </div>
                     </div>
                     
-                    <div className="flex gap-4 text-xs">
-                      <div className="flex items-center gap-1.5 bg-zinc-100 px-2 py-1 rounded-md text-zinc-600">
-                        <span className="font-semibold">{event.attendeeCount}</span>
-                        <span className="text-zinc-500">Attendees</span>
+                    <div className="flex items-center gap-3 text-[11px] font-medium text-zinc-500 mt-1">
+                      <div className="flex items-center gap-1">
+                        <Users size={12} className="text-zinc-400" />
+                        <span className="text-zinc-700 font-bold">{event.attendeeCount}</span> attendees
                       </div>
-                      <div className="flex items-center gap-1.5 bg-blue-50 px-2 py-1 rounded-md text-blue-700">
-                        <span className="font-semibold">{event.credentialCount}</span>
-                        <span className="opacity-75">Credentials</span>
+                      <div className="w-[3px] h-[3px] rounded-full bg-zinc-300" />
+                      <div className="flex items-center gap-1">
+                        <Stamp size={12} className="text-zinc-400" />
+                        <span className="text-zinc-700 font-bold">{event.credentialCount}</span> credentials
                       </div>
                     </div>
                   </Link>

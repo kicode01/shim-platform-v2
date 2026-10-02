@@ -30,10 +30,10 @@ export default function Sidebar() {
   return (
     <aside 
       className={`flex-shrink-0 border-zinc-200 bg-white/50 backdrop-blur-md flex flex-col h-full sticky top-16 z-40 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] overflow-hidden ${
-        isStudioMode ? 'w-0 border-r-0 opacity-0' : 'w-[72px] lg:w-[220px] border-r opacity-100'
+        isStudioMode ? 'w-0 border-r-0 opacity-0' : 'w-[72px] lg:w-[180px] border-r opacity-100'
       }`}
     >
-      <div className="p-4 py-8 flex-1 min-w-[72px] lg:min-w-[220px]">
+      <div className="p-4 py-8 flex-1 min-w-[72px] lg:min-w-[180px]">
         <nav className="space-y-1 flex flex-col">
           {navItems.map((item) => {
             const Icon = item.icon;

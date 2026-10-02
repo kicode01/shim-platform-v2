@@ -316,9 +316,60 @@ export default function EventDetailsClient({
         
         {/* Right: Administrative Settings */}
         <div className="lg:col-span-4 flex flex-col bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex items-center gap-2 shrink-0">
-            <Settings2 size={18} className="text-zinc-500" />
-            <h2 className="text-sm font-semibold text-zinc-700">Event Configuration</h2>
+          <div className="p-4 border-b border-zinc-200 bg-zinc-50 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <Settings2 size={18} className="text-zinc-500" />
+              <h2 className="text-sm font-semibold text-zinc-700">Configuration</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                title="Delete Event"
+                onClick={() => {
+                  if (!confirmDelete) {
+                    setConfirmDelete(true);
+                    if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+                    deleteTimeoutRef.current = setTimeout(() => setConfirmDelete(false), 3000);
+                  } else {
+                    if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+                    setConfirmDelete(false);
+                    handleDeleteEvent();
+                  }
+                }}
+                className={`flex items-center justify-center h-8 text-xs font-semibold tracking-wide uppercase rounded-xl transition-all duration-200 overflow-hidden ${
+                  confirmDelete 
+                    ? "w-[80px] bg-[#dc2626] text-white hover:bg-red-700" 
+                    : "w-8 text-red-500 hover:bg-red-50 hover:text-red-600"
+                }`}
+                disabled={isDeleting}
+              >
+                <AnimatePresence mode="wait">
+                  {isDeleting ? (
+                    <motion.div key="deleting" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }} className="flex items-center gap-1.5">
+                      <Loader2 size={14} className="animate-spin" />
+                    </motion.div>
+                  ) : confirmDelete ? (
+                    <motion.span key="confirm" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }}>
+                      Confirm
+                    </motion.span>
+                  ) : (
+                    <motion.div key="delete" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} transition={{ duration: 0.15 }} className="flex items-center gap-1.5">
+                      <Trash2 size={14} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </button>
+
+              <div className="w-px h-4 bg-zinc-200 mx-1"></div>
+
+              <button 
+                title="Save Settings"
+                onClick={handleSaveSettings} 
+                className="flex items-center justify-center h-8 w-8 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shrink-0" 
+                disabled={saving}
+              >
+                {saving ? <Loader2 size={14} className="animate-spin" /> : saveSuccess ? <CheckCircle2 size={14} /> : <Save size={14} />}
+              </button>
+            </div>
           </div>
           
           <div className="flex-1 overflow-y-auto p-5 space-y-5">
@@ -385,71 +436,7 @@ export default function EventDetailsClient({
                 />
               </div>
             </div>
-            <button 
-              onClick={handleSaveSettings} 
-              className="btn-primary font-medium w-full justify-center mt-2 shadow-sm" 
-              disabled={saving}
-            >
-              {saving ? <><Loader2 size={16} className="animate-spin mr-2" /> Saving...</> : saveSuccess ? <><CheckCircle2 size={16} className="mr-2" /> Saved</> : <><Save size={16} className="mr-2" /> Save Settings</>}
-            </button>
 
-            <div className="pt-6 mt-6 border-t border-zinc-100">
-              <button 
-                onClick={() => {
-                  if (!confirmDelete) {
-                    setConfirmDelete(true);
-                    if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-                    deleteTimeoutRef.current = setTimeout(() => setConfirmDelete(false), 3000);
-                  } else {
-                    if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
-                    setConfirmDelete(false);
-                    handleDeleteEvent();
-                  }
-                }}
-                className={`w-full flex items-center justify-center h-10 text-sm font-medium rounded-md transition-all duration-200 border ${
-                  confirmDelete 
-                    ? "bg-[#dc2626] text-white border-red-700 hover:bg-red-700" 
-                    : "text-red-600 bg-red-50 hover:bg-red-100 border-red-200/50"
-                }`}
-                disabled={isDeleting}
-              >
-                <AnimatePresence mode="wait">
-                  {isDeleting ? (
-                    <motion.div
-                      key="deleting"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.15 }}
-                      className="flex items-center gap-2"
-                    >
-                      <Loader2 size={16} className="animate-spin" /> Deleting...
-                    </motion.div>
-                  ) : confirmDelete ? (
-                    <motion.span 
-                      key="confirm"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      Confirm
-                    </motion.span>
-                  ) : (
-                    <motion.div 
-                      key="delete"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.15 }}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 size={16} /> Delete Event
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </button>
-            </div>
           </div>
         </div>
 

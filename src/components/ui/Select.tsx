@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Check, Loader2 } from "lucide-react";
 
@@ -32,12 +33,57 @@ export function Select({
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({
+    position: "fixed",
+    top: -9999,
+    left: -9999,
+  });
 
   const selectedOption = options.find((opt) => opt.value === value);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const updatePosition = () => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const openUpwards = spaceBelow < 250 && spaceAbove > spaceBelow;
+
+      setDropdownStyle({
+        position: "fixed",
+        top: openUpwards ? "auto" : rect.bottom + 4,
+        bottom: openUpwards ? window.innerHeight - rect.top + 4 : "auto",
+        left: rect.left,
+        width: rect.width,
+        zIndex: 9999,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener("scroll", updatePosition, true);
+      window.addEventListener("resize", updatePosition);
+      return () => {
+        window.removeEventListener("scroll", updatePosition, true);
+        window.removeEventListener("resize", updatePosition);
+      };
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        (containerRef.current && !containerRef.current.contains(target)) &&
+        (!dropdownRef.current || !dropdownRef.current.contains(target))
+      ) {
         setIsOpen(false);
       }
     };
@@ -54,7 +100,7 @@ export function Select({
           if (!isLoading) setIsOpen(!isOpen);
         }}
         disabled={isLoading}
-        className="w-full flex items-center justify-between gap-3 px-3 py-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 rounded-md font-medium text-sm transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 h-9 disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-between gap-3 px-3 py-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 rounded-xl font-medium text-sm transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 h-9 disabled:opacity-70 disabled:cursor-not-allowed"
       >
         <span className="flex items-center gap-2 truncate">
           {selectedOption?.icon}
@@ -70,17 +116,20 @@ export function Select({
         )}
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+      {isMounted && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+            ref={dropdownRef}
+            initial={{ opacity: 0, y: dropdownStyle.bottom !== "auto" ? 4 : -4, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            exit={{ opacity: 0, y: dropdownStyle.bottom !== "auto" ? 4 : -4, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className={`absolute z-50 w-full mt-1 bg-white/90 backdrop-blur-xl border border-white/40 shadow-xl rounded-xl overflow-hidden py-1 ring-1 ring-black/5 ${dropdownClassName}`}
+            className={`bg-white border border-zinc-200 rounded-xl overflow-hidden py-1 ${dropdownClassName}`}
             style={{ 
-              transformOrigin: "top",
-              boxShadow: "0 10px 40px -10px rgba(0,0,0,0.1), 0 1px 3px 0 rgba(0,0,0,0.1)"
+              ...dropdownStyle,
+              transformOrigin: dropdownStyle.bottom !== "auto" ? "bottom" : "top",
+              boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08), 0 0px 4px rgba(0, 0, 0, 0.02)"
             }}
           >
             <div className="max-h-[200px] overflow-y-auto p-1 space-y-0.5 custom-scrollbar">
@@ -113,8 +162,10 @@ export function Select({
               ))}
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
