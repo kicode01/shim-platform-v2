@@ -25,6 +25,16 @@ interface TemplateEditorProps {
 
 
 
+const ELEMENT_FRIENDLY_NAMES: Record<string, string> = {
+  staticText: "Text",
+  dynamicText: "Data Field",
+  signature: "Signature",
+  badge: "Badge",
+  image: "Image",
+  shape: "Divider",
+  qrCode: "QR Code"
+};
+
 const PRESET_COLORS = [
   "#000000", "#1e293b", "#1e3a8a", "#b45309",
   "#dc2626", "#166534", "#78716c", "#ffffff"
@@ -38,7 +48,7 @@ function ColorSelector({ value, onChange }: { value: string, onChange: (val: str
           <button 
             key={c}
             onClick={() => onChange(c)}
-            className={`w-6 h-6 rounded-md border shadow-sm transition-transform hover:scale-110 ${value === c ? 'ring-2 ring-indigo-500 ring-offset-1' : 'border-zinc-200'}`}
+            className={`w-6 h-6 rounded-md border shadow-sm transition-transform hover:scale-110 ${value === c ? 'ring-2 ring-zinc-900 ring-offset-1' : 'border-zinc-200'}`}
             style={{ backgroundColor: c }}
             title={c}
           />
@@ -1362,6 +1372,20 @@ export default function TemplateEditor({
 
   const selectedElement = design.canvasElements?.find(el => el.id === selectedElementId);
 
+  useEffect(() => {
+    if (selectedElement) {
+      if (activePropTab === 'content' && (selectedElement.type === 'qrCode' || selectedElement.type === 'shape')) {
+        setActivePropTab('style');
+      } else if ((activePropTab === 'signature' || activePropTab === 'divider') && selectedElement.type !== 'signature') {
+        setActivePropTab('style');
+      } else if (activePropTab === 'style' && selectedElement.type === 'signature') {
+        setActivePropTab('signature');
+      } else if (activePropTab === 'style' && (selectedElement.type === 'image' || selectedElement.type === 'badge')) {
+        setActivePropTab('content');
+      }
+    }
+  }, [selectedElement?.type, activePropTab]);
+
   // Load a preset
   const loadPreset = (presetId: string) => {
     const preset = PRESETS.find(p => p.id === presetId);
@@ -1482,7 +1506,7 @@ export default function TemplateEditor({
               </div>
               <input
                 type="text"
-                className={`text-2xl font-bold text-zinc-800 bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-indigo-500 focus:outline-none transition-colors px-1 py-0.5 w-full ${error ? 'border-red-500 placeholder-red-300 text-red-600' : ''}`}
+                className={`text-2xl font-bold text-zinc-800 bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-zinc-900 focus:outline-none transition-colors px-1 py-0.5 w-full ${error ? 'border-red-500 placeholder-red-300 text-red-600' : ''}`}
                 value={name}
                 onChange={e => {
                   setName(e.target.value);
@@ -1496,7 +1520,7 @@ export default function TemplateEditor({
             </div>
             <input
               type="text"
-              className="text-zinc-500 text-sm font-medium bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-indigo-500 focus:outline-none transition-colors px-1 py-0.5 w-full ml-12"
+              className="text-zinc-500 text-sm font-medium bg-transparent border-b-2 border-transparent hover:border-zinc-200 focus:border-zinc-900 focus:outline-none transition-colors px-1 py-0.5 w-full ml-12"
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Add an optional description..."
@@ -1629,31 +1653,31 @@ export default function TemplateEditor({
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-zinc-800 px-1">Add Design Elements</h3>
                     <div className="grid grid-cols-2 gap-2">
-                      <button onClick={() => addElement("staticText", "New Heading")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
+                      <button onClick={() => addElement("staticText", "New Heading")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors bg-white">
                         <Type size={24} />
                         <span className="text-xs font-medium">Text</span>
                       </button>
-                      <button onClick={() => addElement("dynamicText", "recipientName")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
+                      <button onClick={() => addElement("dynamicText", "recipientName")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors bg-white">
                         <Database size={24} />
                         <span className="text-xs font-medium">Data Field</span>
                       </button>
-                      <button onClick={() => addElement("signature", "Signatory Name|Title Here")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
+                      <button onClick={() => addElement("signature", "Signatory Name|Title Here")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors bg-white">
                         <Stamp size={24} />
                         <span className="text-xs font-medium">Signature</span>
                       </button>
-                      <button onClick={() => addElement("badge")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
+                      <button onClick={() => addElement("badge")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors bg-white">
                         <ShieldCheck size={24} />
                         <span className="text-xs font-medium">Badge</span>
                       </button>
-                      <button onClick={() => addElement("image")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
+                      <button onClick={() => addElement("image")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors bg-white">
                         <ImageIcon size={24} />
                         <span className="text-xs font-medium">Image</span>
                       </button>
-                      <button onClick={() => addElement("shape")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
+                      <button onClick={() => addElement("shape")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors bg-white">
                         <Minus size={24} />
                         <span className="text-xs font-medium">Divider</span>
                       </button>
-                      <button onClick={() => addElement("qrCode")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white col-span-2">
+                      <button onClick={() => addElement("qrCode")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 transition-colors bg-white col-span-2">
                         <QrCode size={24} />
                         <span className="text-xs font-medium">QR Code</span>
                       </button>
@@ -1726,7 +1750,7 @@ export default function TemplateEditor({
                                   // Then apply background
                                   setTimeout(() => applyDesignUpdate({ ...design, orientation: category.orientation, backgroundImageUrl: bg.url }), 50);
                                 }}
-                                className={`relative ${category.orientation === 'portrait' ? 'aspect-[3/4]' : 'aspect-[4/3]'} rounded-lg overflow-hidden border-2 transition-all ${design.backgroundImageUrl === bg.url ? 'border-indigo-500 shadow-md scale-[1.02]' : 'border-transparent hover:border-zinc-300 hover:scale-[1.02]'}`}
+                                className={`relative ${category.orientation === 'portrait' ? 'aspect-[3/4]' : 'aspect-[4/3]'} rounded-lg overflow-hidden border-2 transition-all ${design.backgroundImageUrl === bg.url ? 'border-zinc-900 shadow-md scale-[1.02]' : 'border-transparent hover:border-zinc-300 hover:scale-[1.02]'}`}
                                 title={bg.name}
                               >
                                 <img src={bg.url} alt={bg.name} className="absolute inset-0 w-full h-full object-cover" />
@@ -1790,11 +1814,11 @@ export default function TemplateEditor({
                         {/* Header */}
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                              {selectedElement.type.includes("Text") ? <Type size={18} /> : selectedElement.type === "signature" ? <Stamp size={18} /> : selectedElement.type === "badge" ? <ShieldCheck size={18} /> : selectedElement.type === "shape" ? <Minus size={18} /> : selectedElement.type === "qrCode" ? <QrCode size={18} /> : <ImageIcon size={18} />}
+                            <div className="w-10 h-10 rounded-xl bg-zinc-100 text-zinc-900 flex items-center justify-center border border-zinc-200">
+                              {selectedElement.type === "staticText" ? <Type size={18} /> : selectedElement.type === "dynamicText" ? <Database size={18} /> : selectedElement.type === "signature" ? <Stamp size={18} /> : selectedElement.type === "badge" ? <ShieldCheck size={18} /> : selectedElement.type === "shape" ? <Minus size={18} /> : selectedElement.type === "qrCode" ? <QrCode size={18} /> : <ImageIcon size={18} />}
                             </div>
                             <div>
-                              <h4 className="text-base font-semibold text-zinc-900 capitalize leading-tight">{selectedElement.type.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                              <h4 className="text-base font-semibold text-zinc-900 capitalize leading-tight">{ELEMENT_FRIENDLY_NAMES[selectedElement.type] || selectedElement.type}</h4>
                               <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mt-0.5">Element Settings</p>
                             </div>
                           </div>
@@ -1805,33 +1829,35 @@ export default function TemplateEditor({
 
                         {/* Global Tabs Navigation */}
                         <div className="flex gap-4 relative overflow-x-auto no-scrollbar">
-                          <button onClick={() => setActivePropTab('content')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'content' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                          {selectedElement.type !== 'qrCode' && selectedElement.type !== 'shape' && (
+                            <button onClick={() => setActivePropTab('content')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'content' ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}>
                             Content
-                            {activePropTab === 'content' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                            {activePropTab === 'content' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-zinc-900 z-10" />}
                           </button>
+                          )}
                           
                           {selectedElement.type === 'signature' ? (
                             <>
-                              <button onClick={() => setActivePropTab('signature')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'signature' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                              <button onClick={() => setActivePropTab('signature')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'signature' ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}>
                                 Fonts
-                                {activePropTab === 'signature' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                                {activePropTab === 'signature' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-zinc-900 z-10" />}
                               </button>
-                              <button onClick={() => setActivePropTab('divider')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'divider' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                              <button onClick={() => setActivePropTab('divider')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'divider' ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}>
                                 Divider Line
-                                {activePropTab === 'divider' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                                {activePropTab === 'divider' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-zinc-900 z-10" />}
                               </button>
                               
                             </>
-                          ) : (
-                            <button onClick={() => setActivePropTab('style')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'style' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                          ) : selectedElement.type !== 'image' && selectedElement.type !== 'badge' ? (
+                            <button onClick={() => setActivePropTab('style')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'style' ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}>
                               Style
-                              {activePropTab === 'style' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                              {activePropTab === 'style' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-zinc-900 z-10" />}
                             </button>
-                          )}
+                          ) : null}
                           
-                          <button onClick={() => setActivePropTab('layout')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'layout' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                          <button onClick={() => setActivePropTab('layout')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'layout' ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}>
                             Layout
-                            {activePropTab === 'layout' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                            {activePropTab === 'layout' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-zinc-900 z-10" />}
                           </button>
                         </div>
                       </div>
@@ -2027,7 +2053,7 @@ export default function TemplateEditor({
                                 <span className="text-[10px] font-medium text-zinc-500 uppercase">Hide</span>
                                 <button 
                                   onClick={() => updateSelectedElement({ hideLine: !selectedElement.hideLine })}
-                                  className={`w-7 h-4 rounded-full transition-colors relative ${selectedElement.hideLine ? 'bg-indigo-500' : 'bg-zinc-200'}`}
+                                  className={`w-7 h-4 rounded-full transition-colors relative ${selectedElement.hideLine ? 'bg-zinc-900' : 'bg-zinc-200'}`}
                                 >
                                   <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${selectedElement.hideLine ? 'left-[14px]' : 'left-[2px]'}`} />
                                 </button>
@@ -2142,14 +2168,14 @@ export default function TemplateEditor({
                                 {!selectedElement.type.includes("signature") && (
                                   <div className="flex gap-2">
                                     <div className="flex border border-zinc-200 rounded-lg bg-zinc-50 overflow-hidden shadow-sm h-8">
-                                      <button title="Align Left" className={`px-2.5 transition-colors ${selectedElement.align === 'left' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'left' })}><AlignLeft size={14} /></button>
+                                      <button title="Align Left" className={`px-2.5 transition-colors ${selectedElement.align === 'left' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'left' })}><AlignLeft size={14} /></button>
                                       <div className="w-px bg-zinc-200"></div>
-                                      <button title="Align Center" className={`px-2.5 transition-colors ${selectedElement.align === 'center' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'center' })}><AlignCenter size={14} /></button>
+                                      <button title="Align Center" className={`px-2.5 transition-colors ${selectedElement.align === 'center' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'center' })}><AlignCenter size={14} /></button>
                                       <div className="w-px bg-zinc-200"></div>
-                                      <button title="Align Right" className={`px-2.5 transition-colors ${selectedElement.align === 'right' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'right' })}><AlignRight size={14} /></button>
+                                      <button title="Align Right" className={`px-2.5 transition-colors ${selectedElement.align === 'right' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ align: 'right' })}><AlignRight size={14} /></button>
                                     </div>
                                     <div className="flex border border-zinc-200 rounded-lg bg-zinc-50 overflow-hidden shadow-sm h-8">
-                                      <button title="Italic" className={`px-2.5 transition-colors ${selectedElement.fontStyle === 'italic' ? 'bg-white text-indigo-600 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ fontStyle: selectedElement.fontStyle === 'italic' ? 'normal' : 'italic' })}><Italic size={14} /></button>
+                                      <button title="Italic" className={`px-2.5 transition-colors ${selectedElement.fontStyle === 'italic' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-400 hover:text-zinc-600'}`} onClick={() => updateSelectedElement({ fontStyle: selectedElement.fontStyle === 'italic' ? 'normal' : 'italic' })}><Italic size={14} /></button>
                                     </div>
                                     <div className="flex-1">
                                       <Select
@@ -2295,7 +2321,7 @@ export default function TemplateEditor({
                                     </div>
                                     <button 
                                       onClick={() => updateSelectedElement({ width: undefined })}
-                                      className={`px-4 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors ${!selectedElement.width ? 'bg-indigo-100 text-indigo-700 border-indigo-200' : 'bg-zinc-50 text-zinc-600 border border-zinc-200 hover:bg-zinc-100'}`}
+                                      className={`px-4 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors ${!selectedElement.width ? 'bg-zinc-200 text-zinc-950 border-zinc-300' : 'bg-zinc-50 text-zinc-600 border border-zinc-200 hover:bg-zinc-100'}`}
                                     >
                                       Auto
                                     </button>
@@ -2544,11 +2570,11 @@ export default function TemplateEditor({
                               onDragOver={handleLayerDragOver}
                               onDrop={(e) => handleLayerDrop(e, el.id)}
                               onDragEnd={() => setDraggedLayerId(null)}
-                              className={`group flex items-center justify-between p-2 rounded-lg text-xs cursor-grab active:cursor-grabbing transition-colors ${isSelected ? 'bg-indigo-50 text-indigo-700 shadow-sm border border-indigo-100/50' : 'bg-transparent hover:bg-zinc-100 text-zinc-600 border border-transparent'} ${draggedLayerId === el.id ? 'opacity-40 border-dashed border-zinc-400' : ''}`}
+                              className={`group flex items-center justify-between p-2 rounded-lg text-xs cursor-grab active:cursor-grabbing transition-colors ${isSelected ? 'bg-zinc-100 text-zinc-950 shadow-sm border border-zinc-200/50' : 'bg-transparent hover:bg-zinc-100 text-zinc-600 border border-transparent'} ${draggedLayerId === el.id ? 'opacity-40 border-dashed border-zinc-400' : ''}`}
                               onClick={() => setSelectedElementId(el.id)}
                             >
                               <div className="flex items-center gap-2 truncate">
-                                <div className={`w-4 h-4 flex items-center justify-center rounded text-[9px] font-mono ${isSelected ? 'bg-indigo-200/50 text-indigo-600' : 'bg-zinc-200/50 text-zinc-400'}`}>
+                                <div className={`w-4 h-4 flex items-center justify-center rounded text-[9px] font-mono ${isSelected ? 'bg-zinc-300/50 text-zinc-900' : 'bg-zinc-200/50 text-zinc-400'}`}>
                                   {idx + 1}
                                 </div>
                                 <span className={`truncate font-medium ${el.locked ? 'text-zinc-400' : ''}`}>{label}</span>
@@ -2564,10 +2590,10 @@ export default function TemplateEditor({
                                 </button>
                                 {isSelected && (
                                   <>
-                                    <button onClick={(e) => { e.stopPropagation(); moveLayerUp(); }} disabled={idx === design.canvasElements!.length - 1} className="p-1 hover:bg-indigo-200/50 rounded text-indigo-600 disabled:opacity-30 transition-colors" title="Bring Forward">
+                                    <button onClick={(e) => { e.stopPropagation(); moveLayerUp(); }} disabled={idx === design.canvasElements!.length - 1} className="p-1 hover:bg-zinc-300/50 rounded text-zinc-900 disabled:opacity-30 transition-colors" title="Bring Forward">
                                       <ArrowUp size={12} />
                                     </button>
-                                    <button onClick={(e) => { e.stopPropagation(); moveLayerDown(); }} disabled={idx === 0} className="p-1 hover:bg-indigo-200/50 rounded text-indigo-600 disabled:opacity-30 transition-colors" title="Send Backward">
+                                    <button onClick={(e) => { e.stopPropagation(); moveLayerDown(); }} disabled={idx === 0} className="p-1 hover:bg-zinc-300/50 rounded text-zinc-900 disabled:opacity-30 transition-colors" title="Send Backward">
                                       <ArrowDown size={12} />
                                     </button>
                                   </>
@@ -2585,7 +2611,7 @@ export default function TemplateEditor({
               <div className="flex items-center bg-white/90 backdrop-blur-md rounded-lg shadow-sm border border-zinc-200 p-1 pointer-events-auto">
                 <button
                   onClick={() => setShowLayersPanel(!showLayersPanel)}
-                  className={`p-1 mr-1 rounded transition-colors flex items-center justify-center ${showLayersPanel ? 'bg-indigo-100 text-indigo-700' : 'hover:bg-zinc-100 text-zinc-600'}`}
+                  className={`p-1 mr-1 rounded transition-colors flex items-center justify-center ${showLayersPanel ? 'bg-zinc-200 text-zinc-950' : 'hover:bg-zinc-100 text-zinc-600'}`}
                   title="Layers Panel"
                 >
                   <Layers size={14} />
@@ -2594,7 +2620,7 @@ export default function TemplateEditor({
                 {hasOverflow && (
                   <button
                     onClick={() => setIsPanMode(!isPanMode)}
-                    className={`p-1 mr-1 rounded transition-colors ${isPanMode ? 'bg-indigo-100 text-indigo-700' : 'hover:bg-zinc-100 text-zinc-600'}`}
+                    className={`p-1 mr-1 rounded transition-colors ${isPanMode ? 'bg-zinc-200 text-zinc-950' : 'hover:bg-zinc-100 text-zinc-600'}`}
                     title="Toggle Pan Mode (Double-click canvas to quickly toggle)"
                   >
                     <Hand size={14} />

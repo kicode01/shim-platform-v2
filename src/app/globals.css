@@ -492,3 +492,13 @@ textarea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }.custom-scrollba
   animation: badge-shine 3s infinite linear;
 }
 .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Hide number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}

@@ -7,6 +7,25 @@ import { PRESETS } from "@/lib/presets";
 
 export type CanvasElementType = "dynamicText" | "staticText" | "image" | "qrCode" | "signature" | "badge" | "shape";
 
+const QrCodeElement = ({ url, color, width, height }: { url: string, color: string, width: number | string, height: number | string }) => {
+  const [dataUrl, setDataUrl] = useState<string>("");
+
+  useEffect(() => {
+    QRCode.toDataURL(url, {
+      width: 160,
+      margin: 1,
+      color: {
+        dark: color,
+        light: "#fcfbf7"
+      }
+    })
+      .then(setDataUrl)
+      .catch(console.error);
+  }, [url, color]);
+
+  if (!dataUrl) return null;
+  return <img src={dataUrl} alt="QR" style={{ width, height }} />;
+};
 const FONT_SUPPORTED_WEIGHTS: Record<string, string[]> = {
   "Playfair Display": [
     "400",
@@ -626,21 +645,27 @@ export default function CertificateView({
     return {}; // Let the CSS handle the rich ivory pattern
   };
 
+  const validateUrl = typeof window !== "undefined" ? `${window.location.origin}/validate?id=${certificateId}` : `https://example.com/validate?id=${certificateId}`;
+
+  // Keep for backwards compatibility with legacy layout
+  const qrColor = useMemo(() => {
+    return parsedDesign.canvasElements?.find((el) => el.type === "qrCode")?.color || "#0f172a";
+  }, [parsedDesign.canvasElements]);
+
   useEffect(() => {
     if (certificateId && typeof window !== "undefined") {
-      const validateUrl = `${window.location.origin}/validate?id=${certificateId}`;
       QRCode.toDataURL(validateUrl, {
         width: 160,
         margin: 1,
         color: {
-          dark: "#0f172a",
+          dark: qrColor,
           light: "#fcfbf7"
         }
       })
         .then((url) => setQrDataUrl(url))
         .catch((err) => console.error("QR generation error:", err));
     }
-  }, [certificateId]);
+  }, [certificateId, qrColor, validateUrl]);
 
   const formattedDate = new Date(issueDate).toLocaleDateString("en-US", {
     year: "numeric",
@@ -741,7 +766,7 @@ export default function CertificateView({
             if (el.type === "qrCode") {
               return (
                 <div key={el.id} style={{ position: "absolute", left: el.x, top: el.y, width: el.width, height: el.height }}>
-                  {qrDataUrl && <img src={qrDataUrl} alt="QR" style={{ width: "100%", height: "100%" }} />}
+                  <QrCodeElement url={validateUrl} color={el.color || "#0f172a"} width="100%" height="100%" />
                 </div>
               );
             }
