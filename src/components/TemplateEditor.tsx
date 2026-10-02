@@ -1097,6 +1097,7 @@ export default function TemplateEditor({
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [activeBgCategory, setActiveBgCategory] = useState<number>(0);
 
   // History state for Undo/Redo
   const [history, setHistory] = useState<CertificateDesignConfig[]>([parsedInitial]);
@@ -1681,9 +1682,9 @@ export default function TemplateEditor({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-6 p-6 flex-1 w-full overflow-y-auto"
+                  className="flex-1 w-full flex flex-col min-h-0"
                 >
-                  <div className="space-y-5">
+                  <div className="p-6 pb-4 border-b border-zinc-200 shrink-0 space-y-5 bg-white z-10 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.05)] relative">
                     <h3 className="text-sm font-semibold text-zinc-800 px-1">Canvas Background</h3>
 
                     <div className="flex items-center justify-center w-full">
@@ -1704,7 +1705,14 @@ export default function TemplateEditor({
                     </div>
 
                     <div className="space-y-2">
-                      <label className="block text-xs font-medium text-zinc-600 px-1">Or paste image URL</label>
+                      <div className="flex items-center justify-between px-1">
+                        <label className="block text-xs font-medium text-zinc-600">Or paste image URL</label>
+                        {design.backgroundImageUrl && (
+                          <button onClick={() => updateDesignField("backgroundImageUrl", null)} className="text-[10px] font-medium text-red-500 hover:text-red-700 transition-colors">
+                            Remove Background
+                          </button>
+                        )}
+                      </div>
                       <input
                         type="text"
                         placeholder="https://example.com/bg.jpg"
@@ -1714,33 +1722,49 @@ export default function TemplateEditor({
                       />
                     </div>
 
-                    {design.backgroundImageUrl && (
-                      <button onClick={() => updateDesignField("backgroundImageUrl", null)} className="text-sm font-medium text-red-600 w-full text-center hover:bg-red-50 py-2 rounded-lg transition-colors border border-transparent hover:border-red-100">
-                        Remove Background
-                      </button>
-                    )}
+                    <div className="pt-2">
+                      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        {PRESET_CATEGORIES.map((category, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setActiveBgCategory(idx)}
+                            className={`px-3 py-1.5 text-xs font-semibold whitespace-nowrap rounded-lg transition-colors border ${
+                              activeBgCategory === idx 
+                                ? 'bg-zinc-900 text-white border-zinc-900 shadow-sm' 
+                                : 'bg-white text-zinc-500 border-zinc-200 hover:bg-zinc-50 hover:text-zinc-800'
+                            }`}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              {category.orientation === 'portrait' ? <span className="w-1.5 h-2.5 border border-current rounded-[1px] opacity-70"></span> : <span className="w-2.5 h-1.5 border border-current rounded-[1px] opacity-70"></span>}
+                              {category.name}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
 
-
-                    <div className="pt-2 border-t border-zinc-200 space-y-6 pb-20">
-                      {PRESET_CATEGORIES.map((category, idx) => (
-                        <div key={idx} className="space-y-3">
-                          <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
-                            {category.orientation === 'portrait' ? <span className="w-1.5 h-2.5 border border-current rounded-[1px] opacity-70"></span> : <span className="w-2.5 h-1.5 border border-current rounded-[1px] opacity-70"></span>}
-                            {category.name}
-                          </h4>
-                          <div className="grid grid-cols-3 gap-2">
-                            {category.items.map((bg) => (
+                  <div className="flex-1 overflow-y-auto p-6 pt-4 pb-20 bg-zinc-50/30">
+                    <div className="grid grid-cols-3 gap-2">
+                      <AnimatePresence mode="wait">
+                        <motion.div 
+                          key={activeBgCategory}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -5 }}
+                          transition={{ duration: 0.15 }}
+                          className="col-span-3 grid grid-cols-3 gap-2"
+                        >
+                          {PRESET_CATEGORIES[activeBgCategory]?.items.map((bg) => (
                               <button
                                 key={bg.id}
                                 onClick={() => {
-                                  if (design.orientation !== category.orientation) {
-                                    // First trigger orientation change which will flip coords
-                                    handleOrientationChange(category.orientation);
+                                  if (design.orientation !== PRESET_CATEGORIES[activeBgCategory].orientation) {
+                                    handleOrientationChange(PRESET_CATEGORIES[activeBgCategory].orientation);
                                   }
-                                  // Then apply background
-                                  setTimeout(() => applyDesignUpdate({ ...design, orientation: category.orientation, backgroundImageUrl: bg.url }), 50);
+                                  setTimeout(() => applyDesignUpdate({ ...design, orientation: PRESET_CATEGORIES[activeBgCategory].orientation, backgroundImageUrl: bg.url }), 50);
                                 }}
-                                className={`relative ${category.orientation === 'portrait' ? 'aspect-[3/4]' : 'aspect-[4/3]'} rounded-lg overflow-hidden border-2 transition-all ${design.backgroundImageUrl === bg.url ? 'border-zinc-900 shadow-md scale-[1.02]' : 'border-transparent hover:border-zinc-300 hover:scale-[1.02]'}`}
+                                className={`relative ${PRESET_CATEGORIES[activeBgCategory].orientation === 'portrait' ? 'aspect-[3/4]' : 'aspect-[4/3]'} rounded-lg overflow-hidden border-2 transition-all ${design.backgroundImageUrl === bg.url ? 'border-zinc-900 shadow-md scale-[1.02]' : 'border-transparent hover:border-zinc-300 hover:scale-[1.02]'}`}
                                 title={bg.name}
                               >
                                 <img src={bg.url} alt={bg.name} className="absolute inset-0 w-full h-full object-cover" />
@@ -1749,11 +1773,10 @@ export default function TemplateEditor({
                                 </div>
                               </button>
                             ))}
-                          </div>
-                        </div>
-                      ))}
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
                     </div>
-                  </div>
                 </motion.div>
               ) : activeTab === "presets" ? (
                 <motion.div
