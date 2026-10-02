@@ -2406,6 +2406,8 @@ export default function TemplateEditor({
               )}
           </div>
 
+        </div>
+
         {/* Right: Live Canvas Builder */}
         <div className="flex-1 flex flex-col min-h-0 bg-zinc-50 border border-zinc-200 rounded-xl overflow-hidden shadow-sm relative">
 
@@ -2613,8 +2615,7 @@ export default function TemplateEditor({
         </div>
       </div>
     </div>
-      </div>
-  );
+        );
 }
 
 function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElementId, updateSelectedElement, updateElement, setActiveGuides, currentOrientation, scale, dummyQrCode, isPanMode }: any) {
