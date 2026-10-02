@@ -1638,11 +1638,11 @@ export default function TemplateEditor({
                         <span className="text-xs font-medium">Data Field</span>
                       </button>
                       <button onClick={() => addElement("signature", "Signatory Name|Title Here")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
-                        <Type size={24} />
+                        <Stamp size={24} />
                         <span className="text-xs font-medium">Signature</span>
                       </button>
                       <button onClick={() => addElement("badge")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
-                        <Stamp size={24} />
+                        <ShieldCheck size={24} />
                         <span className="text-xs font-medium">Badge</span>
                       </button>
                       <button onClick={() => addElement("image")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
@@ -1650,7 +1650,7 @@ export default function TemplateEditor({
                         <span className="text-xs font-medium">Image</span>
                       </button>
                       <button onClick={() => addElement("shape")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white">
-                        <Move size={24} />
+                        <Minus size={24} />
                         <span className="text-xs font-medium">Divider</span>
                       </button>
                       <button onClick={() => addElement("qrCode")} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-zinc-200 hover:border-indigo-300 hover:bg-indigo-50 text-zinc-600 hover:text-indigo-600 transition-colors bg-white col-span-2">
@@ -1791,7 +1791,7 @@ export default function TemplateEditor({
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                              {selectedElement.type.includes("Text") ? <Type size={18} /> : selectedElement.type === "signature" ? <Stamp size={18} /> : selectedElement.type === "shape" ? <Minus size={18} /> : selectedElement.type === "qrCode" ? <QrCode size={18} /> : <ImageIcon size={18} />}
+                              {selectedElement.type.includes("Text") ? <Type size={18} /> : selectedElement.type === "signature" ? <Stamp size={18} /> : selectedElement.type === "badge" ? <ShieldCheck size={18} /> : selectedElement.type === "shape" ? <Minus size={18} /> : selectedElement.type === "qrCode" ? <QrCode size={18} /> : <ImageIcon size={18} />}
                             </div>
                             <div>
                               <h4 className="text-base font-semibold text-zinc-900 capitalize leading-tight">{selectedElement.type.replace(/([A-Z])/g, ' $1').trim()}</h4>
