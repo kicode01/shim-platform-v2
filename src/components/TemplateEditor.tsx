@@ -1018,7 +1018,7 @@ export default function TemplateEditor({
 }: TemplateEditorProps) {
   const router = useRouter();
   const [activeSigTab, setActiveSigTab] = useState<'name' | 'line' | 'title'>('name');
-  const [activePropTab, setActivePropTab] = useState<'content' | 'style' | 'layout'>('content');
+  const [activePropTab, setActivePropTab] = useState<string>('content');
 
   const defaultDesign: CertificateDesignConfig = {
     canvasElements: []
@@ -1225,18 +1225,21 @@ export default function TemplateEditor({
   // Canvas State
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
-  // Auto-switch to builder (Settings) tab when an element is selected
+    const prevSelectedIdRef = useRef<string | null>(null);
+  
+  // Auto-switch to builder (Settings) tab when a NEW element is selected
   useEffect(() => {
-    if (selectedElementId) {
+    if (selectedElementId && selectedElementId !== prevSelectedIdRef.current) {
       if (activeTab !== "builder") {
         setPreviousTab(activeTab);
         setActiveTab("builder");
       }
-    } else {
+    } else if (!selectedElementId && prevSelectedIdRef.current) {
       if (activeTab === "builder") {
         setActiveTab(previousTab);
       }
     }
+    prevSelectedIdRef.current = selectedElementId;
   }, [selectedElementId]);
 
   const updateDesignField = (field: keyof CertificateDesignConfig, value: any) => {
@@ -1612,8 +1615,7 @@ export default function TemplateEditor({
         <div className="w-full lg:w-[340px] lg:shrink-0 flex flex-col bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
 
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            <AnimatePresence mode="wait">
+          <div className="flex-1 flex flex-col min-h-0 overflow-x-hidden">
               {/* TAB: Components */}
               {activeTab === "components" ? (
                 <motion.div
@@ -1622,7 +1624,7 @@ export default function TemplateEditor({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-6 p-6"
+                  className="space-y-6 p-6 flex-1 w-full overflow-y-auto"
                 >
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-zinc-800 px-1">Add Design Elements</h3>
@@ -1665,7 +1667,7 @@ export default function TemplateEditor({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-6 p-6"
+                  className="space-y-6 p-6 flex-1 w-full overflow-y-auto"
                 >
                   <div className="space-y-5">
                     <h3 className="text-sm font-semibold text-zinc-800 px-1">Canvas Background</h3>
@@ -1746,7 +1748,7 @@ export default function TemplateEditor({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-6 p-6"
+                  className="space-y-6 p-6 flex-1 w-full overflow-y-auto"
                 >
                   <div className="space-y-4">
                     <h3 className="text-sm font-semibold text-zinc-800 px-1">Starting Templates</h3>
@@ -1772,7 +1774,7 @@ export default function TemplateEditor({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-6 p-6"
+                  className="flex flex-col h-full w-full flex-1 min-h-0"
                 >
 
 
@@ -1782,28 +1784,60 @@ export default function TemplateEditor({
                   
                   {/* Element Properties */}
                   {selectedElement ? (
-                    <div className="bg-white border border-zinc-200 shadow-sm rounded-xl overflow-hidden flex flex-col">
-                      {/* Header */}
-                      <div className="bg-zinc-50 border-b border-zinc-200 p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center">
-                            {selectedElement.type.includes("Text") ? <Type size={14} /> : selectedElement.type === "signature" ? <Stamp size={14} /> : selectedElement.type === "shape" ? <Minus size={14} /> : selectedElement.type === "qrCode" ? <QrCode size={14} /> : <ImageIcon size={14} />}
+                    <div className="flex flex-col h-full relative">
+                        {/* Fixed Header & Tabs Container */}
+                        <div className="bg-white z-20 pt-6 px-6 pb-0 border-b border-zinc-200 shrink-0">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+                              {selectedElement.type.includes("Text") ? <Type size={18} /> : selectedElement.type === "signature" ? <Stamp size={18} /> : selectedElement.type === "shape" ? <Minus size={18} /> : selectedElement.type === "qrCode" ? <QrCode size={18} /> : <ImageIcon size={18} />}
+                            </div>
+                            <div>
+                              <h4 className="text-base font-semibold text-zinc-900 capitalize leading-tight">{selectedElement.type.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                              <p className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mt-0.5">Element Settings</p>
+                            </div>
                           </div>
-                          <h4 className="text-sm font-semibold text-zinc-800 capitalize">{selectedElement.type.replace(/([A-Z])/g, ' $1').trim()}</h4>
+                          <button onClick={deleteSelectedElement} className="text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors p-2 rounded-lg border border-transparent hover:border-red-100" title="Delete Element">
+                            <Trash2 size={18} />
+                          </button>
                         </div>
-                        <button onClick={deleteSelectedElement} className="text-zinc-400 hover:text-red-500 hover:bg-red-50 transition-colors p-1.5 rounded-lg" title="Delete Element">
-                          <Trash2 size={16} />
-                        </button>
+
+                        {/* Global Tabs Navigation */}
+                        <div className="flex gap-4 relative overflow-x-auto no-scrollbar">
+                          <button onClick={() => setActivePropTab('content')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'content' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                            Content
+                            {activePropTab === 'content' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                          </button>
+                          
+                          {selectedElement.type === 'signature' ? (
+                            <>
+                              <button onClick={() => setActivePropTab('signature')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'signature' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                                Fonts
+                                {activePropTab === 'signature' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                              </button>
+                              <button onClick={() => setActivePropTab('divider')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'divider' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                                Divider Line
+                                {activePropTab === 'divider' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                              </button>
+                              
+                            </>
+                          ) : (
+                            <button onClick={() => setActivePropTab('style')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'style' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                              Style
+                              {activePropTab === 'style' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                            </button>
+                          )}
+                          
+                          <button onClick={() => setActivePropTab('layout')} className={`pb-3 text-xs font-semibold whitespace-nowrap transition-colors relative ${activePropTab === 'layout' ? 'text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                            Layout
+                            {activePropTab === 'layout' && <motion.div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-600 z-10" />}
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Global Tabs Navigation */}
-                      <div className="flex bg-zinc-50 border-b border-zinc-200 px-3 pt-3 gap-4">
-                        <button onClick={() => setActivePropTab('content')} className={`pb-2 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-colors ${activePropTab === 'content' ? 'border-indigo-500 text-indigo-700' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}>Content</button>
-                        <button onClick={() => setActivePropTab('style')} className={`pb-2 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-colors ${activePropTab === 'style' ? 'border-indigo-500 text-indigo-700' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}>Style</button>
-                        <button onClick={() => setActivePropTab('layout')} className={`pb-2 text-[10px] font-bold uppercase tracking-wider border-b-2 transition-colors ${activePropTab === 'layout' ? 'border-indigo-500 text-indigo-700' : 'border-transparent text-zinc-400 hover:text-zinc-600'}`}>Layout</button>
-                      </div>
-
-                      <div className="p-4 space-y-5 overflow-y-auto" style={{ maxHeight: "calc(100vh - 250px)" }}>
+                      <div className="flex-1 overflow-y-auto custom-scrollbar">
+                        <div className="space-y-6 p-6 pb-20">
                         
                         {/* ----------------- CONTENT TAB ----------------- */}
                         {activePropTab === 'content' && (
@@ -1905,8 +1939,137 @@ export default function TemplateEditor({
                           </div>
                         )}
 
+                        {/* ----------------- SIGNATURE TAB ----------------- */}
+                        {activePropTab === 'signature' && selectedElement.type === 'signature' && (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="col-span-2">
+                                <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Font Family</label>
+                                <Select
+                                  value={selectedElement.fontFamily || "var(--font-script, cursive)"}
+                                  onChange={(val) => updateSelectedElement({ fontFamily: val })}
+                                  options={[
+                                    { value: "var(--font-script, cursive)", label: "Cursive (Default)" },
+                                    { value: "Great Vibes", label: "Great Vibes" },
+                                    { value: "Dancing Script", label: "Dancing Script" },
+                                    { value: "Pacifico", label: "Pacifico" },
+                                    { value: "Caveat", label: "Caveat" },
+                                    { value: "Inter", label: "Inter (Sans)" },
+                                    { value: "Playfair Display", label: "Playfair (Serif)" }
+                                  ]}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Size (pt)</label>
+                                <FontSizeSelector value={selectedElement.fontSize || 16} onChange={(val) => updateSelectedElement({ fontSize: val })} />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Ink Color</label>
+                                <ColorSelector value={selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ color: val })} />
+                              </div>
+                            
+                              <div className="col-span-2 pt-4 border-t border-zinc-200 mt-2">
+                                <h6 className="text-[10px] font-bold uppercase tracking-widest text-zinc-800 mb-4">Title Font</h6>
+                              </div>
+
+                              <div className="col-span-2">
+                                <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Title Font Family</label>
+                                <Select
+                                  value={selectedElement.titleFontFamily || "var(--font-sans, sans-serif)"}
+                                  onChange={(val) => updateSelectedElement({ titleFontFamily: val })}
+                                  options={[
+                                    { value: "var(--font-sans, sans-serif)", label: "System Sans (Default)" },
+                                    { value: "Arial", label: "Arial" },
+                                    { value: "Inter", label: "Inter" },
+                                    { value: "Playfair Display", label: "Playfair Display" }
+                                  ]}
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
+                                  <span>Scale Multiplier</span>
+                                  <span className="text-zinc-900">{selectedElement.titleFontSize || 0.4}x</span>
+                                </label>
+                                <input 
+                                  type="range" 
+                                  min="0.2" max="1" step="0.05"
+                                  value={selectedElement.titleFontSize || 0.4} 
+                                  onChange={(e) => updateSelectedElement({ titleFontSize: parseFloat(e.target.value) })}
+                                  className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
+                                  <span>Letter Spacing</span>
+                                  <span className="text-zinc-900">{selectedElement.titleLetterSpacing ?? 4}px</span>
+                                </label>
+                                <input 
+                                  type="range" 
+                                  min="0" max="20" step="1"
+                                  value={selectedElement.titleLetterSpacing ?? 4} 
+                                  onChange={(e) => updateSelectedElement({ titleLetterSpacing: parseInt(e.target.value) })}
+                                  className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Title Color</label>
+                                <ColorSelector value={selectedElement.titleColor || selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ titleColor: val })} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ----------------- DIVIDER TAB ----------------- */}
+                        {activePropTab === 'divider' && selectedElement.type === 'signature' && (
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-end border-b border-zinc-200 pb-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-medium text-zinc-500 uppercase">Hide</span>
+                                <button 
+                                  onClick={() => updateSelectedElement({ hideLine: !selectedElement.hideLine })}
+                                  className={`w-7 h-4 rounded-full transition-colors relative ${selectedElement.hideLine ? 'bg-indigo-500' : 'bg-zinc-200'}`}
+                                >
+                                  <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${selectedElement.hideLine ? 'left-[14px]' : 'left-[2px]'}`} />
+                                </button>
+                              </div>
+                            </div>
+                            {!selectedElement.hideLine && (
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                  <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
+                                    <span>Thickness</span>
+                                    <span className="text-zinc-900">{selectedElement.lineThickness || 4}px</span>
+                                  </label>
+                                  <input 
+                                    type="range" 
+                                    min="1" max="10" 
+                                    value={selectedElement.lineThickness || 4} 
+                                    onChange={(e) => updateSelectedElement({ lineThickness: parseInt(e.target.value) })}
+                                    className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Padding</label>
+                                  <input
+                                    type="number"
+                                    value={selectedElement.linePadding ?? 10}
+                                    onChange={(e) => updateSelectedElement({ linePadding: parseInt(e.target.value) || 0 })}
+                                    className="input-field py-1 text-sm w-full"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Line Color</label>
+                                  <ColorSelector value={selectedElement.lineColor || selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ lineColor: val })} />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        
+
                         {/* ----------------- STYLE TAB ----------------- */}
-                        {activePropTab === 'style' && (
+                        {activePropTab === 'style' && selectedElement.type !== 'signature' && (
                           <div className="space-y-6">
                             {/* Typography Group (For Text & Signature) */}
                             {selectedElement.type.includes("Text") && (
@@ -2005,139 +2168,7 @@ export default function TemplateEditor({
                               </div>
                             )}
 
-                            {/* Signature Styling Options */}
-                            {selectedElement.type === "signature" && (
-                              <div className="space-y-6">
-                                {/* Signature Typography */}
-                                <div className="space-y-4">
-                                  <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Signature Font</h5>
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-2">
-                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Font Family</label>
-                                      <Select
-                                        value={selectedElement.fontFamily || "var(--font-script, cursive)"}
-                                        onChange={(val) => updateSelectedElement({ fontFamily: val })}
-                                        options={[
-                                          { value: "var(--font-script, cursive)", label: "Cursive (Default)" },
-                                          { value: "Great Vibes", label: "Great Vibes" },
-                                          { value: "Dancing Script", label: "Dancing Script" },
-                                          { value: "Pacifico", label: "Pacifico" },
-                                          { value: "Caveat", label: "Caveat" },
-                                          { value: "Inter", label: "Inter (Sans)" },
-                                          { value: "Playfair Display", label: "Playfair (Serif)" }
-                                        ]}
-                                      />
-                                    </div>
-                                    <div>
-                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Size (pt)</label>
-                                      <FontSizeSelector value={selectedElement.fontSize || 16} onChange={(val) => updateSelectedElement({ fontSize: val })} />
-                                    </div>
-                                    <div>
-                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Ink Color</label>
-                                      <ColorSelector value={selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ color: val })} />
-                                    </div>
-                                  </div>
-                                </div>
 
-                                {/* Divider Line */}
-                                <div className="space-y-4">
-                                  <div className="flex items-center justify-between border-b border-zinc-200 pb-1">
-                                    <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800">Divider Line</h5>
-                                    <div className="flex items-center gap-1.5">
-                                      <span className="text-[10px] font-medium text-zinc-500 uppercase">Hide</span>
-                                      <button 
-                                        onClick={() => updateSelectedElement({ hideLine: !selectedElement.hideLine })}
-                                        className={`w-7 h-4 rounded-full transition-colors relative ${selectedElement.hideLine ? 'bg-indigo-500' : 'bg-zinc-200'}`}
-                                      >
-                                        <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform ${selectedElement.hideLine ? 'left-[14px]' : 'left-[2px]'}`} />
-                                      </button>
-                                    </div>
-                                  </div>
-                                  {!selectedElement.hideLine && (
-                                    <>
-                                      <div className="grid grid-cols-2 gap-4">
-                                        <div className="col-span-2">
-                                          <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
-                                            <span>Thickness</span>
-                                            <span className="text-zinc-900">{selectedElement.lineThickness || 4}px</span>
-                                          </label>
-                                          <input 
-                                            type="range" 
-                                            min="1" max="10" 
-                                            value={selectedElement.lineThickness || 4} 
-                                            onChange={(e) => updateSelectedElement({ lineThickness: parseInt(e.target.value) })}
-                                            className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Padding</label>
-                                          <input
-                                            type="number"
-                                            value={selectedElement.linePadding ?? 10}
-                                            onChange={(e) => updateSelectedElement({ linePadding: parseInt(e.target.value) || 0 })}
-                                            className="input-field py-1 text-sm w-full"
-                                          />
-                                        </div>
-                                        <div>
-                                          <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Line Color</label>
-                                          <ColorSelector value={selectedElement.lineColor || selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ lineColor: val })} />
-                                        </div>
-                                      </div>
-                                    </>
-                                  )}
-                                </div>
-
-                                {/* Title Styling */}
-                                <div className="space-y-4">
-                                  <h5 className="text-[11px] font-bold uppercase tracking-widest text-zinc-800 border-b border-zinc-200 pb-1">Title Font</h5>
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-2">
-                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Title Font Family</label>
-                                      <Select
-                                        value={selectedElement.titleFontFamily || "var(--font-sans, sans-serif)"}
-                                        onChange={(val) => updateSelectedElement({ titleFontFamily: val })}
-                                        options={[
-                                          { value: "var(--font-sans, sans-serif)", label: "System Sans (Default)" },
-                                          { value: "Arial", label: "Arial" },
-                                          { value: "Inter", label: "Inter" },
-                                          { value: "Playfair Display", label: "Playfair Display" }
-                                        ]}
-                                      />
-                                    </div>
-                                    <div className="col-span-2">
-                                      <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
-                                        <span>Scale Multiplier</span>
-                                        <span className="text-zinc-900">{selectedElement.titleFontSize || 0.4}x</span>
-                                      </label>
-                                      <input 
-                                        type="range" 
-                                        min="0.2" max="1" step="0.05"
-                                        value={selectedElement.titleFontSize || 0.4} 
-                                        onChange={(e) => updateSelectedElement({ titleFontSize: parseFloat(e.target.value) })}
-                                        className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
-                                      />
-                                    </div>
-                                    <div className="col-span-2">
-                                      <label className="flex justify-between text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">
-                                        <span>Letter Spacing</span>
-                                        <span className="text-zinc-900">{selectedElement.titleLetterSpacing ?? 4}px</span>
-                                      </label>
-                                      <input 
-                                        type="range" 
-                                        min="0" max="20" step="1"
-                                        value={selectedElement.titleLetterSpacing ?? 4} 
-                                        onChange={(e) => updateSelectedElement({ titleLetterSpacing: parseInt(e.target.value) })}
-                                        className="w-full h-1 bg-zinc-200 rounded-lg appearance-none cursor-pointer" 
-                                      />
-                                    </div>
-                                    <div className="col-span-2">
-                                      <label className="block text-[10px] font-bold uppercase tracking-wide text-zinc-500 mb-1.5">Title Color</label>
-                                      <ColorSelector value={selectedElement.titleColor || selectedElement.color || "#000000"} onChange={(val) => updateSelectedElement({ titleColor: val })} />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
 
 {/* Color Group */}
                             <div className="space-y-4">
@@ -2293,6 +2324,7 @@ export default function TemplateEditor({
 
                       </div>
                     </div>
+                    </div>
                   ) : (
                     <div className="text-center p-12 border border-dashed border-zinc-300 rounded-xl bg-zinc-50 text-zinc-400 flex flex-col items-center justify-center h-[300px]">
                       <MousePointer2 size={32} className="mb-4 opacity-50" />
@@ -2372,9 +2404,7 @@ export default function TemplateEditor({
                   </div>
                 </motion.div>
               )}
-            </AnimatePresence>
           </div>
-        </div>
 
         {/* Right: Live Canvas Builder */}
         <div className="flex-1 flex flex-col min-h-0 bg-zinc-50 border border-zinc-200 rounded-xl overflow-hidden shadow-sm relative">
@@ -2583,6 +2613,7 @@ export default function TemplateEditor({
         </div>
       </div>
     </div>
+      </div>
   );
 }
 
@@ -2832,7 +2863,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
             )}
           </div>
         ) : el.type === 'signature' ? (
-          <div className="w-full h-full pointer-events-none flex flex-col items-center justify-end">
+          <div className="w-full h-full pointer-events-none flex flex-col items-center justify-end relative">
             {el.src ? (
               <img src={el.src} alt="Signature" style={{ maxWidth: "100%", maxHeight: "70%", objectFit: "contain", marginBottom: `${el.linePadding ?? 10}px` }} />
             ) : (
@@ -2843,7 +2874,7 @@ function CanvasDraggableElement({ el, isSelected, displayText, setSelectedElemen
             {!el.hideLine && (
               <div style={{ width: "100%", borderTop: `${el.lineThickness ?? 4}px solid ${el.lineColor || el.color || "#000000"}`, flexShrink: 0, marginBottom: `${el.linePadding ?? 10}px`, marginTop: `${el.linePadding ?? 10}px` }} />
             )}
-            <div style={{ whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * (el.titleFontSize ?? 0.4)}px`, fontFamily: el.titleFontFamily || "var(--font-sans, sans-serif)", color: el.titleColor || el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: `${el.titleLetterSpacing ?? 4}px` }}>
+            <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", whiteSpace: "nowrap", fontSize: `${(el.fontSize || 60) * (el.titleFontSize ?? 0.4)}px`, fontFamily: el.titleFontFamily || "var(--font-sans, sans-serif)", color: el.titleColor || el.color || "#000000", fontWeight: "bold", textTransform: "uppercase", letterSpacing: `${el.titleLetterSpacing ?? 4}px` }}>
               {el.signatoryTitle ?? (el.text?.split('|')[1] || "Title")}
             </div>
           </div>
