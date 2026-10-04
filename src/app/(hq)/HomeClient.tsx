@@ -13,9 +13,15 @@ import LiveSpecimenCarousel from "@/components/LiveSpecimenCarousel";
 
 export default function HomeClient() {
   return (
-    <div className="flex-1 flex flex-col bg-white min-h-0 overflow-hidden">
-      {/* Modern Hero Section */}
-      <main className="flex-1 relative overflow-y-auto bg-[#0a0a0a] text-zinc-100">
+    <div className="flex-1 flex flex-col bg-white min-h-0">
+      {/* Modern Hero Section.
+          No `overflow-y-auto` here: the root <main data-app-scroll> in
+          layout.tsx is the single scroll container for the whole app. A second
+          scroller nested inside it produced two stacked scrollbars and let the
+          inner one fall back to the unstyled native OS scrollbar. Letting this
+          section grow to its natural height keeps exactly one scrollbar on
+          screen, and it is the correctly themed one. */}
+      <main className="flex-1 relative bg-[#0a0a0a] text-zinc-100">
         
         <section className="max-w-7xl mx-auto px-6 pt-24 pb-24 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">

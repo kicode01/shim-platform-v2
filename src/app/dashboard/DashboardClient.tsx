@@ -139,7 +139,11 @@ export default function DashboardClient({
   };
 
   return (
-    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-8 py-6 min-h-0 overflow-y-auto">
+    <div className="flex-1 flex flex-col max-w-7xl mx-auto w-full px-8 py-6 min-h-0">
+      {/* No `overflow-y-auto` on the wrapper above: the root
+          <main data-app-scroll> in layout.tsx owns scrolling app-wide. Nesting
+          a scroller here produced a second, unstyled native scrollbar stacked
+          beside the themed one. */}
       
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6 shrink-0">
@@ -148,7 +152,7 @@ export default function DashboardClient({
           <p className="text-zinc-500 text-sm font-medium">Manage your event credentials and templates</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="mob-dash-actions flex items-center gap-3">
           <div className="relative">
             <Select
               value={timeframe}
@@ -278,7 +282,7 @@ export default function DashboardClient({
         <div className="xl:col-span-1 bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-full min-h-0">
           <div className="p-6 border-b border-zinc-200 flex justify-between items-center bg-white shrink-0">
             <h2 className="text-lg font-bold text-zinc-700">Recent Events</h2>
-            <Link href="/dashboard/events" className="text-sm font-medium text-zinc-600 hover:text-zinc-700 flex items-center gap-1">
+            <Link href="/dashboard/events" className="mob-link text-sm font-medium text-zinc-600 hover:text-zinc-700 flex items-center gap-1">
               View all <ArrowRight size={16} />
             </Link>
           </div>

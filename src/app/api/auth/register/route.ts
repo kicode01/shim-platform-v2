@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { linkCertificatesToUser } from "@/lib/claim";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, role } = await req.json();
+    const body = await req.json();
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const password = typeof body.password === "string" ? body.password : "";
+    const role = body.role;
 
     if (!email || !password) {
       return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
@@ -11,13 +16,17 @@ export async function POST(req: Request) {
 
     const exists = await prisma.user.findUnique({ where: { email } });
     if (exists) {
-      return NextResponse.json({ message: "User already exists" }, { status: 400 });
+      // 409 lets the client show the "already registered -> sign in" branch.
+      return NextResponse.json(
+        { message: "This email is already registered. Please sign in instead." },
+        { status: 409 }
+      );
     }
 
     // Determine role and membership ID
     const validRole = role === "member" ? "member" : "organizer";
-    const membershipId = validRole === "member" 
-      ? `ATT-M-${Math.floor(10000 + Math.random() * 90000)}` 
+    const membershipId = validRole === "member"
+      ? `ATT-M-${Math.floor(10000 + Math.random() * 90000)}`
       : null;
 
     // Usually hash password here using bcrypt, omitted for dev simplicity
@@ -27,12 +36,22 @@ export async function POST(req: Request) {
         email,
         role: validRole,
         membershipId,
-        image: password // Workaround: store password in image field without db migration
-      }
+        image: password, // Workaround: store password in image field without db migration
+      },
     });
 
-    return NextResponse.json({ message: "User created successfully", user }, { status: 201 });
+    // If certificates were already issued to this email (e.g. from a kiosk
+    // check-in), attach them to the new account's wallet.
+    const claimedCount = await linkCertificatesToUser(user.id, email, {
+      method: "wallet_link_on_signup",
+    });
+
+    return NextResponse.json(
+      { message: "User created successfully", user, claimedCount },
+      { status: 201 }
+    );
   } catch (error) {
+    console.error("Register error:", error);
     return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
   }
 }

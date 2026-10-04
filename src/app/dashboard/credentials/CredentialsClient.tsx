@@ -13,7 +13,8 @@ import {
   Trash2,
   X,
   Loader2,
-  BookOpen
+  BookOpen,
+  Send
 } from "lucide-react";
 
 interface CertificateItem {
@@ -74,6 +75,7 @@ export default function CredentialsClient({
   const [statusFilter, setStatusFilter] = useState("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [toast, setToast] = useState<{message: string, type: 'error' | 'success'} | null>(null);
   const [isTabLoading, setIsTabLoading] = useState(false);
@@ -156,6 +158,24 @@ export default function CredentialsClient({
     }
   };
 
+  const handleResendEmail = async (id: string) => {
+    setResendingId(id);
+    try {
+      const res = await fetch(`/api/certificates/${id}/resend`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || "Email resent.", "success");
+      } else {
+        showToast(data.error || data.message || "Failed to resend email.", "error");
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("Error resending email.", "error");
+    } finally {
+      setResendingId(null);
+    }
+  };
+
   const handleCopyRef = (id: string) => {
     navigator.clipboard.writeText(id);
     setCopiedId(id);
@@ -170,7 +190,7 @@ export default function CredentialsClient({
         <div className="p-6 border-b border-zinc-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             {/* Filter */}
-            <div className="flex bg-zinc-100 rounded-2xl p-1 w-full sm:w-auto">
+            <div className="mob-filter-row flex bg-zinc-100 rounded-2xl p-1 w-full sm:w-auto">
               {["all", "valid", "revoked"].map((filter) => {
                 const isActive = statusFilter === filter;
                 return (
@@ -211,7 +231,7 @@ export default function CredentialsClient({
           </div>
         </div>
 
-        {/* Table Content */}
+        {/* Content: desktop table + mobile card list */}
         <div className="flex-1 flex flex-col min-h-0">
           {certificates.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-12 text-center overflow-y-auto overflow-x-hidden">
@@ -227,130 +247,239 @@ export default function CredentialsClient({
             </div>
           ) : (
             <>
-              <div className="overflow-y-scroll overflow-x-hidden invisible-scrollbar bg-zinc-50 border-b border-zinc-200 shrink-0">
-                <table className="table-modern w-full table-fixed">
-                  <thead>
+              {/* ----- Desktop / tablet: the full table (hidden on phones) ----- */}
+              <div className="hidden lg:flex flex-1 flex-col min-h-0">
+                <div className="overflow-y-auto overflow-x-hidden invisible-scrollbar bg-zinc-50 border-b border-zinc-200 shrink-0">
+                  <table className="table-modern w-full table-fixed">
+                    <thead>
+                      <tr>
+                        <th className="w-[24%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Recipient</th>
+                        <th className="w-[30%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider text-center">Role / Template</th>
+                        <th className="w-[12%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider text-center">Date</th>
+                        <th className="w-[16%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider text-center">Status</th>
+                        <th className="w-[18%] px-4 py-3 text-right !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                  </table>
+                </div>
+                <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 bg-white">
+                  <table className="table-modern w-full table-fixed">
+                    <tbody className="divide-y divide-zinc-100">
+                  {isTabLoading ? (
                     <tr>
-                      <th className="w-[24%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Recipient</th>
-                      <th className="w-[30%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider text-center">Role / Template</th>
-                      <th className="w-[12%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider text-center">Date</th>
-                      <th className="w-[16%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider text-center">Status</th>
-                      <th className="w-[18%] px-4 py-3 text-right !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Actions</th>
+                      <td colSpan={5} className="h-[400px] text-center align-middle">
+                        <div className="flex flex-col items-center justify-center h-full">
+                          <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
+                          <p className="text-zinc-500 font-medium">Loading credentials...</p>
+                        </div>
+                      </td>
                     </tr>
-                  </thead>
-                </table>
+                  ) : certificates.map((cert) => (
+                    <tr key={cert.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white group">
+                      <td className="w-[24%] px-4 py-3 overflow-hidden align-middle">
+                        <div className="flex items-center justify-between">
+                          <div className="min-w-0 pr-4">
+                            <div className="font-semibold text-sm text-zinc-800 mb-0.5 truncate" title={cert.recipientName}>{cert.recipientName}</div>
+                            <div className="text-[13px] text-zinc-500 truncate" title={cert.recipientEmail || "No email"}>{cert.recipientEmail || "No email"}</div>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                            <button onClick={() => handleCopyRef(cert.id)} className="w-7 h-7 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-200/50 transition-colors flex items-center justify-center" title="Copy cryptographic ref">
+                              {copiedId === cert.id ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} />}
+                            </button>
+                            <Link href={`/validate?id=${cert.id}`} target="_blank" className="w-7 h-7 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-200/50 transition-colors flex items-center justify-center" title="Open public view">
+                              <ExternalLink size={14} />
+                            </Link>
+                            {cert.recipientEmail && (
+                              <button
+                                onClick={() => handleResendEmail(cert.id)}
+                                disabled={resendingId === cert.id}
+                                className="w-7 h-7 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-200/50 transition-colors flex items-center justify-center disabled:opacity-50"
+                                title="Resend certificate email"
+                              >
+                                {resendingId === cert.id ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="w-[30%] px-4 py-3 align-middle text-center">
+                        <HoverMarquee 
+                          text={cert.role || "Participant"} 
+                          className="font-medium text-[13px] text-zinc-700 mb-0.5 mx-auto max-w-full" 
+                        />
+                        <HoverMarquee 
+                          text={cert.template?.name || "Standard Template"} 
+                          className="text-[13px] text-zinc-500 mx-auto max-w-full" 
+                        />
+                      </td>
+                      <td className="w-[12%] px-4 py-3 align-middle text-center">
+                        <div className="text-[13px] font-medium text-zinc-600">
+                          {new Date(cert.issueDate).toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                        </div>
+                      </td>
+                      <td className="w-[16%] px-4 py-3">
+                        <div className="flex items-center justify-center h-full">
+                          {cert.status === "valid" ? (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] leading-none font-bold tracking-wider uppercase text-zinc-600 bg-zinc-100 border border-zinc-200/50">
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] shrink-0" />
+                              <span className="-translate-y-[1px]">VALID</span>
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] leading-none font-bold tracking-wider uppercase text-zinc-400 bg-zinc-50 border border-zinc-200/50">
+                              <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                              <span className="-translate-y-[1px]">REVOKED</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="w-[18%] px-4 py-3 text-right">
+                        <div className="flex items-center justify-end h-full">
+                          <div className="inline-flex items-center gap-1">
+                            {confirmDeleteId === cert.id ? (
+                              <div className="flex items-center gap-1 bg-red-50 p-1 rounded-md border border-red-100">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 px-2 shrink-0">
+                                  Sure?
+                                </span>
+                                <button
+                                  onClick={() => handleDeleteCertificate(cert.id)}
+                                  className="w-7 h-7 bg-red-600 rounded text-white hover:bg-red-700 transition-colors flex items-center justify-center shrink-0 shadow-sm"
+                                >
+                                  {updatingId === cert.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} strokeWidth={2.5} />}
+                                </button>
+                                <button
+                                  onClick={() => setConfirmDeleteId(null)}
+                                  className="w-7 h-7 bg-white rounded text-zinc-600 hover:text-zinc-900 border border-zinc-200 hover:bg-zinc-50 transition-colors flex items-center justify-center shrink-0 shadow-sm"
+                                >
+                                  <X size={14} strokeWidth={2.5} />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+
+                                <button
+                                  onClick={() => handleToggleStatus(cert.id, cert.status)}
+                                  disabled={updatingId === cert.id}
+                                  className="w-8 h-8 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition-colors flex items-center justify-center shrink-0"
+                                  title={cert.status === "valid" ? "Revoke Credential" : "Restore Credential"}
+                                >
+                                  {updatingId === cert.id ? <Loader2 size={14} className="animate-spin" /> : cert.status === "valid" ? <Ban size={14} /> : <CheckCircle2 size={14} />}
+                                </button>
+
+                                <button
+                                  onClick={() => setConfirmDeleteId(cert.id)}
+                                  disabled={updatingId === cert.id}
+                                  className="w-8 h-8 rounded-md text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center shrink-0"
+                                  title="Delete permanently"
+                                >
+                                  {updatingId === cert.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
               </div>
-              <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
-                <table className="table-modern w-full table-fixed">
-                  <tbody className="divide-y divide-zinc-100">
+              </div>
+
+              {/* ----- Mobile: stacked cards (hidden on desktop/tablet) ----- */}
+              <div className="lg:hidden flex-1 overflow-y-auto overflow-x-hidden bg-white">
                 {isTabLoading ? (
-                  <tr>
-                    <td colSpan={5} className="h-[400px] text-center align-middle">
-                      <div className="flex flex-col items-center justify-center h-full">
-                        <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
-                        <p className="text-zinc-500 font-medium">Loading credentials...</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : certificates.map((cert) => (
-                  <tr key={cert.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white group">
-                    <td className="w-[24%] px-4 py-3 overflow-hidden align-middle">
-                      <div className="flex items-center justify-between">
-                        <div className="min-w-0 pr-4">
-                          <div className="font-semibold text-sm text-zinc-800 mb-0.5 truncate" title={cert.recipientName}>{cert.recipientName}</div>
+                  <div className="flex flex-col items-center justify-center h-full py-20">
+                    <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
+                    <p className="text-zinc-500 font-medium">Loading credentials...</p>
+                  </div>
+                ) : (
+                  certificates.map((cert) => (
+                    <div key={cert.id} className="border-b border-zinc-100 px-4 py-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-semibold text-sm text-zinc-800 truncate" title={cert.recipientName}>{cert.recipientName}</div>
                           <div className="text-[13px] text-zinc-500 truncate" title={cert.recipientEmail || "No email"}>{cert.recipientEmail || "No email"}</div>
                         </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                          <button onClick={() => handleCopyRef(cert.id)} className="w-7 h-7 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-200/50 transition-colors flex items-center justify-center" title="Copy cryptographic ref">
-                            {copiedId === cert.id ? <Check size={14} strokeWidth={2.5} /> : <Copy size={14} />}
-                          </button>
-                          <Link href={`/validate?id=${cert.id}`} target="_blank" className="w-7 h-7 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-200/50 transition-colors flex items-center justify-center" title="Open public view">
-                            <ExternalLink size={14} />
-                          </Link>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="w-[30%] px-4 py-3 align-middle text-center">
-                      <HoverMarquee 
-                        text={cert.role || "Participant"} 
-                        className="font-medium text-[13px] text-zinc-700 mb-0.5 mx-auto max-w-full" 
-                      />
-                      <HoverMarquee 
-                        text={cert.template?.name || "Standard Template"} 
-                        className="text-[13px] text-zinc-500 mx-auto max-w-full" 
-                      />
-                    </td>
-                    <td className="w-[12%] px-4 py-3 align-middle text-center">
-                      <div className="text-[13px] font-medium text-zinc-600">
-                        {new Date(cert.issueDate).toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" })}
-                      </div>
-                    </td>
-                    <td className="w-[16%] px-4 py-3">
-                      <div className="flex items-center justify-center h-full">
                         {cert.status === "valid" ? (
-                          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] leading-none font-bold tracking-wider uppercase text-zinc-600 bg-zinc-100 border border-zinc-200/50">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] shrink-0" />
+                          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] leading-none font-bold tracking-wider uppercase text-zinc-600 bg-zinc-100 border border-zinc-200/50 shrink-0">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                             <span className="-translate-y-[1px]">VALID</span>
                           </div>
                         ) : (
-                          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] leading-none font-bold tracking-wider uppercase text-zinc-400 bg-zinc-50 border border-zinc-200/50">
+                          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] leading-none font-bold tracking-wider uppercase text-zinc-400 bg-zinc-50 border border-zinc-200/50 shrink-0">
                             <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
                             <span className="-translate-y-[1px]">REVOKED</span>
                           </div>
                         )}
                       </div>
-                    </td>
-                    <td className="w-[18%] px-4 py-3 text-right">
-                      <div className="flex items-center justify-end h-full">
-                        <div className="inline-flex items-center gap-1">
-                          {confirmDeleteId === cert.id ? (
-                            <div className="flex items-center gap-1 bg-red-50 p-1 rounded-md border border-red-100">
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-red-600 px-2 shrink-0">
-                                Sure?
-                              </span>
-                              <button
-                                onClick={() => handleDeleteCertificate(cert.id)}
-                                className="w-7 h-7 bg-red-600 rounded text-white hover:bg-red-700 transition-colors flex items-center justify-center shrink-0 shadow-sm"
-                              >
-                                {updatingId === cert.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} strokeWidth={2.5} />}
-                              </button>
-                              <button
-                                onClick={() => setConfirmDeleteId(null)}
-                                className="w-7 h-7 bg-white rounded text-zinc-600 hover:text-zinc-900 border border-zinc-200 hover:bg-zinc-50 transition-colors flex items-center justify-center shrink-0 shadow-sm"
-                              >
-                                <X size={14} strokeWidth={2.5} />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1">
 
-                              <button
-                                onClick={() => handleToggleStatus(cert.id, cert.status)}
-                                disabled={updatingId === cert.id}
-                                className="w-8 h-8 rounded-md text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 transition-colors flex items-center justify-center shrink-0"
-                                title={cert.status === "valid" ? "Revoke Credential" : "Restore Credential"}
-                              >
-                                {updatingId === cert.id ? <Loader2 size={14} className="animate-spin" /> : cert.status === "valid" ? <Ban size={14} /> : <CheckCircle2 size={14} />}
-                              </button>
-
-                              <button
-                                onClick={() => setConfirmDeleteId(cert.id)}
-                                disabled={updatingId === cert.id}
-                                className="w-8 h-8 rounded-md text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center shrink-0"
-                                title="Delete permanently"
-                              >
-                                {updatingId === cert.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[13px] min-w-0">
+                        <span className="font-medium text-zinc-700 truncate">{cert.role || "Participant"}</span>
+                        <span className="text-zinc-300">·</span>
+                        <span className="text-zinc-500 truncate">{cert.template?.name || "Standard Template"}</span>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </div>
+                      <div className="mt-0.5 text-[12px] text-zinc-400">
+                        {new Date(cert.issueDate).toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" })}
+                      </div>
+
+                      <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        <button onClick={() => handleCopyRef(cert.id)} className="mob-card-action w-11 h-11 rounded-md text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-colors flex items-center justify-center shrink-0" title="Copy cryptographic ref">
+                          {copiedId === cert.id ? <Check size={16} strokeWidth={2.5} /> : <Copy size={16} />}
+                        </button>
+                        <Link href={`/validate?id=${cert.id}`} target="_blank" className="mob-card-action w-11 h-11 rounded-md text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-colors flex items-center justify-center shrink-0" title="Open public view">
+                          <ExternalLink size={16} />
+                        </Link>
+                        {cert.recipientEmail && (
+                          <button
+                            onClick={() => handleResendEmail(cert.id)}
+                            disabled={resendingId === cert.id}
+                            className="mob-card-action w-11 h-11 rounded-md text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 transition-colors flex items-center justify-center shrink-0 disabled:opacity-50"
+                            title="Resend certificate email"
+                          >
+                            {resendingId === cert.id ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                          </button>
+                        )}
+                        <div className="flex-1 min-w-[8px]" />
+                        {confirmDeleteId === cert.id ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleDeleteCertificate(cert.id)}
+                              className="mob-card-action h-11 px-3 rounded-md bg-red-600 text-white text-xs font-semibold flex items-center justify-center shrink-0"
+                            >
+                              {updatingId === cert.id ? <Loader2 size={16} className="animate-spin" /> : "Delete"}
+                            </button>
+                            <button
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="mob-card-action h-11 px-3 rounded-md border border-zinc-200 text-zinc-600 text-xs font-medium flex items-center justify-center shrink-0"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleToggleStatus(cert.id, cert.status)}
+                              disabled={updatingId === cert.id}
+                              className="mob-card-action h-11 px-3 rounded-md bg-zinc-100 text-zinc-700 hover:bg-zinc-200 text-xs font-medium flex items-center justify-center shrink-0"
+                              title={cert.status === "valid" ? "Revoke Credential" : "Restore Credential"}
+                            >
+                              {updatingId === cert.id ? <Loader2 size={16} className="animate-spin" /> : cert.status === "valid" ? "Revoke" : "Restore"}
+                            </button>
+                            <button
+                              onClick={() => setConfirmDeleteId(cert.id)}
+                              disabled={updatingId === cert.id}
+                              className="mob-card-action w-11 h-11 rounded-md text-zinc-600 hover:text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center shrink-0"
+                              title="Delete permanently"
+                            >
+                              {updatingId === cert.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </>
           )}
         </div>

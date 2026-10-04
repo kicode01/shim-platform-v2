@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2, Mail, ArrowRight, QrCode } from "lucide-react";
 import Link from "next/link";
 
 interface AttendClientProps {
@@ -14,13 +13,15 @@ interface AttendClientProps {
   };
 }
 
+type Result =
+  | { kind: "deferred"; accountExists: boolean; emailSent: boolean }
+  | { kind: "certificate"; certificateId: string; accountExists: boolean; emailSent: boolean };
+
 export default function AttendClient({ event }: AttendClientProps) {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [certificateId, setCertificateId] = useState<string | null>(null);
+  const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,15 +48,18 @@ export default function AttendClient({ event }: AttendClientProps) {
       }
 
       if (data.certificateId) {
-        // Automated issuance: certificate was created
-        setCertificateId(data.certificateId);
-        // Redirect after a short delay so they see the success message
-        setTimeout(() => {
-          router.push(`/validate?id=${data.certificateId}`);
-        }, 1500);
+        setResult({
+          kind: "certificate",
+          certificateId: data.certificateId,
+          accountExists: Boolean(data.accountExists),
+          emailSent: Boolean(data.emailSent),
+        });
       } else {
-        // Deferred issuance: just added to attendance list
-        setSuccess(true);
+        setResult({
+          kind: "deferred",
+          accountExists: Boolean(data.accountExists),
+          emailSent: Boolean(data.emailSent),
+        });
       }
     } catch (err: any) {
       setError(err.message);
@@ -63,6 +67,10 @@ export default function AttendClient({ event }: AttendClientProps) {
       setIsSubmitting(false);
     }
   };
+
+  const claimEmail = encodeURIComponent(email);
+  const signupHref = `/register?email=${claimEmail}${result?.kind === "certificate" ? `&claim=${result.certificateId}` : ""}`;
+  const loginHref = `/login?email=${claimEmail}${result?.kind === "certificate" ? `&claim=${result.certificateId}` : ""}`;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white text-zinc-950 overflow-y-auto font-sans">
@@ -89,18 +97,135 @@ export default function AttendClient({ event }: AttendClientProps) {
         </div>
 
         <div className="flex-1 flex flex-col justify-between">
-          {success ? (
-            <div className="text-center animate-fade-in py-16 flex flex-col items-center justify-center h-full">
-              <h2 className="text-4xl md:text-5xl font-black mb-4 text-zinc-800 tracking-tight">Checked In!</h2>
-              <p className="text-zinc-500 text-xl md:text-2xl max-w-md mx-auto">
-                Your digital certificate will be issued by the organizers soon.
+          {result?.kind === "deferred" ? (
+            <div className="animate-fade-in py-10 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-11 h-11 rounded-full bg-green-50 border border-green-200 flex items-center justify-center shrink-0">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-black text-zinc-800 tracking-tight leading-none">
+                    You're checked in
+                  </h2>
+                  <p className="text-zinc-500 font-medium mt-1">Thanks for attending {event.name}.</p>
+                </div>
+              </div>
+
+              <div className="border border-zinc-200 rounded-xl p-5 mb-6 bg-zinc-50">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-zinc-500 shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    {result.emailSent ? (
+                      <>
+                        <p className="text-zinc-800 font-semibold mb-1">Check your inbox</p>
+                        <p className="text-zinc-500">
+                          We sent a confirmation to <span className="font-medium text-zinc-700">{email}</span>.
+                          Your certificate will be emailed to you by the organizers once it's issued.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-zinc-800 font-semibold mb-1">You're on the list</p>
+                        <p className="text-zinc-500">
+                          Your certificate will be issued by the organizers soon and emailed to{" "}
+                          <span className="font-medium text-zinc-700">{email}</span>.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {result.accountExists ? (
+                  <Link
+                    href={loginHref}
+                    className="w-full py-4 px-6 bg-zinc-800 text-white font-bold text-lg rounded-xl hover:bg-zinc-700 transition-colors flex items-center justify-center gap-3"
+                  >
+                    Sign in to see it in your wallet <ArrowRight className="w-5 h-5" />
+                  </Link>
+                ) : (
+                  <Link
+                    href={signupHref}
+                    className="w-full py-4 px-6 bg-zinc-800 text-white font-bold text-lg rounded-xl hover:bg-zinc-700 transition-colors flex items-center justify-center gap-3"
+                  >
+                    Create an account to keep it <ArrowRight className="w-5 h-5" />
+                  </Link>
+                )}
+              </div>
+
+              <p className="text-xs text-zinc-400 mt-6 text-center leading-relaxed">
+                {result.accountExists
+                  ? "Your certificate will drop straight into your existing account."
+                  : `Use ${email} to create your account and the certificate will land in your wallet the moment it's issued.`}
               </p>
             </div>
-          ) : certificateId ? (
-            <div className="text-center animate-fade-in py-16 flex flex-col items-center justify-center h-full">
-              <h2 className="text-4xl md:text-5xl font-black mb-4 text-zinc-800 tracking-tight">Certificate Minted!</h2>
-              <p className="text-zinc-500 text-xl md:text-2xl max-w-md mx-auto flex items-center justify-center gap-3">
-                <Loader2 className="w-6 h-6 animate-spin text-zinc-800" /> Redirecting to your vault...
+          ) : result?.kind === "certificate" ? (
+            <div className="animate-fade-in py-10 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-11 h-11 rounded-full bg-green-50 border border-green-200 flex items-center justify-center shrink-0">
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-black text-zinc-800 tracking-tight leading-none">
+                    You're checked in
+                  </h2>
+                  <p className="text-zinc-500 font-medium mt-1">Certificate issued for {name}.</p>
+                </div>
+              </div>
+
+              <div className="border border-zinc-200 rounded-xl p-5 mb-6 bg-zinc-50">
+                <div className="flex items-start gap-3">
+                  <Mail className="w-5 h-5 text-zinc-500 shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    {result.emailSent ? (
+                      <>
+                        <p className="text-zinc-800 font-semibold mb-1">We emailed your certificate</p>
+                        <p className="text-zinc-500">
+                          Sent to <span className="font-medium text-zinc-700">{email}</span>. Follow the link in that email to view, download, or save it.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-zinc-800 font-semibold mb-1">Certificate ready</p>
+                        <p className="text-zinc-500">
+                          We couldn't send the email just now, but you can open your certificate directly below.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Link
+                  href={`/validate?id=${result.certificateId}`}
+                  className="w-full py-4 px-6 bg-zinc-800 text-white font-bold text-lg rounded-xl hover:bg-zinc-700 transition-colors flex items-center justify-center gap-3"
+                >
+                  View certificate now <ArrowRight className="w-5 h-5" />
+                </Link>
+
+                {result.accountExists ? (
+                  <Link
+                    href={loginHref}
+                    className="w-full py-4 px-6 bg-white text-zinc-800 border-2 border-zinc-200 font-bold text-lg rounded-xl hover:border-zinc-400 transition-colors flex items-center justify-center gap-3"
+                  >
+                    Sign in to see it in your wallet
+                  </Link>
+                ) : (
+                  <Link
+                    href={signupHref}
+                    className="w-full py-4 px-6 bg-white text-zinc-800 border-2 border-zinc-200 font-bold text-lg rounded-xl hover:border-zinc-400 transition-colors flex items-center justify-center gap-3"
+                  >
+                    Create an account to keep it <ArrowRight className="w-5 h-5" />
+                  </Link>
+                )}
+              </div>
+
+              <p className="text-xs text-zinc-400 mt-6 text-center leading-relaxed">
+                {result.accountExists
+                  ? "This certificate has already been added to your existing Shim account."
+                  : `Use ${email} to create your account and this certificate will land straight in your wallet.`}
               </p>
             </div>
           ) : (

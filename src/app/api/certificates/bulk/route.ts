@@ -84,6 +84,22 @@ export async function POST(req: Request) {
       });
     }
 
+    // For each recipient that already has a Shim account, drop the certificate
+    // straight into their wallet so it is waiting when they sign in.
+    const { linkCertificatesByEmail } = await import("@/lib/claim");
+    const accountByEmail = new Map<string, boolean>();
+    await Promise.all(
+      certificates
+        .filter(c => c.recipientEmail)
+        .map(async (c) => {
+          const res = await linkCertificatesByEmail(c.recipientEmail, {
+            method: "bulk_issue_link",
+            extraCertificateIds: [c.id],
+          });
+          accountByEmail.set(c.recipientEmail!, res.accountExists);
+        })
+    );
+
     // Dispatch emails concurrently in the background
     const { sendCertificateEmail } = await import("@/lib/email");
     const emailPromises = certificates
@@ -93,15 +109,19 @@ export async function POST(req: Request) {
         recipientName: c.recipientName,
         role: c.role,
         eventName: c.event.name,
-        certificateId: c.id
+        certificateId: c.id,
+        accountExists: accountByEmail.get(c.recipientEmail!) ?? false,
       }).catch(err => console.error("Email failed:", err)));
-    
+
     if (emailPromises.length > 0) {
       Promise.allSettled(emailPromises);
     }
 
     return NextResponse.json({ 
-      certificates,
+      certificates: certificates.map(c => ({
+        ...c,
+        accountExists: c.recipientEmail ? (accountByEmail.get(c.recipientEmail) ?? false) : false,
+      })),
       count: certificates.length,
       message: `Successfully issued ${certificates.length} credentials.`
     }, { status: 201 });

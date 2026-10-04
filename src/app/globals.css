@@ -95,24 +95,110 @@ a {
   text-decoration: none;
 }
 
-/* Custom Brutalist Scrollbar */
+/* ==========================================================================
+   SCROLLBARS
+   --------------------------------------------------------------------------
+   One master scrollbar definition for the whole app.
+
+   CRITICAL — the two styling mechanisms are MUTUALLY EXCLUSIVE, not
+   complementary. Chromium (and Safari) render `::-webkit-scrollbar`
+   pseudo-elements, but since v121 they *ignore those pseudo-elements
+   entirely* if `scrollbar-width` or `scrollbar-color` is also set on the
+   element. Setting both therefore silently discards all custom styling and
+   falls back to the native OS scrollbar — the 15px one with triangle arrow
+   buttons. So:
+
+     - Chromium / Safari  ->  `::-webkit-scrollbar` ONLY (no standard props).
+     - Firefox            ->  standard props ONLY, behind
+                              `@supports not selector(::-webkit-scrollbar)`,
+                              since Firefox doesn't understand the pseudo
+                              elements and would otherwise show default bars.
+
+   Dark surfaces opt in via `[data-surface="dark"]` (set on the root scroller
+   by SurfaceMarker) or the `.dark-scrollbar` utility.
+
+   Colours come from the zinc palette used everywhere else:
+     track  #f4f4f5 (light) / #0f0f0f (dark)
+     thumb  #a1a1aa (light) / #3f3f46 (dark)
+   The light thumb is two steps darker than the zinc-200 border colour: the app
+   paints most panels white or zinc-50, and a lighter thumb vanished into them.
+   ========================================================================== */
+:root {
+  --sb-size: 10px;
+  --sb-track: #f4f4f5;
+  --sb-thumb: #a1a1aa;
+  --sb-thumb-hover: #71717a;
+  --sb-border: #e4e4e7;
+}
+
+/* --- Chromium / Safari: flat themed scrollbar ---------------------------- */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: var(--sb-size, 10px);
+  height: var(--sb-size, 10px);
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
-  border-left: 1px solid var(--border);
+  background: var(--sb-track, #f4f4f5);
+  border-left: 1px solid var(--sb-border, #e4e4e7);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1; /* Slate 300, clear scrollbar indicator */
-  border-radius: 0px;
+  background: var(--sb-thumb, #a1a1aa);
+  border-radius: 0;
+  /* Inset the thumb from the track edge so it reads as a slim rail rather
+     than filling the whole gutter. */
+  border: 2px solid var(--sb-track, #f4f4f5);
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* Slate 400 */
+  background: var(--sb-thumb-hover, #71717a);
+  background-clip: padding-box;
+}
+
+/* Kill the corner box that appears where the two scrollbars meet. */
+::-webkit-scrollbar-corner {
+  background: var(--sb-track, #f4f4f5);
+}
+
+/* --- Dark surfaces ------------------------------------------------------- */
+/* Both the container and its descendants get the dark tokens, so a scroller
+   nested inside a dark page picks them up. NO standard properties here — see
+   the note at the top of this section. */
+[data-surface="dark"],
+[data-surface="dark"] *,
+.dark-scrollbar,
+.dark-scrollbar * {
+  --sb-track: #0f0f0f;
+  --sb-thumb: #3f3f46;
+  --sb-thumb-hover: #52525b;
+  --sb-border: #27272a;
+}
+
+/* --- Light surfaces (explicit) ------------------------------------------- */
+[data-surface="light"],
+[data-surface="light"] * {
+  --sb-track: #f4f4f5;
+  --sb-thumb: #a1a1aa;
+  --sb-thumb-hover: #71717a;
+  --sb-border: #e4e4e7;
+}
+
+/* --- Firefox -------------------------------------------------------------
+   Firefox does not understand ::-webkit-scrollbar, so it needs the standard
+   properties. `@supports not selector(...)` scopes this to engines where the
+   pseudo-element is invalid, keeping Chromium on the custom styling above. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #a1a1aa #f4f4f5;
+  }
+  [data-surface="dark"],
+  [data-surface="dark"] *,
+  .dark-scrollbar,
+  .dark-scrollbar * {
+    scrollbar-color: #3f3f46 #0f0f0f;
+  }
 }
 
 @layer components {
@@ -471,18 +557,56 @@ a {
   cursor: default;
 }
 
-.invisible-scrollbar::-webkit-scrollbar-thumb { background: transparent !important; border: none !important; }
-.invisible-scrollbar::-webkit-scrollbar-track { background: transparent !important; border: none !important; }
-.invisible-scrollbar { scrollbar-color: transparent transparent !important; }
+/* Utility: hide the scrollbar entirely while keeping the element scrollable.
+   Used by horizontal chip/tab strips and sticky table headers where a rail
+   would be visual noise. The standard properties are kept inside a Firefox
+   guard so Chromium still honours the ::-webkit-scrollbar rule below. */
+.invisible-scrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+@supports not selector(::-webkit-scrollbar) {
+  .invisible-scrollbar,
+  .no-scrollbar,
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
 
-textarea::-webkit-scrollbar { width: 8px; height: 8px; }
-textarea::-webkit-scrollbar-track { background: var(--background); border-left: 1px solid var(--border); }
-textarea::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 0px; }
-textarea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; border: none; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+/* Utility: a slimmer rail for small inner panels (dropdown lists, sidebars).
+   Only shrinks the size — colours still come from the surface cascade. */
+.custom-scrollbar,
+.scrollbar-slim {
+  --sb-size: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar,
+.scrollbar-slim::-webkit-scrollbar {
+  width: var(--sb-size);
+  height: var(--sb-size);
+}
+.custom-scrollbar::-webkit-scrollbar-track,
+.scrollbar-slim::-webkit-scrollbar-track {
+  background: transparent;
+  border: none;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.scrollbar-slim::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.scrollbar-slim::-webkit-scrollbar-thumb:hover {
+  background: var(--sb-thumb-hover);
+  background-clip: padding-box;
+}
 
+/* textareas inherit the base theme — no separate styling needed. */
 @keyframes badge-shine {
   from { background-position: 200% center; }
   to { background-position: -200% center; }
@@ -491,7 +615,6 @@ textarea::-webkit-scrollbar-thumb:hover { background: #94a3b8; }.custom-scrollba
 .animate-badge-shine {
   animation: badge-shine 3s infinite linear;
 }
-.no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Hide number input spin buttons */
 input[type="number"]::-webkit-inner-spin-button,
@@ -502,3 +625,71 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* ============================================================================
+   MOBILE-ONLY LAYER
+   ----------------------------------------------------------------------------
+   Every rule below lives inside @media (max-width: 1023.98px). Those selectors
+   CANNOT match at >=1024px, so the desktop rendering is identical *by
+   construction* — there is no per-class "remember to restore it" risk.
+   Helpers referenced here are marker classes added to the markup (e.g.
+   `mob-nav-inner`); a marker alone has no styling outside this block, so it is
+   a no-op on desktop.
+   ========================================================================== */
+@media (max-width: 1023.98px) {
+  /* On phones, `100vh` resolves to the LARGE viewport: taller than the visible
+     area once the browser chrome shows, so bottom content hides behind it.
+     `100dvh` tracks the visible area. (On desktop dvh == vh, so this is safe.) */
+  body.h-screen { height: 100dvh; }
+
+  /* ---- Navbar: keep a 64px bar usable on a 390px screen ---- */
+  .mob-nav-inner { padding-left: 12px; padding-right: 12px; }
+  .mob-nav-spacer { display: none; }
+  .mob-lockup { gap: 8px; }
+  /* Logo: the framer-motion animation pins the landing-mode sigma at 52px,
+     which dwarfs the 18px wordmark and makes the bar feel top-heavy. 32px keeps
+     the S readable while letting "shim" and the right-side CTAs share the row.
+     `!important` overrides framer-motion's inline style (verified via probe). */
+  .mob-logo { width: 32px !important; height: 32px !important; }
+  .mob-wordmark { font-size: 18px !important; }   /* overrides inline fontSize */
+  .mob-suffix { font-size: 13px !important; }
+  /* The tagline is decorative: at 6px on a 390px screen it is unreadable and
+     only eats vertical space. Hide it on mobile; it returns on desktop. */
+  .mob-tagline { display: none !important; }
+
+  .mob-nav-right { gap: 6px; }
+  .mob-divider { display: none !important; }
+  .mob-cta {
+    min-height: 40px;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    font-size: 13px !important;
+    gap: 6px !important;
+  }
+  .mob-avatar { width: 34px !important; height: 34px !important; }
+  .mob-icon-btn { width: 40px !important; height: 40px !important; min-width: 40px; }
+
+  /* Minimum touch-target height for chrome that lives in the header */
+  header a,
+  header button { min-height: 40px; }
+
+  /* ---- App-wide tap targets (buttons only; links keep their inline height)
+     ---- */
+  main button,
+  main a.mob-card-action { min-height: 44px; min-width: 44px; }
+
+  /* The credentials/audit filter rows should WRAP on phones, not scroll
+     invisibly (a hidden-scrollbar scroller is undiscoverable on touch). */
+  .mob-filter-row { flex-wrap: wrap; }
+
+  /* Dashboard header action row: wrap instead of overflowing the 390px bar */
+  .mob-dash-actions { flex-wrap: wrap; }
+  .mob-dash-actions > .w-px { display: none; }
+  .mob-dash-actions .relative:first-child { flex: 1 1 140px; min-width: 0; }
+
+  /* Cards replace the desktop tables; give them comfortable spacing. */
+  .mob-card-action { min-height: 44px; }
+  .mob-link { min-height: 40px; display: inline-flex; align-items: center; }
+}
+
+/* END MOBILE-ONLY LAYER (max-width: 1023.98px) */

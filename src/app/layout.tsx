@@ -3,6 +3,7 @@ import { Inter, Outfit, Cinzel, Cormorant_Garamond, Great_Vibes, Playfair_Displa
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 import Navbar from "@/components/Navbar";
+import SurfaceMarker from "@/components/SurfaceMarker";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -77,7 +78,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex flex-col h-screen w-full overflow-hidden bg-[#0a0a0a]">
         <AuthProvider>
           <Navbar />
-          <main className="flex-1 flex flex-col relative min-h-0 overflow-y-auto">
+          {/* <main> is the app-wide scroll container, so it owns BOTH the page
+              surface and the reserved `scrollbar-gutter`. Two consequences:
+              1. `bg-zinc-50` lives here, not on the pages. A light page that
+                 painted its own surface inside the gutter left an ~8px strip
+                 where <body>'s near-black showed through as a black stripe
+                 down the right edge.
+              2. <SurfaceMarker /> sets `data-surface` from the route, which
+                 drives the scrollbar colours in globals.css, so the dark pages
+                 (/validate, /login, /) get a dark rail and light pages a zinc
+                 one — without either page reaching outside itself. */}
+          <main data-app-scroll data-surface="light" className="flex-1 flex flex-col relative min-h-0 overflow-y-auto bg-zinc-50 [scrollbar-gutter:stable]">
+            <SurfaceMarker />
             {children}
           </main>
         </AuthProvider>

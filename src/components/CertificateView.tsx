@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import QRCode from "qrcode";
 import { QRCodeSVG } from "qrcode.react";
 import { PRESETS } from "@/lib/presets";
+import { fitFontSize } from "@/lib/fit-text";
 
 export type CanvasElementType = "dynamicText" | "staticText" | "image" | "qrCode" | "signature" | "badge" | "shape";
 
@@ -453,7 +454,8 @@ export interface CanvasElement {
   type: CanvasElementType;
   x: number;
   y: number;
-  width: number;
+  /** Box width. Optional: text elements with no fixed width size to content. */
+  width?: number;
   height?: number; // For images/qr
   text?: string; // Static text or dynamic field mapping (e.g. 'recipientName')
   fontSize?: number;
@@ -477,6 +479,12 @@ export interface CanvasElement {
   titleColor?: string;
   titleLetterSpacing?: number;
   locked?: boolean;
+  // Proportional auto-fit: shrink the font so the text stays inside `width`.
+  // `maxFontSize` is the ceiling; when omitted, `fontSize` acts as the ceiling.
+  autoFit?: boolean;
+  maxFontSize?: number;
+  /** Max lines the text may occupy when auto-fitting. Default 1 (never wrap). */
+  maxLines?: number;
 }
 
 export interface CertificateDesignConfig {
@@ -724,6 +732,85 @@ export default function CertificateView({
       }).join('&')}&display=swap`
     : null;
 
+  // Proportional auto-fit: map each element id -> resolved font size so long
+  // text shrinks instead of wrapping and colliding with neighbouring elements.
+  // Runs once fonts are ready so measurement uses the real glyph metrics.
+  const [fitSizes, setFitSizes] = useState<Record<string, number>>({});
+  // Increments each time a font batch finishes loading, so the fit effect
+  // re-runs even after the initial `ready` (late web fonts change metrics).
+  const [fontsReady, setFontsReady] = useState(0);
+
+  useEffect(() => {
+    if (typeof document === "undefined" || !document.fonts) {
+      setFontsReady(1);
+      return;
+    }
+    let cancelled = false;
+    const bump = () => {
+      if (!cancelled) setFontsReady((n) => n + 1);
+    };
+    document.fonts.ready.then(bump);
+    // Web fonts injected by the <link> this component renders can finish AFTER
+    // `ready` resolves. Re-fit whenever any font finishes so long text does not
+    // wrap in the fallback face and then stay wrapped once the real font loads.
+    document.fonts.addEventListener?.("loadingdone", bump);
+    return () => {
+      cancelled = true;
+      document.fonts.removeEventListener?.("loadingdone", bump);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!fontsReady || !parsedDesign.canvasElements) return;
+
+    const next: Record<string, number> = {};
+    parsedDesign.canvasElements.forEach((el) => {
+      if (el.type !== "dynamicText" && el.type !== "staticText") return;
+
+      let content = el.text || "";
+      if (el.type === "dynamicText") {
+        if (el.text === "recipientName") content = recipientName || "Candidate Full Name";
+        else if (el.text === "role") content = role || "Role / Title";
+        else if (el.text === "eventName") content = eventId || "Event Description";
+        else if (el.text === "issueDate") content = formattedDate;
+        else if (el.text === "certificateId") content = certificateId || "SERIAL-NO-PLACEHOLDER";
+      }
+      if (!content) return;
+
+      // Ceiling: explicit maxFontSize, else the authored fontSize.
+      const ceiling = el.maxFontSize ?? el.fontSize ?? 16;
+
+      // Only fit when the author opted in, or the text is clearly at risk of
+      // overflowing its box at the authored size.
+      const measured = fitFontSize(
+        {
+          text: content,
+          fontFamily: el.fontFamily || "var(--font-sans, sans-serif)",
+          fontWeight: el.fontWeight,
+          fontStyle: el.fontStyle,
+          letterSpacing: el.letterSpacing || 0,
+          maxLines: el.autoFit ? el.maxLines ?? 1 : Math.max(1, Math.ceil(content.length / 40)),
+          lineHeight: 1.2,
+        },
+        { width: el.width ?? 0 },
+        ceiling
+      );
+
+      if (measured < ceiling || el.autoFit) {
+        next[el.id] = measured;
+      }
+    });
+    setFitSizes(next);
+  }, [
+    fontsReady,
+    parsedDesign.canvasElements,
+    recipientName,
+    role,
+    eventId,
+    formattedDate,
+    certificateId,
+  ]);
+
   return (
     <>
       {googleFontsUrl && <link href={googleFontsUrl} rel="stylesheet" />}
@@ -870,7 +957,7 @@ export default function CertificateView({
                   top: el.y, 
                   width: el.width,
                   height: el.height,
-                  fontSize: `${el.fontSize || 16}px`,
+                  fontSize: `${fitSizes[el.id] ?? el.fontSize ?? 16}px`,
                   fontFamily: el.fontFamily || "var(--font-sans, sans-serif)",
                   color: el.color || "#000000",
                   textAlign: (el.align as any) || "left",

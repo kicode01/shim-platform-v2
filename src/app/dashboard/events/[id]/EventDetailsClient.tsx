@@ -236,7 +236,7 @@ export default function EventDetailsClient({
               </div>
             ) : (
               <>
-                <div className="overflow-y-scroll overflow-x-hidden invisible-scrollbar bg-white border-b border-zinc-100 shrink-0">
+                <div className="overflow-y-auto overflow-x-hidden invisible-scrollbar bg-white border-b border-zinc-100 shrink-0">
                   <table className="w-full table-fixed text-sm">
                     <thead>
                       <tr>
@@ -248,7 +248,7 @@ export default function EventDetailsClient({
                     </thead>
                   </table>
                 </div>
-                <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
+                <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 bg-white">
                   <table className="w-full table-fixed text-sm">
                     <tbody className="divide-y divide-zinc-100">
                       {filtered.map((att) => (

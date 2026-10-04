@@ -2,19 +2,29 @@
 
 import { signIn, useSession, getSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { LogIn, Mail, Key, ShieldAlert, ArrowLeft, Eye, EyeOff, Loader2, Sparkles, CheckCircle2 } from "lucide-react";
+import { LogIn, Mail, Key, ShieldAlert, ArrowLeft, Eye, EyeOff, Loader2, Sparkles, CheckCircle2, Award } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Pre-fill from an emailed link (?email=...&claim=...) so an attendee who
+  // already has an account can sign in and find their certificate waiting.
+  const claimId = searchParams.get("claim");
+  const registered = searchParams.get("registered");
+  useEffect(() => {
+    const emailFromLink = searchParams.get("email");
+    if (emailFromLink) setEmail(emailFromLink);
+  }, [searchParams]);
 
 
 
@@ -157,6 +167,17 @@ export default function LoginPage() {
                   <p className="text-sm font-medium text-zinc-500 mb-4">Access your organizer dashboard.</p>
                 </div>
 
+                {(claimId || registered) && (
+                  <div className="flex items-start gap-2 p-3 mb-6 text-sm bg-indigo-50 text-indigo-700 rounded-md">
+                    <Award size={16} className="shrink-0 mt-0.5" />
+                    <span>
+                      {claimId
+                        ? "Your certificate is waiting in your wallet. Sign in to see it."
+                        : "Account created. Sign in to open your wallet."}
+                    </span>
+                  </div>
+                )}
+
                 {/* Demo Access Cards */}
                 <div className="flex flex-col gap-3 mb-6">
                   {/* Organizer Demo */}
@@ -249,7 +270,10 @@ export default function LoginPage() {
 
             <div className="text-center mt-6 text-sm text-zinc-500">
                 No account?{" "}
-                <Link href="/register" className="text-zinc-800 font-medium hover:underline ml-1">
+                <Link
+                  href={email ? `/register?email=${encodeURIComponent(email)}${claimId ? `&claim=${claimId}` : ""}` : "/register"}
+                  className="text-zinc-800 font-medium hover:underline ml-1"
+                >
                   Create One
                 </Link>
             </div>

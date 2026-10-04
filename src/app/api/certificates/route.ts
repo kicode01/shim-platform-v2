@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { linkCertificatesByEmail } from "@/lib/claim";
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -116,18 +117,28 @@ export async function POST(req: Request) {
       }
     });
 
+    let accountExists = false;
     if (certificate.recipientEmail) {
+      // If the recipient already has a Shim account, drop the certificate
+      // straight into their wallet so it is waiting when they sign in.
+      const linked = await linkCertificatesByEmail(certificate.recipientEmail, {
+        method: "manual_issue_link",
+        extraCertificateIds: [certificate.id],
+      });
+      accountExists = linked.accountExists;
+
       const { sendCertificateEmail } = await import("@/lib/email");
       await sendCertificateEmail({
         to: certificate.recipientEmail,
         recipientName: certificate.recipientName,
         role: certificate.role,
         eventName: certificate.event.name,
-        certificateId: certificate.id
+        certificateId: certificate.id,
+        accountExists,
       }).catch(err => console.error("Failed to send email silently:", err));
     }
 
-    return NextResponse.json(certificate, { status: 201 });
+    return NextResponse.json({ ...certificate, accountExists }, { status: 201 });
   } catch (error) {
     console.error("Error creating certificate:", error);
     return NextResponse.json({ message: "Error issuing certificate" }, { status: 500 });

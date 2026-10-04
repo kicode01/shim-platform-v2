@@ -82,7 +82,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
         <div className="p-6 border-b border-zinc-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white">
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             {/* Filter */}
-            <div className="flex bg-zinc-100 rounded-lg p-1 w-full sm:w-auto overflow-x-auto scrollbar-hide">
+            <div className="mob-filter-row flex bg-zinc-100 rounded-lg p-1 w-full sm:w-auto overflow-x-auto scrollbar-hide">
               {filters.map((f) => {
                 const isActive = filter === f;
                 return (
@@ -115,7 +115,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
           </div>
         </div>
 
-        {/* Table Content */}
+        {/* Content: desktop table + mobile card list */}
         <div className="flex-1 flex flex-col min-h-0">
           {filteredLogs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-12 text-center overflow-y-auto overflow-x-hidden">
@@ -131,61 +131,87 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
             </div>
           ) : (
             <>
-              <div className="overflow-y-scroll overflow-x-hidden invisible-scrollbar bg-zinc-50 border-b border-zinc-200 shrink-0">
-                <table className="table-modern w-full table-fixed">
-                  <thead>
-                    <tr>
-                      <th className="w-[20%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Time</th>
-                      <th className="w-[25%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Actor</th>
-                      <th className="w-[25%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Action</th>
-                      <th className="w-[30%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Target</th>
-                    </tr>
-                  </thead>
-                </table>
-              </div>
-              <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
-                <table className="table-modern w-full table-fixed">
-                  <tbody className="divide-y divide-zinc-100">
-                    {isPending ? (
+              {/* ----- Desktop / tablet: full table ----- */}
+              <div className="hidden lg:flex flex-1 flex-col min-h-0">
+                <div className="overflow-y-auto overflow-x-hidden invisible-scrollbar bg-zinc-50 border-b border-zinc-200 shrink-0">
+                  <table className="table-modern w-full table-fixed">
+                    <thead>
                       <tr>
-                        <td colSpan={4} className="py-20 text-center">
-                          <div className="flex flex-col items-center justify-center">
-                            <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
-                            <p className="text-zinc-500 font-medium">Loading audit logs...</p>
-                          </div>
-                        </td>
+                        <th className="w-[20%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Time</th>
+                        <th className="w-[25%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Actor</th>
+                        <th className="w-[25%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Action</th>
+                        <th className="w-[30%] px-4 py-3 !border-b-0 text-xs font-medium text-zinc-500 uppercase tracking-wider">Target</th>
                       </tr>
-                    ) : filteredLogs.map((log) => (
-                      <tr key={log.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
-                        <td className="w-[20%] px-4 py-3 overflow-hidden">
-                          <div className="text-sm text-zinc-500 truncate" title={formatDate(log.createdAt)}>
-                            {formatDate(log.createdAt)}
-                          </div>
-                        </td>
-                        <td className="w-[25%] px-4 py-3 overflow-hidden">
-                          <div className="font-medium text-sm text-zinc-700 truncate" title={getActorText(log.action, log.ipAddress)}>
-                            {getActorText(log.action, log.ipAddress)}
-                          </div>
-                        </td>
-                        <td className="w-[25%] px-4 py-3 overflow-hidden">
-                          <div className="text-sm text-zinc-700 truncate" title={getActionText(log.action)}>
-                            {getActionText(log.action)}
-                          </div>
-                        </td>
-                        <td className="w-[30%] px-4 py-3 overflow-hidden">
-                          {log.certificate ? (
-                            <div className="flex flex-col">
-                              <span className="text-zinc-700 font-medium truncate" title={log.certificate.recipientName}>{log.certificate.recipientName}</span>
-                              <span className="text-zinc-500 text-xs truncate" title={log.certificate.event.name}>{log.certificate.event.name}</span>
+                    </thead>
+                  </table>
+                </div>
+                <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 bg-white">
+                  <table className="table-modern w-full table-fixed">
+                    <tbody className="divide-y divide-zinc-100">
+                      {isPending ? (
+                        <tr>
+                          <td colSpan={4} className="py-20 text-center">
+                            <div className="flex flex-col items-center justify-center">
+                              <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
+                              <p className="text-zinc-500 font-medium">Loading audit logs...</p>
                             </div>
-                          ) : (
-                            <span className="text-zinc-400 italic">Unknown Target</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </td>
+                        </tr>
+                      ) : filteredLogs.map((log) => (
+                        <tr key={log.id} className="border-b border-zinc-100 hover:bg-zinc-50 transition-colors bg-white">
+                          <td className="w-[20%] px-4 py-3 overflow-hidden">
+                            <div className="text-sm text-zinc-500 truncate" title={formatDate(log.createdAt)}>
+                              {formatDate(log.createdAt)}
+                            </div>
+                          </td>
+                          <td className="w-[25%] px-4 py-3 overflow-hidden">
+                            <div className="font-medium text-sm text-zinc-700 truncate" title={getActorText(log.action, log.ipAddress)}>
+                              {getActorText(log.action, log.ipAddress)}
+                            </div>
+                          </td>
+                          <td className="w-[25%] px-4 py-3 overflow-hidden">
+                            <div className="text-sm text-zinc-700 truncate" title={getActionText(log.action)}>
+                              {getActionText(log.action)}
+                            </div>
+                          </td>
+                          <td className="w-[30%] px-4 py-3 overflow-hidden">
+                            {log.certificate ? (
+                              <div className="flex flex-col">
+                                <span className="text-zinc-700 font-medium truncate" title={log.certificate.recipientName}>{log.certificate.recipientName}</span>
+                                <span className="text-zinc-500 text-xs truncate" title={log.certificate.event.name}>{log.certificate.event.name}</span>
+                              </div>
+                            ) : (
+                              <span className="text-zinc-400 italic">Unknown Target</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* ----- Mobile: cards ----- */}
+              <div className="lg:hidden flex-1 overflow-y-auto overflow-x-hidden bg-white">
+                {isPending ? (
+                  <div className="flex flex-col items-center justify-center h-full py-20">
+                    <Loader2 className="h-8 w-8 text-zinc-400 animate-spin mb-4" />
+                    <p className="text-zinc-500 font-medium">Loading audit logs...</p>
+                  </div>
+                ) : (
+                  filteredLogs.map((log) => (
+                    <div key={log.id} className="border-b border-zinc-100 px-4 py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm text-zinc-500">{formatDate(log.createdAt)}</div>
+                        <div className="text-[13px] font-medium text-zinc-700 shrink-0">{getActionText(log.action)}</div>
+                      </div>
+                      <div className="mt-1 text-sm text-zinc-700">{getActorText(log.action, log.ipAddress)}</div>
+                      <div className="mt-0.5 text-[13px] text-zinc-500 truncate">
+                        {log.certificate ? `${log.certificate.recipientName} · ${log.certificate.event.name}` : "Unknown Target"}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </>
           )}

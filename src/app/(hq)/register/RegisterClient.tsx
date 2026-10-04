@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { UserPlus, Mail, Key, User, ShieldAlert, ArrowLeft, Eye, EyeOff, Loader2, Sparkles, Zap, CheckCircle2 } from "lucide-react";
+import { UserPlus, Mail, Key, User, ShieldAlert, ArrowLeft, Eye, EyeOff, Loader2, Sparkles, Zap, CheckCircle2, Award } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,11 +16,28 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
+
+  // Pre-fill from an emailed signup link (?email=...&claim=...) so the attendee
+  // only has to choose a password. Default the role to attendee in that case.
+  const claimId = searchParams.get("claim");
+  const emailFromLink = searchParams.get("email");
+  useEffect(() => {
+    if (emailFromLink) {
+      setEmail(emailFromLink);
+      setRole("member");
+    }
+  }, [emailFromLink]);
+
+  const loginHref = email
+    ? `/login?email=${encodeURIComponent(email)}${claimId ? `&claim=${claimId}` : ""}`
+    : "/login";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setAlreadyRegistered(false);
 
     try {
       const res = await fetch("/api/auth/register", {
@@ -29,10 +47,17 @@ export default function RegisterPage() {
       });
 
       if (res.ok) {
-        router.push("/login");
+        // Send them straight to sign-in with the email pre-filled so the
+        // certificate they were emailed is delivered to their new account.
+        router.push(`/login?email=${encodeURIComponent(email)}${claimId ? `&claim=${claimId}` : ""}&registered=1`);
       } else {
         const data = await res.json();
-        setError(data.message || "Failed to register account.");
+        if (res.status === 409 || /already/i.test(data.message || "")) {
+          setAlreadyRegistered(true);
+          setError(data.message || "That email is already registered.");
+        } else {
+          setError(data.message || "Failed to register account.");
+        }
       }
     } catch (err) {
       console.error(err);
@@ -121,7 +146,35 @@ export default function RegisterPage() {
                   <p className="text-sm font-medium text-zinc-500 mb-4">Join the standard in digital credentials.</p>
                 </div>
 
-                {error && (
+                {claimId && (
+                  <div className="flex items-start gap-2 p-3 mb-6 text-sm bg-indigo-50 text-indigo-700 rounded-md">
+                    <Award size={16} className="shrink-0 mt-0.5" />
+                    <span>
+                      Create your account with <strong className="break-all">{emailFromLink || "your email"}</strong> and your certificate will be added to your wallet automatically.
+                    </span>
+                  </div>
+                )}
+
+                {alreadyRegistered && (
+                  <div className="p-4 mb-6 bg-amber-50 border border-amber-200 rounded-md">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 mb-1">
+                      <ShieldAlert size={16} className="shrink-0" />
+                      <span>That email is already registered</span>
+                    </div>
+                    <p className="text-sm text-amber-700 mb-3">
+                      You already have a Shim account with this email
+                      {claimId ? ", and your new certificate has been added to it." : "."} Sign in instead to see your wallet.
+                    </p>
+                    <Link
+                      href={loginHref}
+                      className="inline-flex items-center gap-2 bg-zinc-800 text-white font-medium rounded-md py-2 px-4 text-sm hover:bg-zinc-700 transition-colors"
+                    >
+                      <ArrowLeft size={14} /> Go to sign in
+                    </Link>
+                  </div>
+                )}
+
+                {error && !alreadyRegistered && (
                   <div className="flex items-center gap-2 p-3 mb-6 text-sm bg-red-50 text-red-600 rounded-md">
                     <ShieldAlert size={16} className="shrink-0" />
                     <span>{error}</span>

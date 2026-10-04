@@ -83,7 +83,7 @@ export default function TemplatesListClient({ initialTemplates }: { initialTempl
           </Link>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-scroll overflow-x-hidden min-h-0 pr-2">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 pr-2">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {templates.map(t => {
               let parsedDesign: CertificateDesignConfig = {};

@@ -34,7 +34,7 @@ export default async function TemplatesPage() {
   }));
 
   return (
-    <div className="dashboard-bg" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div className="dashboard-bg" style={{ height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <main className="page-container-wide animate-fade-in" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, paddingBottom: "2rem", paddingTop: "2rem" }}>
         <TemplatesListClient initialTemplates={serializedTemplates} />
       </main>

@@ -100,7 +100,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
               </div>
             ) : (
               <>
-                <div className="overflow-y-scroll overflow-x-hidden invisible-scrollbar bg-white border-b border-zinc-100 shrink-0">
+                <div className="overflow-y-auto overflow-x-hidden invisible-scrollbar bg-white border-b border-zinc-100 shrink-0">
                   <table className="w-full table-fixed text-sm">
                     <thead>
                       <tr className="bg-zinc-50/50">
@@ -112,7 +112,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
                     </thead>
                   </table>
                 </div>
-                <div className="overflow-y-scroll overflow-x-hidden flex-1 min-h-0 bg-white">
+                <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 bg-white">
                   <table className="w-full table-fixed text-sm">
                     <tbody className="divide-y divide-zinc-100">
                       {events.map((evt) => (
@@ -200,7 +200,7 @@ export default function EventsClient({ initialEvents, templates }: EventsClientP
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-zinc-700">Description (Optional)</label>
               <textarea 
-                className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm resize-none overflow-y-scroll min-h-[80px]" 
+                className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-sm text-zinc-700 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-700/10 focus:border-zinc-700 transition-colors shadow-sm resize-none overflow-y-auto min-h-[80px]" 
                 style={{ scrollbarColor: '#cbd5e1 transparent', scrollbarWidth: 'thin' }}
                 value={newEventDesc} 
                 onChange={e => setNewEventDesc(e.target.value)} 
