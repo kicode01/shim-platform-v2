@@ -98,106 +98,136 @@ a {
 /* ==========================================================================
    SCROLLBARS
    --------------------------------------------------------------------------
-   One master scrollbar definition for the whole app.
+   ONE global definition for the whole app. Nothing has to opt in: every
+   scroller on every route inherits it, in every theme.
 
-   CRITICAL — the two styling mechanisms are MUTUALLY EXCLUSIVE, not
-   complementary. Chromium (and Safari) render `::-webkit-scrollbar`
-   pseudo-elements, but since v121 they *ignore those pseudo-elements
-   entirely* if `scrollbar-width` or `scrollbar-color` is also set on the
-   element. Setting both therefore silently discards all custom styling and
-   falls back to the native OS scrollbar — the 15px one with triangle arrow
-   buttons. So:
+   Design rules, in order of importance:
 
-     - Chromium / Safari  ->  `::-webkit-scrollbar` ONLY (no standard props).
-     - Firefox            ->  standard props ONLY, behind
-                              `@supports not selector(::-webkit-scrollbar)`,
-                              since Firefox doesn't understand the pseudo
-                              elements and would otherwise show default bars.
+   1. TRANSPARENT TRACK, THUMB ONLY.
+      The track paints nothing. That is not merely aesthetic — it is what makes
+      a *reserved but unused* gutter invisible, and it is the actual fix for
+      the double-scrollbar bug. <main> carries `scrollbar-gutter: stable` so
+      content never jumps when a scrollbar appears. But on routes where an
+      inner panel is the real scroller (the dashboard, /login, /register,
+      /validate) <main> never overflows, so that reservation was left showing
+      as an empty rail sitting right next to the real scrollbar — two bars,
+      one of them fake. With a transparent track there is nothing to paint, so
+      only a live thumb is ever visible.
 
-   Dark surfaces opt in via `[data-surface="dark"]` (set on the root scroller
-   by SurfaceMarker) or the `.dark-scrollbar` utility.
+      (The other half of the bug was a genuinely nested scroller: the landing
+      page used to have its own `overflow-y-auto` inside <main>. See the note
+      in HomeClient. The rule there — exactly one scroller per column — still
+      stands.)
 
-   Colours come from the zinc palette used everywhere else:
-     track  #f4f4f5 (light) / #0f0f0f (dark)
-     thumb  #a1a1aa (light) / #3f3f46 (dark)
-   The light thumb is two steps darker than the zinc-200 border colour: the app
-   paints most panels white or zinc-50, and a lighter thumb vanished into them.
+   2. THE THUMB FLOATS.
+      A transparent border plus `background-clip: padding-box` insets the thumb
+      within the gutter, so it reads as a slim pill floating over the content
+      rather than a bar filling the channel. `--sb-inset` controls the gap, so
+      a narrower rail can also take a thinner inset.
+
+   3. THEME COMES FROM THE SURFACE, NOT THE OS.
+      This app is light by default — the dashboard and portal stay white even
+      when the OS is dark — so `prefers-color-scheme` is the WRONG source of
+      truth here; it would paint pale thumbs onto white pages. The tokens come
+      from `data-surface` on <main> instead, which SurfaceMarker already
+      derives per route (mapping the OS preference for /login and /register,
+      the only routes that genuinely follow it).
+
+      Custom properties INHERIT, so declaring the tokens on the scroll
+      container is enough — descendants resolve them without a `*` selector.
+      The previous rules used `[data-surface="dark"] *`, which was redundant.
+
+      Overlays portaled to `document.body` (the check-in pass modal in
+      PortalClient, the Select dropdown) sit outside <main> and therefore fall
+      back to the `:root` tokens — which are the light ones, matching the white
+      surfaces those overlays actually paint. That is correct by construction,
+      not by luck: the app is light by default.
+
+   4. TWO MECHANISMS, MUTUALLY EXCLUSIVE.
+      Chromium (and Safari) render `::-webkit-scrollbar` pseudo-elements, but
+      *ignore them entirely* if `scrollbar-width`/`scrollbar-color` is also set
+      on the element — setting both silently discards all custom styling and
+      falls back to the native OS bar, the 15px one with triangle arrow
+      buttons. So the standard properties live behind
+      `@supports not selector(::-webkit-scrollbar)`, which only Firefox
+      matches.
+
+   Helpers: `.scrollbar-hide` / `.no-scrollbar` / `.invisible-scrollbar` (no bar
+   at all) and `.custom-scrollbar` / `.scrollbar-slim` (a narrower rail for
+   small inner panels).
    ========================================================================== */
+/* --- Tokens ---------------------------------------------------------------
+   The alphas are picked so each state lands on a step of the zinc ramp the
+   rest of the app is built from, rather than on arbitrary greys:
+
+     light surface   rest ~ zinc-300   hover ~ zinc-400   active ~ zinc-500
+     dark surface    rest ~ zinc-700   hover ~ zinc-600   active ~ zinc-500
+
+   They are translucent rather than solid so one thumb works over anything it
+   scrolls — white cards, zinc-50 panels, the dark brand panel — with no
+   per-surface colour to maintain. */
 :root {
   --sb-size: 10px;
-  --sb-track: #f4f4f5;
-  --sb-thumb: #a1a1aa;
-  --sb-thumb-hover: #71717a;
-  --sb-border: #e4e4e7;
+  --sb-inset: 2px;
+  --sb-track: transparent;
+  --sb-thumb: rgba(24, 24, 27, 0.2); /* ~ zinc-300 on white */
+  --sb-thumb-hover: rgba(24, 24, 27, 0.34); /* ~ zinc-400 */
+  --sb-thumb-active: rgba(24, 24, 27, 0.48); /* ~ zinc-500 */
 }
 
-/* --- Chromium / Safari: flat themed scrollbar ---------------------------- */
+/* --- Dark surfaces --------------------------------------------------------
+   `main[data-surface="dark"]` is set per route by SurfaceMarker.
+   `.dark-scrollbar` is the escape hatch for a dark element sitting OUTSIDE
+   <main> — e.g. the always-dark brand panel on /login, whose siblings follow
+   the OS theme, so it cannot inherit the right tokens from <main>. */
+main[data-surface="dark"],
+.dark-scrollbar {
+  --sb-thumb: rgba(255, 255, 255, 0.18); /* ~ zinc-700 on #0a0a0a */
+  --sb-thumb-hover: rgba(255, 255, 255, 0.32); /* ~ zinc-600 */
+  --sb-thumb-active: rgba(255, 255, 255, 0.45); /* ~ zinc-500 */
+}
+
+/* --- Chromium / Safari ---------------------------------------------------- */
 ::-webkit-scrollbar {
-  width: var(--sb-size, 10px);
-  height: var(--sb-size, 10px);
+  width: var(--sb-size);
+  height: var(--sb-size);
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--sb-track, #f4f4f5);
-  border-left: 1px solid var(--sb-border, #e4e4e7);
+  background: var(--sb-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--sb-thumb, #a1a1aa);
-  border-radius: 0;
-  /* Inset the thumb from the track edge so it reads as a slim rail rather
-     than filling the whole gutter. */
-  border: 2px solid var(--sb-track, #f4f4f5);
+  background: var(--sb-thumb);
+  border-radius: 9999px;
+  /* The transparent border is what insets the pill — see rule 2 above. */
+  border: var(--sb-inset) solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--sb-thumb-hover, #71717a);
+  background: var(--sb-thumb-hover);
   background-clip: padding-box;
 }
 
-/* Kill the corner box that appears where the two scrollbars meet. */
+::-webkit-scrollbar-thumb:active {
+  background: var(--sb-thumb-active);
+  background-clip: padding-box;
+}
+
+/* Kill the box that appears where the two bars meet. */
 ::-webkit-scrollbar-corner {
-  background: var(--sb-track, #f4f4f5);
-}
-
-/* --- Dark surfaces ------------------------------------------------------- */
-/* Both the container and its descendants get the dark tokens, so a scroller
-   nested inside a dark page picks them up. NO standard properties here — see
-   the note at the top of this section. */
-[data-surface="dark"],
-[data-surface="dark"] *,
-.dark-scrollbar,
-.dark-scrollbar * {
-  --sb-track: #0f0f0f;
-  --sb-thumb: #3f3f46;
-  --sb-thumb-hover: #52525b;
-  --sb-border: #27272a;
-}
-
-/* --- Light surfaces (explicit) ------------------------------------------- */
-[data-surface="light"],
-[data-surface="light"] * {
-  --sb-track: #f4f4f5;
-  --sb-thumb: #a1a1aa;
-  --sb-thumb-hover: #71717a;
-  --sb-border: #e4e4e7;
+  background: transparent;
 }
 
 /* --- Firefox -------------------------------------------------------------
-   Firefox does not understand ::-webkit-scrollbar, so it needs the standard
-   properties. `@supports not selector(...)` scopes this to engines where the
-   pseudo-element is invalid, keeping Chromium on the custom styling above. */
+   Scoped to engines where the pseudo-element is invalid, so Chromium keeps the
+   custom styling above. `scrollbar-color` inherits, so a scroller nested in a
+   dark surface picks the dark tokens up on its own. */
 @supports not selector(::-webkit-scrollbar) {
   * {
     scrollbar-width: thin;
-    scrollbar-color: #a1a1aa #f4f4f5;
-  }
-  [data-surface="dark"],
-  [data-surface="dark"] *,
-  .dark-scrollbar,
-  .dark-scrollbar * {
-    scrollbar-color: #3f3f46 #0f0f0f;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
   }
 }
 
@@ -578,32 +608,13 @@ a {
 }
 
 /* Utility: a slimmer rail for small inner panels (dropdown lists, sidebars).
-   Only shrinks the size — colours still come from the surface cascade. */
+   Overrides only the two size tokens — colour, shape and the inset all still
+   come from the global rules above, so this can never drift out of sync with
+   them. */
 .custom-scrollbar,
 .scrollbar-slim {
   --sb-size: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar,
-.scrollbar-slim::-webkit-scrollbar {
-  width: var(--sb-size);
-  height: var(--sb-size);
-}
-.custom-scrollbar::-webkit-scrollbar-track,
-.scrollbar-slim::-webkit-scrollbar-track {
-  background: transparent;
-  border: none;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb,
-.scrollbar-slim::-webkit-scrollbar-thumb {
-  background: var(--sb-thumb);
-  border-radius: 9999px;
-  border: 1px solid transparent;
-  background-clip: padding-box;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover,
-.scrollbar-slim::-webkit-scrollbar-thumb:hover {
-  background: var(--sb-thumb-hover);
-  background-clip: padding-box;
+  --sb-inset: 1px;
 }
 
 /* textareas inherit the base theme — no separate styling needed. */
@@ -614,6 +625,65 @@ a {
 
 .animate-badge-shine {
   animation: badge-shine 3s infinite linear;
+}
+
+/* ==========================================================================
+   AUTH SHELL — SYSTEM THEME
+   --------------------------------------------------------------------------
+   /login and /register follow the OS / browser light-dark preference. The
+   `dark:` utilities on those screens are resolved by Tailwind's default
+   `media` strategy, but native widgets — the text caret, autofill background,
+   spin buttons and the default form-control palette — are painted by the
+   browser itself and respond only to `color-scheme`. Declaring `light dark`
+   means "I support both; use whichever the user prefers", which is the same
+   signal the `dark:` variants read, so the two can never disagree.
+
+   Scoped to the shell rather than `:root` on purpose: the rest of the app is
+   light-only, and a global `color-scheme` would repaint native controls on
+   screens that have no dark styling to match.
+   ========================================================================== */
+.auth-shell {
+  color-scheme: light dark;
+}
+
+/* --------------------------------------------------------------------------
+   AUTH BRAND PANEL — SHORT-VIEWPORT COMPACTION
+
+   The left panel is PINNED: it is not the scroller, so anything taller than
+   the panel cannot be pushed off-screen and scrolled back — it would just be
+   sliced by the panel edge (which is exactly what the copyright line did at
+   a 1082x534 window).
+
+   The copy measures 537px tall, and the panel only gets `viewport - 64px`
+   (the navbar sits above it), so it stops fitting below roughly a 601px
+   viewport. Below 640px we compact the rhythm instead. 640 rather than 601
+   deliberately leaves headroom for the register variant, whose heading and
+   paragraph wrap differently.
+
+   Height-based, not width-based — this is purely about vertical room. The
+   selectors are scoped under `.auth-shell` so they outrank the Tailwind
+   utilities they override (`py-14`, `text-4xl`, `gap-4`, …) on specificity
+   rather than on source order, which would be fragile.
+   -------------------------------------------------------------------------- */
+@media (max-height: 640px) {
+  .auth-shell .auth-brand-panel {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  .auth-shell .auth-brand-copy h1 {
+    font-size: 1.75rem; /* line-height still comes from `leading-[1.1]` */
+    margin-bottom: 1.25rem;
+  }
+  .auth-shell .auth-brand-copy p {
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+  .auth-shell .auth-brand-copy ul {
+    gap: 0.625rem;
+  }
+  .auth-shell .auth-brand-footer {
+    margin-top: 1.5rem;
+  }
 }
 
 /* Hide number input spin buttons */
@@ -649,10 +719,25 @@ input[type="number"] {
   /* Logo: the framer-motion animation pins the landing-mode sigma at 52px,
      which dwarfs the 18px wordmark and makes the bar feel top-heavy. 32px keeps
      the S readable while letting "shim" and the right-side CTAs share the row.
-     `!important` overrides framer-motion's inline style (verified via probe). */
-  .mob-logo { width: 32px !important; height: 32px !important; }
+     `!important` overrides framer-motion's inline style (verified via probe).
+
+     SCOPED TO LANDING. It used to apply everywhere, which broke every
+     non-landing surface: the wordmark drops to 18px on mobile (from 24px on
+     desktop) but the mark was pinned at 32px, so it stood 14px taller than the
+     text beside it and hung below the baseline. Measured on /validate at 390px:
+     mark 32px (15.5 -> 47.5) against a wordmark line box of 18px
+     (15.5 -> 33.5). On desktop both are 24px, which is what makes the lockup
+     read as one unit.
+
+     Non-landing therefore tracks the wordmark 1:1, exactly as desktop does. */
+  .mob-logo { width: 18px !important; height: 18px !important; }
+  .mob-nav-landing .mob-logo { width: 32px !important; height: 32px !important; }
   .mob-wordmark { font-size: 18px !important; }   /* overrides inline fontSize */
-  .mob-suffix { font-size: 13px !important; }
+  /* The mode suffix must be the SAME size as "shim" — that is what makes the
+     lockup read as one word rather than a word plus a footnote. Desktop already
+     does this (both 24px). 13px broke it on mobile, where the wordmark is 18px:
+     the suffix rendered at 72% and sat visually detached from "shim". */
+  .mob-suffix { font-size: 18px !important; }
   /* The tagline is decorative: at 6px on a 390px screen it is unreadable and
      only eats vertical space. Hide it on mobile; it returns on desktop. */
   .mob-tagline { display: none !important; }
@@ -666,8 +751,17 @@ input[type="number"] {
     font-size: 13px !important;
     gap: 6px !important;
   }
-  .mob-avatar { width: 34px !important; height: 34px !important; }
-  .mob-icon-btn { width: 40px !important; height: 40px !important; min-width: 40px; }
+  /* Every control in the nav row shares ONE height: 32px on desktop, 40px here.
+     It used to be 40 / 34 / 40 — the avatar sat 6px shorter than the VERIFY and
+     logout buttons either side of it. */
+  .mob-avatar { width: 40px !important; height: 40px !important; }
+  /* A touch-target FLOOR, not a fixed size.
+     `width: 40px !important` used to clobber the logout button's confirm
+     state, which expands to `w-[80px]` so the word "Confirm" fits. On a phone
+     the label was squeezed into 40px and clipped mid-word. A min-* floor still
+     yields the same 40x40 target when idle (the idle class is `w-8 h-8` = 32px)
+     but lets the button grow when it needs to. */
+  .mob-icon-btn { min-width: 40px !important; min-height: 40px !important; }
 
   /* Minimum touch-target height for chrome that lives in the header */
   header a,
@@ -690,6 +784,95 @@ input[type="number"] {
   /* Cards replace the desktop tables; give them comfortable spacing. */
   .mob-card-action { min-height: 44px; }
   .mob-link { min-height: 40px; display: inline-flex; align-items: center; }
+
+  /* ---- Release desktop fixed-height panels -------------------------------
+     Several dashboard screens are a chain of `flex-1 min-h-0 overflow-hidden`
+     panels sized to the desktop viewport, with a single inner scroller doing
+     the work. On a phone that chain squeezes its children instead of scrolling
+     them — which clipped the "Recipient Details" heading (and everything under
+     it) on /dashboard/generate. Marking the chain `mob-flow` lets each panel
+     take its natural height so the page scrolls instead.
+
+     No-op on desktop: the class only carries rules inside this media query. */
+  .mob-flow {
+    /* `flex: 0 0 auto` is the load-bearing part. `flex-1` expands to
+       `flex-basis: 0`, and flex-basis WINS over `height` on the main axis — so
+       setting `height: auto` alone left these panels collapsed to zero the
+       moment their parent stopped being viewport-height. That was why the
+       Recipient Details card measured 43px against 197px of content.
+       `basis: auto` hands control back to `height`, which is now `auto`. */
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  /* Companion to `.mob-flow`: when a chain is released, the panel that used to
+     rely on the page being short has to become the scroller itself, otherwise
+     the taller content is simply clipped by whatever ancestor still has
+     `overflow: hidden`. */
+  .mob-scroll-pane {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Stacked headers ---------------------------------------------------
+     Desktop puts a timestamp in a narrow column beside its entry. On a phone
+     that squeezes "Oct 4, 07:16 AM" onto three lines, so stack the pair and
+     let the second line use the full width. */
+  .mob-stack-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
+  }
+  .mob-stack-head > * {
+    white-space: normal !important;
+    width: auto !important;
+  }
+
+  /* ---- Pan-wide tables ---------------------------------------------------
+     A `table-fixed` grid has a minimum width set by its header text plus cell
+     padding. Under that width the columns were silently cut off (the Actions
+     column on /dashboard/events). Let the wrapper pan instead of clip.
+     Horizontal, so it never stacks with the page's vertical scrollbar. */
+  .mob-pan-x {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- Touch targets -----------------------------------------------------
+     Row-level links in list layouts are often only as tall as their text. */
+  .mob-row-link {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
 }
 
 /* END MOBILE-ONLY LAYER (max-width: 1023.98px) */
+
+/* ============================================================================
+   NARROW-PHONE TIER (max-width: 359.98px)
+   ----------------------------------------------------------------------------
+   At 320px the lockup and the right-hand actions together are wider than the
+   bar, and because the nav is `justify-between` the logo collided with the
+   VERIFY button (measured: the right group's edge landed at 317px in a 320px
+   viewport, eating the 12px gutter).
+
+   Trim the CHROME, never the lockup: shrinking the wordmark or the mode suffix
+   would break the 1:1 size relationship they have on desktop, which is exactly
+   what makes "shim.validate" read as one word.
+
+   A separate top-level query rather than a nested one, so the cascade order
+   against the block above is unambiguous. It cannot match at >=360px, so
+   desktop and normal phones are untouched.
+   ========================================================================== */
+@media (max-width: 359.98px) {
+  .mob-nav-inner { padding-left: 8px; padding-right: 8px; }
+  .mob-nav-right { gap: 4px; }
+  /* Drop the whole row to 36px together — trimming only some controls would
+     reintroduce the mixed-height row this tier exists to avoid. */
+  .mob-cta { min-height: 36px !important; padding-left: 8px !important; padding-right: 8px !important; }
+  .mob-avatar { width: 36px !important; height: 36px !important; }
+  .mob-icon-btn { min-width: 36px !important; min-height: 36px !important; }
+}

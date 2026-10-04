@@ -201,7 +201,11 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLogType
                 ) : (
                   filteredLogs.map((log) => (
                     <div key={log.id} className="border-b border-zinc-100 px-4 py-3">
-                      <div className="flex items-center justify-between gap-3">
+                      {/* `mob-stack-head` (mobile only): the action label is
+                          `shrink-0` and long, so on a phone it starved the
+                          timestamp column and wrapped "Oct 4, 07:16 AM" onto
+                          three lines. Stacking gives each its own row. */}
+                      <div className="mob-stack-head flex items-center justify-between gap-3">
                         <div className="text-sm text-zinc-500">{formatDate(log.createdAt)}</div>
                         <div className="text-[13px] font-medium text-zinc-700 shrink-0">{getActionText(log.action)}</div>
                       </div>

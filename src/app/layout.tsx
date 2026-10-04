@@ -78,17 +78,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex flex-col h-screen w-full overflow-hidden bg-[#0a0a0a]">
         <AuthProvider>
           <Navbar />
-          {/* <main> is the app-wide scroll container, so it owns BOTH the page
-              surface and the reserved `scrollbar-gutter`. Two consequences:
-              1. `bg-zinc-50` lives here, not on the pages. A light page that
-                 painted its own surface inside the gutter left an ~8px strip
-                 where <body>'s near-black showed through as a black stripe
-                 down the right edge.
-              2. <SurfaceMarker /> sets `data-surface` from the route, which
-                 drives the scrollbar colours in globals.css, so the dark pages
-                 (/validate, /login, /) get a dark rail and light pages a zinc
-                 one — without either page reaching outside itself. */}
-          <main data-app-scroll data-surface="light" className="flex-1 flex flex-col relative min-h-0 overflow-y-auto bg-zinc-50 [scrollbar-gutter:stable]">
+          {/* <main> is the app-wide scroll container, so it owns the page
+              surface.
+
+              NO `scrollbar-gutter: stable` here. It used to be set, to stop
+              content jumping when a scrollbar appeared — but it reserves the
+              gutter on EVERY route, including the ones where <main> never
+              overflows because an inner panel is the real scroller (the
+              dashboard, /login, /register, /validate). On those routes the
+              reservation showed up as an empty rail sitting immediately next
+              to the genuine scrollbar: the "double scrollbar". A scrollbar
+              gutter must live on the element that actually scrolls, so there
+              is no way to have it here without paying that cost everywhere.
+
+              Dropping it also removes the reason `bg-zinc-50` had to live on
+              <main> in the first place: an unpainted gutter used to let
+              <body>'s near-black show through as a stripe down the right edge.
+              With no gutter there is nothing to paint. The surface colour stays
+              here anyway so light pages don't each have to declare one.
+
+              <SurfaceMarker /> still sets `data-surface` from the route, which
+              drives the scrollbar thumb tokens in globals.css — so the dark
+              pages (/validate, /login, /) get a light thumb and light pages a
+              dark one, without either page reaching outside itself. */}
+          <main data-app-scroll data-surface="light" className="flex-1 flex flex-col relative min-h-0 overflow-y-auto bg-zinc-50">
             <SurfaceMarker />
             {children}
           </main>

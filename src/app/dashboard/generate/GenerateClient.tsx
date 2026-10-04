@@ -489,18 +489,25 @@ function GenerateCertificatesContent() {
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 overflow-hidden min-h-0 flex flex-col">
+        {/* Main Content Area.
+            `mob-scroll-pane` (mobile only): the desktop layout relies on the
+            page being short and lets an inner panel scroll. Once the panels
+            below are released with `mob-flow` they grow past this box, so this
+            is the element that has to become the scroller on a phone. */}
+        <div className="mob-scroll-pane flex-1 overflow-hidden min-h-0 flex flex-col">
 
           {/* ================= MODE 1: SINGLE CERTIFICATE QUICK ISSUE ================= */}
           {mode === "single" && (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 items-stretch h-full">
+            <div className="mob-flow grid grid-cols-1 xl:grid-cols-2 gap-4 xl:gap-8 items-stretch h-full">
               
-              {/* Left Column (Template Selector & Form) */}
-              <div className="flex flex-col gap-8 h-full min-h-0 pr-4">
+              {/* Left Column (Template Selector & Form).
+                  `h-full` here is what squeezed the Recipient Details card on a
+                  phone — the two stacked children shared one viewport-height
+                  column, so the second was clipped mid-heading. */}
+              <div className="mob-flow flex flex-col gap-8 h-full min-h-0 pr-4">
                 {templateSelectorBlock}
 
-                <div className="bg-white border border-zinc-200 rounded-xl flex-1 flex flex-col shadow-sm overflow-hidden min-h-0">
+                  <div className="mob-flow bg-white border border-zinc-200 rounded-xl flex-1 flex flex-col shadow-sm overflow-hidden min-h-0">
                   <div className="border-b border-zinc-100 shrink-0 flex justify-between items-start px-8 py-6">
                     <div>
                       <h3 className="text-xl font-semibold text-zinc-700">Recipient Details</h3>
